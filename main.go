@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 
+	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -12,6 +13,9 @@ import (
 var assets embed.FS
 
 func main() {
+	// Fetch latest ytdlp version
+	ytdlp.GetLatestRelease()
+
 	// Create an instance of the app structure
 	app := NewApp()
 

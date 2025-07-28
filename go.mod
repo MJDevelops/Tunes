@@ -1,4 +1,4 @@
-module Tunes
+module github.com/mjdevelops/tunes
 
 go 1.23.0
 
