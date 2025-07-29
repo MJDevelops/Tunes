@@ -8,6 +8,8 @@ require github.com/wailsapp/wails/v2 v2.10.2
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/ebitengine/oto/v3 v3.3.3 // indirect
+	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
