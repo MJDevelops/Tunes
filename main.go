@@ -14,7 +14,7 @@ var assets embed.FS
 
 func main() {
 	// Fetch latest ytdlp version
-	ytdlp.GetLatestRelease()
+	go ytdlp.GetLatestRelease()
 
 	// Create an instance of the app structure
 	app := NewApp()
