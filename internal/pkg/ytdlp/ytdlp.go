@@ -22,9 +22,14 @@ var platformExecutables = map[string]string{
 	"darwin_arm64":  "yt-dlp_macos",
 }
 
+// The location of the yt-dlp executable
+var ExecPath string
+
 func init() {
-	if os.Getenv("TUNES_ENV") == "development" {
-		binPath = filepath.Join(os.Getenv("GOMOD"), "bin")
+	wd, _ := os.Getwd()
+	binPath = filepath.Join(wd, "bin")
+	if _, err := os.Stat(binPath); os.IsNotExist(err) {
+		os.Mkdir(binPath, 0750)
 	}
 }
 
@@ -38,7 +43,7 @@ func GetLatestRelease() error {
 	res, _ := client.Get(latestBaseUrl)
 	releasePath, _ := res.Location()
 	release := filepath.Base(releasePath.String())
-	location, _ := url.JoinPath(baseUrl, "/download/", release)
+	location, _ := url.JoinPath(baseUrl, "download", release)
 
 	plat := strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
 	executable := platformExecutables[plat]
@@ -47,9 +52,9 @@ func GetLatestRelease() error {
 		return errors.New("unsupported")
 	}
 
-	outPath := filepath.Join(binPath, executable)
+	ExecPath = filepath.Join(binPath, executable)
 
-	out, _ := os.Create(outPath)
+	out, _ := os.Create(ExecPath)
 	defer out.Close()
 
 	downloadPath, _ := url.JoinPath(location, executable)
@@ -64,7 +69,7 @@ func GetLatestRelease() error {
 		return errors.New("couldn't write response data to file")
 	}
 
-	os.Chmod(outPath, 0750)
+	os.Chmod(ExecPath, 0750)
 
 	return nil
 }

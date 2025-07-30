@@ -4,12 +4,13 @@ go 1.23.0
 
 toolchain go1.24.5
 
-require github.com/wailsapp/wails/v2 v2.10.2
+require (
+	github.com/spf13/viper v1.20.1
+	github.com/wailsapp/wails/v2 v2.10.2
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
-	github.com/ebitengine/oto/v3 v3.3.3 // indirect
-	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
@@ -35,7 +36,6 @@ require (
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/spf13/viper v1.20.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.8 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
