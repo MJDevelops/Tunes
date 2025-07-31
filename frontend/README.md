@@ -1,38 +1,23 @@
-# sv
+# Vue 3 + TypeScript + Vite
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue
+3 `<script setup>` SFCs, check out
+the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Creating a project
+## Recommended IDE Setup
 
-If you're seeing this, you've probably already done this step. Congrats!
+- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
-```sh
-# create a new project in the current directory
-npx sv create
+## Type Support For `.vue` Imports in TS
 
-# create a new project in my-app
-npx sv create my-app
-```
+Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type
+by default. In most cases this is fine if you don't really care about component prop types outside of templates.
+However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using
+manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
 
-## Developing
+1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look
+   for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default,
+   Take Over mode will enable itself if the default TypeScript extension is disabled.
+2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).

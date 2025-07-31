@@ -9,6 +9,5 @@
   "author": {
     "name": "MJDevelops",
     "email": "joey.meierkord@gmail.com"
-  },
-  "wailsjsdir": "./frontend/src/lib"
+  }
 }
