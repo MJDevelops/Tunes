@@ -7,11 +7,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"runtime"
-	"strings"
+
+	"github.com/spf13/viper"
 )
 
-func GetLatestRelease() error {
+func fetchLatestRelease() string {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return errors.New("redirect")
@@ -20,11 +20,19 @@ func GetLatestRelease() error {
 
 	res, _ := client.Get(latestBaseUrl)
 	releasePath, _ := res.Location()
-	release := filepath.Base(releasePath.String())
-	location, _ := url.JoinPath(baseUrl, "download", release)
+	return filepath.Base(releasePath.String())
+}
 
-	plat := strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
-	executable := platformExecutables[plat]
+func GetLatestRelease() error {
+	release := fetchLatestRelease()
+
+	if release == viper.GetString(viperYtDlpRelease) {
+		ExecPath = viper.GetString(viperYtDlpPath)
+		return nil
+	}
+
+	location, _ := url.JoinPath(baseUrl, "download", release)
+	executable := platformExecutables[platform]
 
 	if executable == "" {
 		return errors.New("unsupported")
@@ -48,6 +56,10 @@ func GetLatestRelease() error {
 	}
 
 	os.Chmod(ExecPath, 0750)
+
+	viper.Set(viperYtDlpRelease, release)
+	viper.Set(viperYtDlpPath, ExecPath)
+	viper.WriteConfig()
 
 	return nil
 }

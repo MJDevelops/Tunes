@@ -3,6 +3,8 @@ package ytdlp
 import (
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 type YoutubeResource struct {
@@ -11,8 +13,11 @@ type YoutubeResource struct {
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 const latestBaseUrl string = "https://github.com/yt-dlp/yt-dlp/releases/latest"
+const viperYtDlpRelease string = "executables.ytdlp.release"
+const viperYtDlpPath string = "executables.ytdlp.path"
 
 var binPath string
+var platform string
 var platformExecutables = map[string]string{
 	"darwin_amd64":  "yt-dlp_macos",
 	"windows_amd64": "yt-dlp.exe",
@@ -29,4 +34,5 @@ func init() {
 	if _, err := os.Stat(binPath); os.IsNotExist(err) {
 		os.Mkdir(binPath, 0750)
 	}
+	platform = strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
 }
