@@ -12,6 +12,7 @@ import (
 )
 
 func fetchLatestRelease() string {
+	latestBaseUrl, _ := url.JoinPath(baseUrl, "latest")
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return errors.New("redirect")
@@ -23,43 +24,44 @@ func fetchLatestRelease() string {
 	return filepath.Base(releasePath.String())
 }
 
-func GetLatestRelease() error {
+func GetLatestRelease() (*YtDlp, error) {
+	ytdlp := &YtDlp{}
 	release := fetchLatestRelease()
 
 	if release == viper.GetString(viperYtDlpRelease) {
-		ExecPath = viper.GetString(viperYtDlpPath)
-		return nil
+		ytdlp.Bin = viper.GetString(viperYtDlpPath)
+		return ytdlp, nil
 	}
 
-	location, _ := url.JoinPath(baseUrl, "download", release)
 	executable := platformExecutables[platform]
+	location, _ := url.JoinPath(baseUrl, "download", release)
 
 	if executable == "" {
-		return errors.New("unsupported")
+		return nil, errors.New("unsupported")
 	}
 
-	ExecPath = filepath.Join(binPath, executable)
+	ytdlp.Bin = filepath.Join(binPath, executable)
 
-	out, _ := os.Create(ExecPath)
+	out, _ := os.Create(ytdlp.Bin)
 	defer out.Close()
 
 	downloadPath, _ := url.JoinPath(location, executable)
 	res, err := http.Get(downloadPath)
 	if err != nil {
-		return errors.New("request failed")
+		return nil, errors.New("request failed")
 	}
 	defer res.Body.Close()
 
 	_, err = io.Copy(out, res.Body)
 	if err != nil {
-		return errors.New("couldn't write response data to file")
+		return nil, errors.New("couldn't write response data to file")
 	}
 
-	os.Chmod(ExecPath, 0750)
+	os.Chmod(ytdlp.Bin, 0750)
 
 	viper.Set(viperYtDlpRelease, release)
-	viper.Set(viperYtDlpPath, ExecPath)
+	viper.Set(viperYtDlpPath, ytdlp.Bin)
 	viper.WriteConfig()
 
-	return nil
+	return ytdlp, nil
 }

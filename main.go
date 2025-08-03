@@ -18,7 +18,7 @@ func main() {
 	config.Setup()
 
 	// Fetch latest ytdlp version
-	go ytdlp.GetLatestRelease()
+	ytdlp, _ := ytdlp.GetLatestRelease()
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -35,6 +35,7 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
+			ytdlp,
 		},
 	})
 

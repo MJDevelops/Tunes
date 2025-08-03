@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-type YoutubeResource struct {
-	URL string
+type YtDlp struct {
+	// Path for the binary executable
+	Bin string
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
-const latestBaseUrl string = "https://github.com/yt-dlp/yt-dlp/releases/latest"
 const viperYtDlpRelease string = "executables.ytdlp.release"
 const viperYtDlpPath string = "executables.ytdlp.path"
 
@@ -24,9 +24,6 @@ var platformExecutables = map[string]string{
 	"linux_amd64":   "yt-dlp_linux",
 	"darwin_arm64":  "yt-dlp_macos",
 }
-
-// The location of the yt-dlp executable
-var ExecPath string
 
 func init() {
 	wd, _ := os.Getwd()

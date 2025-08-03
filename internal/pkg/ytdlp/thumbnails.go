@@ -5,14 +5,14 @@ import (
 	"regexp"
 )
 
-func (r *YoutubeResource) GetThumbnails() string {
-	cmd := exec.Command(ExecPath, r.URL, "--list-thumbnails", "-q")
+func (r *YtDlp) GetThumbnails(url string) string {
+	cmd := exec.Command(r.Bin, url, "--list-thumbnails", "-q")
 	oBytes, _ := cmd.Output()
 	return string(oBytes)
 }
 
-func (r *YoutubeResource) GetHighDefinitionThumbnail() string {
+func (r *YtDlp) GetHighDefinitionThumbnail(url string) string {
 	line := regexp.MustCompile(`.*1920\s+1080\s+(https?:\/\/\S+)`)
-	out := r.GetThumbnails()
+	out := r.GetThumbnails(url)
 	return line.FindStringSubmatch(out)[1]
 }
