@@ -1,18 +1,46 @@
 package ytdlp
 
 import (
+	"encoding/json"
+	"errors"
 	"os/exec"
-	"regexp"
 )
 
-func (r *YtDlp) GetThumbnails(url string) string {
-	cmd := exec.Command(r.Bin, url, "--list-thumbnails", "-q")
-	oBytes, _ := cmd.Output()
-	return string(oBytes)
+type Thumbnail struct {
+	Url        string      `json:"url"`
+	Height     json.Number `json:"height"`
+	Width      json.Number `json:"width"`
+	Resolution string      `json:"resolution"`
 }
 
-func (r *YtDlp) GetHighDefinitionThumbnail(url string) string {
-	line := regexp.MustCompile(`.*1920\s+1080\s+(https?:\/\/\S+)`)
-	out := r.GetThumbnails(url)
-	return line.FindStringSubmatch(out)[1]
+type ThumbnailJson struct {
+	Thumbnails []Thumbnail `json:"thumbnails"`
+}
+
+func (y *YtDlp) GetThumbnails(url string) (*ThumbnailJson, error) {
+	thJson := &ThumbnailJson{}
+	cmd := exec.Command(y.Bin, url, "--dump-json", "-q")
+	oBytes, _ := cmd.Output()
+
+	if err := json.Unmarshal(oBytes, &thJson); err != nil {
+		return nil, errors.New("couldn't parse json")
+	}
+
+	return thJson, nil
+}
+
+func (y *YtDlp) GetHighDefinitionThumbnail(url string) (string, error) {
+	out, err := y.GetThumbnails(url)
+
+	if err != nil {
+		return "", err
+	}
+
+	for _, thumbnail := range out.Thumbnails {
+		if thumbnail.Resolution == "1920x1080" {
+			return thumbnail.Url, nil
+		}
+	}
+
+	return "", nil
 }
