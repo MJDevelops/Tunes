@@ -20,18 +20,22 @@ type YtDlp struct {
 	ctx context.Context
 }
 
-const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
-const viperYtDlpRelease string = "executables.ytdlp.release"
-const viperYtDlpPath string = "executables.ytdlp.path"
+const (
+	baseUrl           string = "https://github.com/yt-dlp/yt-dlp/releases"
+	viperYtDlpRelease string = "executables.ytdlp.release"
+	viperYtDlpPath    string = "executables.ytdlp.path"
+)
 
-var binPath string
-var platform string
-var platformExecutables = map[string]string{
-	"darwin_amd64":  "yt-dlp_macos",
-	"windows_amd64": "yt-dlp.exe",
-	"linux_amd64":   "yt-dlp_linux",
-	"darwin_arm64":  "yt-dlp_macos",
-}
+var (
+	binPath             string
+	platform            string
+	platformExecutables = map[string]string{
+		"darwin_amd64":  "yt-dlp_macos",
+		"windows_amd64": "yt-dlp.exe",
+		"linux_amd64":   "yt-dlp_linux",
+		"darwin_arm64":  "yt-dlp_macos",
+	}
+)
 
 func init() {
 	wd, _ := os.Getwd()
