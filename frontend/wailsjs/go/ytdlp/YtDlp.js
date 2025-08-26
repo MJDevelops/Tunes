@@ -9,3 +9,7 @@ export function GetHighDefinitionThumbnail(arg1) {
 export function GetThumbnails(arg1) {
   return window['go']['ytdlp']['YtDlp']['GetThumbnails'](arg1);
 }
+
+export function SetContext(arg1) {
+  return window['go']['ytdlp']['YtDlp']['SetContext'](arg1);
+}

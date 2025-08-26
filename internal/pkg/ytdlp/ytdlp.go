@@ -1,6 +1,7 @@
 package ytdlp
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 type YtDlp struct {
 	// Path for the binary executable
 	Bin string
+	ctx context.Context
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
@@ -40,17 +42,8 @@ func init() {
 	platform = strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
 }
 
-func fetchLatestRelease() string {
-	latestBaseUrl, _ := url.JoinPath(baseUrl, "latest")
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return errors.New("redirect")
-		},
-	}
-
-	res, _ := client.Get(latestBaseUrl)
-	releasePath, _ := res.Location()
-	return filepath.Base(releasePath.String())
+func (y *YtDlp) SetContext(ctx context.Context) {
+	y.ctx = ctx
 }
 
 func GetLatestRelease() (*YtDlp, error) {
@@ -93,4 +86,17 @@ func GetLatestRelease() (*YtDlp, error) {
 	viper.WriteConfig()
 
 	return ytdlp, nil
+}
+
+func fetchLatestRelease() string {
+	latestBaseUrl, _ := url.JoinPath(baseUrl, "latest")
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return errors.New("redirect")
+		},
+	}
+
+	res, _ := client.Get(latestBaseUrl)
+	releasePath, _ := res.Location()
+	return filepath.Base(releasePath.String())
 }
