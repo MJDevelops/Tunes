@@ -2,7 +2,7 @@ package config
 
 import "github.com/spf13/viper"
 
-func Setup() {
+func init() {
 	viper.SetConfigName("tunes.config")
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")

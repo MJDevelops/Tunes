@@ -4,7 +4,6 @@ import (
 	"context"
 	"embed"
 
-	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -15,9 +14,6 @@ import (
 var assets embed.FS
 
 func main() {
-	// Initialize viper config
-	config.Setup()
-
 	// Fetch latest ytdlp version
 	ytdlp, _ := ytdlp.GetLatestRelease()
 

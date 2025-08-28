@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/mjdevelops/tunes/internal/pkg/config"
 )
 
 type YtDlp struct {
@@ -54,8 +54,8 @@ func GetLatestRelease() (*YtDlp, error) {
 	ytdlp := &YtDlp{}
 	release := fetchLatestRelease()
 
-	if release == viper.GetString(viperYtDlpRelease) {
-		ytdlp.Bin = viper.GetString(viperYtDlpPath)
+	if release == config.GetString(viperYtDlpRelease) {
+		ytdlp.Bin = config.GetString(viperYtDlpPath)
 		return ytdlp, nil
 	}
 
@@ -85,9 +85,9 @@ func GetLatestRelease() (*YtDlp, error) {
 
 	os.Chmod(ytdlp.Bin, 0750)
 
-	viper.Set(viperYtDlpRelease, release)
-	viper.Set(viperYtDlpPath, ytdlp.Bin)
-	viper.WriteConfig()
+	config.Set(viperYtDlpRelease, release)
+	config.Set(viperYtDlpPath, ytdlp.Bin)
+	config.Write()
 
 	return ytdlp, nil
 }
