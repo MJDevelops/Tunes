@@ -2,12 +2,20 @@ package config
 
 import "github.com/spf13/viper"
 
-func Set(key string, value any) {
-	viper.Set(key, value)
+func SetYtDlpPath(value any) {
+	viper.Set(ytDlpPath, value)
 }
 
-func GetString(key string) string {
-	return viper.GetString(key)
+func SetYtDlpRelease(value any) {
+	viper.Set(ytDlpRelease, value)
+}
+
+func GetYtDlpPath() string {
+	return viper.GetString(ytDlpPath)
+}
+
+func GetYtDlpRelease() string {
+	return viper.GetString(ytDlpRelease)
 }
 
 func Write() {

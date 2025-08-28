@@ -2,6 +2,11 @@ package config
 
 import "github.com/spf13/viper"
 
+const (
+	ytDlpRelease string = "executables.ytdlp.release"
+	ytDlpPath    string = "executables.ytdlp.path"
+)
+
 func init() {
 	viper.SetConfigName("tunes.config")
 	viper.SetConfigType("json")

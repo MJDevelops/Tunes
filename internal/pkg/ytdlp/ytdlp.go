@@ -20,11 +20,7 @@ type YtDlp struct {
 	ctx context.Context
 }
 
-const (
-	baseUrl           string = "https://github.com/yt-dlp/yt-dlp/releases"
-	viperYtDlpRelease string = "executables.ytdlp.release"
-	viperYtDlpPath    string = "executables.ytdlp.path"
-)
+const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 var (
 	binPath             string
@@ -54,8 +50,8 @@ func GetLatestRelease() (*YtDlp, error) {
 	ytdlp := &YtDlp{}
 	release := fetchLatestRelease()
 
-	if release == config.GetString(viperYtDlpRelease) {
-		ytdlp.Bin = config.GetString(viperYtDlpPath)
+	if release == config.GetYtDlpRelease() {
+		ytdlp.Bin = config.GetYtDlpPath()
 		return ytdlp, nil
 	}
 
@@ -85,8 +81,8 @@ func GetLatestRelease() (*YtDlp, error) {
 
 	os.Chmod(ytdlp.Bin, 0750)
 
-	config.Set(viperYtDlpRelease, release)
-	config.Set(viperYtDlpPath, ytdlp.Bin)
+	config.SetYtDlpRelease(release)
+	config.SetYtDlpPath(ytdlp.Bin)
 	config.Write()
 
 	return ytdlp, nil
