@@ -5,6 +5,7 @@ import "github.com/spf13/viper"
 const (
 	ytDlpRelease string = "executables.ytdlp.release"
 	ytDlpPath    string = "executables.ytdlp.path"
+	maxThreads   string = "application.maxThreads"
 )
 
 func init() {
