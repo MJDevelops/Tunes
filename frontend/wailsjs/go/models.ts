@@ -1,5 +1,21 @@
 export namespace ytdlp {
 	
+	export class Download {
+	    ID: number;
+	    Url: string;
+	    Progress: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Download(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
+	        this.Url = source["Url"];
+	        this.Progress = source["Progress"];
+	    }
+	}
 	export class Thumbnail {
 	    url: string;
 	    height: string;

@@ -1,8 +1,6 @@
-package download
+package ytdlp
 
 import (
-	"context"
-
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 )
 
@@ -14,7 +12,6 @@ type Download struct {
 
 type DownloadQueue struct {
 	Downloads []Download
-	ctx       context.Context
 }
 
 // Threads to be used for downloads
@@ -26,10 +23,6 @@ func init() {
 	}
 }
 
-func (dq *DownloadQueue) SetContext(ctx context.Context) {
-	dq.ctx = ctx
-}
-
-func (dq *DownloadQueue) AddToQueue(download Download) {
-	dq.Downloads = append(dq.Downloads, download)
+func (y *YtDlp) AddToQueue(download Download) {
+	y.DownloadQueue.Downloads = append(y.DownloadQueue.Downloads, download)
 }

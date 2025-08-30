@@ -16,8 +16,9 @@ import (
 
 type YtDlp struct {
 	// Path for the binary executable
-	Bin string
-	ctx context.Context
+	Bin           string
+	DownloadQueue DownloadQueue
+	ctx           context.Context
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
