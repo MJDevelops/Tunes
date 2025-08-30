@@ -24,14 +24,8 @@ type YtDlp struct {
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 var (
-	binPath             string
-	platform            string
-	platformExecutables = map[string]string{
-		"darwin_amd64":  "yt-dlp_macos",
-		"windows_amd64": "yt-dlp.exe",
-		"linux_amd64":   "yt-dlp_linux",
-		"darwin_arm64":  "yt-dlp_macos",
-	}
+	binPath    string
+	executable string
 )
 
 func init() {
@@ -40,7 +34,17 @@ func init() {
 	if _, err := os.Stat(binPath); os.IsNotExist(err) {
 		os.Mkdir(binPath, 0750)
 	}
-	platform = strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
+
+	platform := strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
+
+	switch platform {
+	case "darwin_amd64", "darwin_arm64":
+		executable = "yt-dlp_macos"
+	case "windows_amd64":
+		executable = "yt-dlp.exe"
+	case "linux_amd64":
+		executable = "yt-dlp_linux"
+	}
 }
 
 func (y *YtDlp) SetContext(ctx context.Context) {
@@ -48,6 +52,10 @@ func (y *YtDlp) SetContext(ctx context.Context) {
 }
 
 func GetLatestRelease() (*YtDlp, error) {
+	if executable == "" {
+		return nil, errors.New("unsupported")
+	}
+
 	ytdlp := &YtDlp{}
 	release := fetchLatestRelease()
 
@@ -56,12 +64,7 @@ func GetLatestRelease() (*YtDlp, error) {
 		return ytdlp, nil
 	}
 
-	executable := platformExecutables[platform]
 	location, _ := url.JoinPath(baseUrl, "download", release)
-
-	if executable == "" {
-		return nil, errors.New("unsupported")
-	}
 
 	ytdlp.Bin = filepath.Join(binPath, executable)
 
