@@ -5,6 +5,7 @@ go 1.24
 toolchain go1.24.5
 
 require (
+	github.com/marcboeker/go-duckdb/v2 v2.3.5
 	github.com/spf13/viper v1.20.1
 	github.com/wailsapp/wails/v2 v2.10.2
 )
@@ -37,7 +38,6 @@ require (
 	github.com/leaanthony/u v1.1.1 // indirect
 	github.com/marcboeker/go-duckdb/arrowmapping v0.0.10 // indirect
 	github.com/marcboeker/go-duckdb/mapping v0.0.11 // indirect
-	github.com/marcboeker/go-duckdb/v2 v2.3.5 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
