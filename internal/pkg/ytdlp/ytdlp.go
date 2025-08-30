@@ -42,6 +42,8 @@ func init() {
 		executable = "yt-dlp_macos"
 	case "windows_amd64":
 		executable = "yt-dlp.exe"
+	case "windows_386":
+		executable = "yt-dlp_x86.exe"
 	case "linux_amd64":
 		executable = "yt-dlp_linux"
 	}
