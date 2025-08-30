@@ -21,8 +21,7 @@ type DownloadQueue struct {
 var MaxThreads int
 
 func init() {
-	MaxThreads = config.GetMaxThreads()
-	if MaxThreads <= 0 {
+	if MaxThreads = config.GetMaxThreads(); MaxThreads <= 0 {
 		MaxThreads = 5
 	}
 }
