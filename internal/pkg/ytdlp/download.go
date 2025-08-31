@@ -42,7 +42,7 @@ func (y *YtDlp) AddToQueue(download Download) string {
 }
 
 func (y *YtDlp) StartQueue() {
-	throttle := make(chan int, 5)
+	throttle := make(chan int, MaxThreads)
 	var wg sync.WaitGroup
 	for _, download := range y.DownloadQueue.Downloads {
 		throttle <- 1
