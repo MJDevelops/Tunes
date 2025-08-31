@@ -1,6 +1,8 @@
 package ytdlp
 
 import (
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 )
@@ -13,6 +15,7 @@ type Download struct {
 
 type DownloadQueue struct {
 	Downloads []Download
+	mu        sync.Mutex
 }
 
 // Threads to be used for downloads
@@ -24,10 +27,40 @@ func init() {
 	}
 }
 
+func (d *Download) start() {}
+
 // Adds download to queue and returns the corresponding ID
-func (y *YtDlp) AddToQueue(download Download) string {
+func (q *DownloadQueue) AddToQueue(download Download) string {
 	id := uuid.NewString()
 	download.ID = id
-	y.DownloadQueue.Downloads = append(y.DownloadQueue.Downloads, download)
+	q.Downloads = append(q.Downloads, download)
 	return id
+}
+
+func (q *DownloadQueue) StartQueue() {
+	throttle := make(chan int, 5)
+	var wg sync.WaitGroup
+	for _, download := range q.Downloads {
+		throttle <- 1
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			download.start()
+			q.RemoveFromQueue(download)
+			<-throttle
+		}()
+	}
+	wg.Wait()
+}
+
+func (q *DownloadQueue) RemoveFromQueue(download Download) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	for i, d := range q.Downloads {
+		if d.ID == download.ID {
+			q.Downloads[i] = q.Downloads[len(q.Downloads)-1]
+			q.Downloads = q.Downloads[:len(q.Downloads)-1]
+			break
+		}
+	}
 }
