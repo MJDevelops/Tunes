@@ -50,7 +50,7 @@ func (y *YtDlp) StartQueue() {
 		go func() {
 			defer wg.Done()
 			download.start()
-			y.RemoveFromQueue(download)
+			y.RemoveFromQueue(download.ID)
 			<-throttle
 		}()
 	}
@@ -58,12 +58,12 @@ func (y *YtDlp) StartQueue() {
 	runtime.EventsEmit(y.ctx, "tunes:dqueue:done")
 }
 
-func (y *YtDlp) RemoveFromQueue(download Download) {
+func (y *YtDlp) RemoveFromQueue(id string) {
 	dq := &y.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
 	for i, d := range dq.Downloads {
-		if d.ID == download.ID {
+		if d.ID == id {
 			dq.Downloads[i] = dq.Downloads[len(dq.Downloads)-1]
 			dq.Downloads = dq.Downloads[:len(dq.Downloads)-1]
 			break
