@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type Download struct {
@@ -30,36 +31,41 @@ func init() {
 func (d *Download) start() {}
 
 // Adds download to queue and returns the corresponding ID
-func (q *DownloadQueue) AddToQueue(download Download) string {
+func (y *YtDlp) AddToQueue(download Download) string {
+	dq := &y.DownloadQueue
 	id := uuid.NewString()
 	download.ID = id
-	q.Downloads = append(q.Downloads, download)
+	dq.mu.Lock()
+	dq.Downloads = append(dq.Downloads, download)
+	dq.mu.Unlock()
 	return id
 }
 
-func (q *DownloadQueue) StartQueue() {
+func (y *YtDlp) StartQueue() {
 	throttle := make(chan int, 5)
 	var wg sync.WaitGroup
-	for _, download := range q.Downloads {
+	for _, download := range y.DownloadQueue.Downloads {
 		throttle <- 1
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			download.start()
-			q.RemoveFromQueue(download)
+			y.RemoveFromQueue(download)
 			<-throttle
 		}()
 	}
 	wg.Wait()
+	runtime.EventsEmit(y.ctx, "tunes:dqueue:done")
 }
 
-func (q *DownloadQueue) RemoveFromQueue(download Download) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	for i, d := range q.Downloads {
+func (y *YtDlp) RemoveFromQueue(download Download) {
+	dq := &y.DownloadQueue
+	dq.mu.Lock()
+	defer dq.mu.Unlock()
+	for i, d := range dq.Downloads {
 		if d.ID == download.ID {
-			q.Downloads[i] = q.Downloads[len(q.Downloads)-1]
-			q.Downloads = q.Downloads[:len(q.Downloads)-1]
+			dq.Downloads[i] = dq.Downloads[len(dq.Downloads)-1]
+			dq.Downloads = dq.Downloads[:len(dq.Downloads)-1]
 			break
 		}
 	}
