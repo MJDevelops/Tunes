@@ -3,7 +3,7 @@
 import {ytdlp} from '../models';
 import {context} from '../models';
 
-export function AddToQueue(arg1:ytdlp.Download):Promise<void>;
+export function AddToQueue(arg1:ytdlp.Download):Promise<string>;
 
 export function GetHighDefinitionThumbnail(arg1:string):Promise<string>;
 

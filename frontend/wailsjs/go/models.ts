@@ -1,7 +1,7 @@
 export namespace ytdlp {
 	
 	export class Download {
-	    ID: number;
+	    ID: string;
 	    Url: string;
 	    Progress: number;
 	

@@ -1,11 +1,12 @@
 package ytdlp
 
 import (
+	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 )
 
 type Download struct {
-	ID       int
+	ID       string
 	Url      string
 	Progress int
 }
@@ -23,6 +24,10 @@ func init() {
 	}
 }
 
-func (y *YtDlp) AddToQueue(download Download) {
+// Adds download to queue and returns the corresponding ID
+func (y *YtDlp) AddToQueue(download Download) string {
+	id := uuid.NewString()
+	download.ID = id
 	y.DownloadQueue.Downloads = append(y.DownloadQueue.Downloads, download)
+	return id
 }
