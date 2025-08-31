@@ -35,9 +35,11 @@ func GetLatestRelease() (*YtDlp, error) {
 
 	ytdlp := &YtDlp{}
 	release := fetchLatestRelease()
+	execPath := config.GetYtDlpPath()
+	_, err := os.Stat(execPath)
 
-	if release == config.GetYtDlpRelease() {
-		ytdlp.Bin = config.GetYtDlpPath()
+	if release == config.GetYtDlpRelease() && !errors.Is(err, os.ErrNotExist) {
+		ytdlp.Bin = execPath
 		return ytdlp, nil
 	}
 
@@ -45,7 +47,7 @@ func GetLatestRelease() (*YtDlp, error) {
 
 	wd, _ := os.Getwd()
 	binPath := filepath.Join(wd, "bin")
-	if _, err := os.Stat(binPath); os.IsNotExist(err) {
+	if _, err := os.Stat(binPath); errors.Is(err, os.ErrNotExist) {
 		os.Mkdir(binPath, 0750)
 	}
 
