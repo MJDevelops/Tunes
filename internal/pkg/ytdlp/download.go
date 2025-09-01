@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type Download struct {
@@ -17,10 +16,14 @@ type Download struct {
 type DownloadQueue struct {
 	Downloads []Download
 	mu        sync.Mutex
+	once      sync.Once
 }
 
 // Threads to be used for downloads
 var MaxThreads int
+var exitSig = make(chan bool)
+var dc chan *Download
+var wg sync.WaitGroup
 
 func init() {
 	if MaxThreads = config.GetMaxThreads(); MaxThreads <= 0 {
@@ -28,34 +31,45 @@ func init() {
 	}
 }
 
-func (d *Download) start() {}
-
 // Adds download to queue and returns the corresponding ID
-func (y *YtDlp) AddToQueue(download Download) string {
+func (y *YtDlp) AddToQueue(download *Download) string {
 	dq := &y.DownloadQueue
+	dq.mu.Lock()
+	defer dq.mu.Unlock()
 	id := uuid.NewString()
 	download.ID = id
-	dq.mu.Lock()
-	dq.Downloads = append(dq.Downloads, download)
-	dq.mu.Unlock()
+	dq.Downloads = append(dq.Downloads, *download)
+	dc <- download
 	return id
 }
 
 func (y *YtDlp) StartQueue() {
-	throttle := make(chan int, MaxThreads)
-	var wg sync.WaitGroup
-	for _, download := range y.DownloadQueue.Downloads {
-		throttle <- 1
-		wg.Add(1)
+	y.DownloadQueue.once.Do(func() {
+		throttle := make(chan int, MaxThreads)
 		go func() {
-			defer wg.Done()
-			download.start()
-			y.RemoveFromQueue(download.ID)
-			<-throttle
+			for {
+				select {
+				case <-exitSig:
+					return
+				default:
+					download := <-dc
+					throttle <- 1
+					download.start()
+					wg.Add(1)
+					defer wg.Done()
+					y.RemoveFromQueue(download.ID)
+					<-throttle
+				}
+			}
 		}()
-	}
+	})
+}
+
+func (y *YtDlp) StopQueue() {
+	exitSig <- true
+	y.DownloadQueue.mu.Lock()
 	wg.Wait()
-	runtime.EventsEmit(y.ctx, "tunes:dqueue:done")
+	y.saveQueueState()
 }
 
 func (y *YtDlp) RemoveFromQueue(id string) {
@@ -70,3 +84,9 @@ func (y *YtDlp) RemoveFromQueue(id string) {
 		}
 	}
 }
+
+// TODO
+func (y *YtDlp) saveQueueState() {}
+
+// TODO
+func (d *Download) start() {}

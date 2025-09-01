@@ -37,6 +37,10 @@ func main() {
 			app.SetContext(ctx)
 			ytdlp.SetContext(ctx)
 			db.SetContext(ctx)
+			ytdlp.StartQueue()
+		},
+		OnShutdown: func(ctx context.Context) {
+			ytdlp.StopQueue()
 		},
 		Bind: []interface{}{
 			app,
