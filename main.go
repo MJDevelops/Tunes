@@ -24,7 +24,7 @@ func main() {
 	db := db.NewDB()
 	defer db.Close()
 
-	var ctx context.Context
+	ctx := context.Background()
 	queueContext, cancel := context.WithCancel(ctx)
 
 	// Create application with options
