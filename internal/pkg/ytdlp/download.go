@@ -54,11 +54,13 @@ func (y *YtDlp) StartQueue() {
 				default:
 					download := <-dc
 					throttle <- 1
-					download.start()
-					wg.Add(1)
-					defer wg.Done()
-					y.RemoveFromQueue(download.ID)
-					<-throttle
+					go func() {
+						download.start()
+						wg.Add(1)
+						defer wg.Done()
+						y.RemoveFromQueue(download.ID)
+						<-throttle
+					}()
 				}
 			}
 		}()
