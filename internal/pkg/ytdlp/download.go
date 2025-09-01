@@ -54,8 +54,7 @@ func (y *YtDlp) StartQueue(ctx context.Context) {
 				select {
 				case <-ctx.Done():
 					return
-				default:
-					download := <-dc
+				case download := <-dc:
 					throttle <- 1
 					go func() {
 						y.startDownload(ctx, download)
