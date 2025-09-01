@@ -1,6 +1,9 @@
 package ytdlp
 
 import (
+	"context"
+	"os"
+	"os/exec"
 	"sync"
 
 	"github.com/google/uuid"
@@ -19,11 +22,11 @@ type DownloadQueue struct {
 	once      sync.Once
 }
 
-// Threads to be used for downloads
-var MaxThreads int
-var exitSig = make(chan bool)
-var dc chan *Download
-var wg sync.WaitGroup
+var (
+	// Threads to be used for downloads
+	MaxThreads int
+	dc         chan *Download
+)
 
 func init() {
 	if MaxThreads = config.GetMaxThreads(); MaxThreads <= 0 {
@@ -43,22 +46,20 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	return id
 }
 
-func (y *YtDlp) StartQueue() {
+func (y *YtDlp) StartQueue(ctx context.Context) {
 	y.DownloadQueue.once.Do(func() {
 		throttle := make(chan int, MaxThreads)
 		go func() {
 			for {
 				select {
-				case <-exitSig:
+				case <-ctx.Done():
 					return
 				default:
 					download := <-dc
 					throttle <- 1
 					go func() {
-						download.start()
-						wg.Add(1)
-						defer wg.Done()
-						y.RemoveFromQueue(download.ID)
+						y.startDownload(ctx, download)
+						y.RemoveFromQueue(ctx, download.ID)
 						<-throttle
 					}()
 				}
@@ -68,13 +69,11 @@ func (y *YtDlp) StartQueue() {
 }
 
 func (y *YtDlp) StopQueue() {
-	exitSig <- true
 	y.DownloadQueue.mu.Lock()
-	wg.Wait()
 	y.saveQueueState()
 }
 
-func (y *YtDlp) RemoveFromQueue(id string) {
+func (y *YtDlp) RemoveFromQueue(ctx context.Context, id string) {
 	dq := &y.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
@@ -90,5 +89,20 @@ func (y *YtDlp) RemoveFromQueue(id string) {
 // TODO
 func (y *YtDlp) saveQueueState() {}
 
-// TODO
-func (d *Download) start() {}
+func (y *YtDlp) startDownload(ctx context.Context, download *Download) {
+	var cmdCtx context.Context
+	cmd := exec.CommandContext(cmdCtx, y.Bin, download.Url, "-P", download.ID)
+	ch := make(chan error)
+	go func() {
+		ch <- cmd.Run()
+	}()
+
+	select {
+	case <-ctx.Done():
+		cmd.Cancel()
+		os.RemoveAll(download.ID)
+		return
+	case <-ch:
+		return
+	}
+}

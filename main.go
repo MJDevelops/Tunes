@@ -24,6 +24,9 @@ func main() {
 	db := db.NewDB()
 	defer db.Close()
 
+	var ctx context.Context
+	queueContext, cancel := context.WithCancel(ctx)
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Tunes-Gui",
@@ -37,9 +40,10 @@ func main() {
 			app.SetContext(ctx)
 			ytdlp.SetContext(ctx)
 			db.SetContext(ctx)
-			ytdlp.StartQueue()
+			ytdlp.StartQueue(queueContext)
 		},
 		OnShutdown: func(ctx context.Context) {
+			cancel()
 			ytdlp.StopQueue()
 		},
 		Bind: []interface{}{
