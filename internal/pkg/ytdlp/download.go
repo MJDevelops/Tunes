@@ -78,7 +78,7 @@ func (y *YtDlp) StartQueue(ctx context.Context) {
 						}()
 
 						dq.Running = append(dq.Running, newDown)
-						dq.Waiting = slices.Delete(dq.Waiting, 0, 0)
+						dq.Waiting = slices.Delete(dq.Waiting, 0, 1)
 					}
 				}
 				dq.rMu.Unlock()
@@ -101,7 +101,7 @@ func (y *YtDlp) removeFromQueue(id string) {
 	defer dq.rMu.Unlock()
 	for i, d := range dq.Running {
 		if d.ID == id {
-			dq.Running = slices.Delete(dq.Running, i, i)
+			dq.Running = slices.Delete(dq.Running, i, i+1)
 			return
 		}
 	}
