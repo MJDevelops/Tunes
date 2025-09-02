@@ -5,6 +5,7 @@ import (
 	"embed"
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -50,6 +51,9 @@ func main() {
 			app,
 			ytdlp,
 			db,
+		},
+		EnumBind: []interface{}{
+			events.Events,
 		},
 	})
 
