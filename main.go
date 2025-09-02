@@ -40,7 +40,7 @@ func main() {
 			app.SetContext(ctx)
 			ytdlp.SetContext(ctx)
 			db.SetContext(ctx)
-			ytdlp.StartQueue(queueContext)
+			go ytdlp.StartQueue(queueContext)
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()
