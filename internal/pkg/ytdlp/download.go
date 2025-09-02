@@ -115,8 +115,7 @@ func (y *YtDlp) saveQueueState() {}
 func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Download) {
 	wg.Add(1)
 	defer wg.Done()
-	var cmdCtx context.Context
-	cmd := exec.CommandContext(cmdCtx, y.Bin, download.Url, "-P", download.ID)
+	cmd := exec.CommandContext(context.Background(), y.Bin, download.Url, "-P", download.ID)
 	ch := make(chan error)
 	go func() {
 		ch <- cmd.Run()
