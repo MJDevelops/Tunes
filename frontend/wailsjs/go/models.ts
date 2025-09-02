@@ -3,6 +3,7 @@ export namespace events {
 	export enum Event {
 	    QUEUE_STARTED = "tunes:dqueue:started",
 	    QUEUE_DONE = "tunes:dqueue:done",
+	    DOWNLOAD_STARTED = "tunes:dqueue:downloadStarted",
 	    DOWNLOAD_INTERRUPT = "tunes:dqueue:downloadInterrupt",
 	    DOWNLOAD_FINISHED = "tunes:dqueue:downloadFinished",
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -44,7 +45,7 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	download.ID = id
 
 	if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-		runtime.EventsEmit(y.ctx, "tunes:dqueue:running")
+		runtime.EventsEmit(y.ctx, string(events.DownloadQueueStarted))
 	}
 
 	dq.Waiting = append(dq.Waiting, *download)
@@ -72,7 +73,7 @@ func (y *YtDlp) StartQueue(ctx context.Context) {
 						go func() {
 							y.download(ctx, newDown)
 							if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-								runtime.EventsEmit(y.ctx, "tunes:dqueue:done")
+								runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
 							}
 						}()
 
@@ -118,16 +119,16 @@ func (y *YtDlp) download(ctx context.Context, download Download) {
 		ch <- cmd.Run()
 	}()
 
-	runtime.EventsEmit(y.ctx, "tunes:dqueue:downloadStarted", download.ID)
+	runtime.EventsEmit(y.ctx, string(events.DownloadStarted), download.ID)
 
 	select {
 	case <-ctx.Done():
-		runtime.EventsEmit(y.ctx, "tunes:dqueue:downloadInterrupt", download.ID)
+		runtime.EventsEmit(y.ctx, string(events.DownloadInterrupt), download.ID)
 		cmd.Cancel()
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		runtime.EventsEmit(y.ctx, "tunes:dqueue:downloadDone", download.ID)
+		runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone), download.ID)
 		y.removeFromQueue(download.ID)
 		return
 	}
