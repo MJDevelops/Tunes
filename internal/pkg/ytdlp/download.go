@@ -101,8 +101,7 @@ func (y *YtDlp) removeFromQueue(id string) {
 	defer dq.rMu.Unlock()
 	for i, d := range dq.Running {
 		if d.ID == id {
-			dq.Running[i] = dq.Running[len(dq.Running)-1]
-			dq.Running = dq.Running[:len(dq.Running)-1]
+			dq.Running = slices.Delete(dq.Running, i, i)
 			return
 		}
 	}
