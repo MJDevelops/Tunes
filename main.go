@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
@@ -18,6 +19,8 @@ var assets embed.FS
 func main() {
 	// Fetch latest ytdlp version
 	ytdlp, _ := ytdlp.GetLatestRelease()
+
+	var queueWg sync.WaitGroup
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -41,10 +44,11 @@ func main() {
 			app.SetContext(ctx)
 			ytdlp.SetContext(ctx)
 			db.SetContext(ctx)
-			go ytdlp.StartQueue(queueContext)
+			go ytdlp.StartQueue(queueContext, &queueWg)
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()
+			queueWg.Wait()
 			ytdlp.StopQueue()
 		},
 		Bind: []interface{}{

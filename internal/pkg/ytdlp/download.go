@@ -52,9 +52,11 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	return id
 }
 
-func (y *YtDlp) StartQueue(ctx context.Context) {
+func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 	dq := &y.DownloadQueue
 	dq.once.Do(func() {
+		wg.Add(1)
+		defer wg.Done()
 		for {
 			select {
 			case <-ctx.Done():
@@ -71,7 +73,7 @@ func (y *YtDlp) StartQueue(ctx context.Context) {
 						newDown := dq.Waiting[0]
 
 						go func() {
-							y.download(ctx, newDown)
+							y.download(ctx, wg, newDown)
 							if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
 								runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
 							}
@@ -110,7 +112,9 @@ func (y *YtDlp) removeFromQueue(id string) {
 // TODO
 func (y *YtDlp) saveQueueState() {}
 
-func (y *YtDlp) download(ctx context.Context, download Download) {
+func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Download) {
+	wg.Add(1)
+	defer wg.Done()
 	var cmdCtx context.Context
 	cmd := exec.CommandContext(cmdCtx, y.Bin, download.Url, "-P", download.ID)
 	ch := make(chan error)
