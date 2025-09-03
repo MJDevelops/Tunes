@@ -64,7 +64,7 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 			default:
 				dq.rMu.Lock()
 				dq.wMu.Lock()
-				if len(dq.Running) < MaxThreads && len(dq.Waiting) > 0 {
+				if len(dq.Running) < MaxThreads {
 					for len(dq.Waiting) > 0 {
 						if len(dq.Running) == MaxThreads {
 							break
