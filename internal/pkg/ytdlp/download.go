@@ -130,7 +130,7 @@ func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Downl
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone), download.ID)
+		runtime.EventsEmit(y.ctx, string(events.DownloadFinished), download.ID)
 		y.removeFromQueue(download.ID)
 		return
 	}
