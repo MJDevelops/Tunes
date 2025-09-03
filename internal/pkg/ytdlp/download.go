@@ -64,25 +64,20 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 			default:
 				dq.rMu.Lock()
 				dq.wMu.Lock()
-				if len(dq.Running) < MaxThreads {
-					for len(dq.Waiting) > 0 {
-						if len(dq.Running) == MaxThreads {
-							break
+				for len(dq.Waiting) > 0 && len(dq.Running) < MaxThreads {
+					newDown := dq.Waiting[0]
+
+					go func() {
+						y.download(ctx, wg, newDown)
+						if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
+							runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
 						}
+					}()
 
-						newDown := dq.Waiting[0]
-
-						go func() {
-							y.download(ctx, wg, newDown)
-							if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-								runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
-							}
-						}()
-
-						dq.Running = append(dq.Running, newDown)
-						dq.Waiting = slices.Delete(dq.Waiting, 0, 1)
-					}
+					dq.Running = append(dq.Running, newDown)
+					dq.Waiting = slices.Delete(dq.Waiting, 0, 1)
 				}
+
 				dq.rMu.Unlock()
 				dq.wMu.Unlock()
 			}
