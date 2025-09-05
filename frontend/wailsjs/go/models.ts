@@ -6,6 +6,7 @@ export namespace events {
 	    DOWNLOAD_STARTED = "tunes:dqueue:downloadStarted",
 	    DOWNLOAD_INTERRUPT = "tunes:dqueue:downloadInterrupt",
 	    DOWNLOAD_FINISHED = "tunes:dqueue:downloadFinished",
+	    TRACK_PROGRESS = "tunes:track:progress",
 	}
 
 }

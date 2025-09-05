@@ -8,6 +8,7 @@ const (
 	DownloadStarted      Event = "tunes:dqueue:downloadStarted"
 	DownloadInterrupt    Event = "tunes:dqueue:downloadInterrupt"
 	DownloadFinished     Event = "tunes:dqueue:downloadFinished"
+	TrackProgress        Event = "tunes:track:progress"
 )
 
 var Events = []struct {
@@ -19,4 +20,5 @@ var Events = []struct {
 	{DownloadStarted, "DOWNLOAD_STARTED"},
 	{DownloadInterrupt, "DOWNLOAD_INTERRUPT"},
 	{DownloadFinished, "DOWNLOAD_FINISHED"},
+	{TrackProgress, "TRACK_PROGRESS"},
 }
