@@ -7,6 +7,7 @@ import (
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
+	"github.com/mjdevelops/tunes/internal/pkg/sound"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -24,6 +25,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := NewApp()
+	pq := &sound.PlayingQueue{}
 
 	db := db.NewDB()
 	defer db.Close()
@@ -45,6 +47,7 @@ func main() {
 			ytdlp.SetContext(ctx)
 			db.SetContext(ctx)
 			go ytdlp.StartQueue(queueContext, &queueWg)
+			pq.SetContext(ctx)
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()
@@ -55,6 +58,7 @@ func main() {
 			app,
 			ytdlp,
 			db,
+			pq,
 		},
 		EnumBind: []interface{}{
 			events.Events,

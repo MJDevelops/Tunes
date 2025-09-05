@@ -1,6 +1,7 @@
 package sound
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -21,6 +22,7 @@ type AudioFile struct {
 
 type PlayingQueue struct {
 	Queue []AudioFile
+	ctx   context.Context
 }
 
 var (
@@ -60,4 +62,8 @@ func NewAudioFile(path string) (*AudioFile, error) {
 	af.Path = path
 
 	return af, nil
+}
+
+func (pq *PlayingQueue) SetContext(ctx context.Context) {
+	pq.ctx = ctx
 }
