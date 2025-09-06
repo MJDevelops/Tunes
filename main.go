@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/sound"
@@ -40,7 +41,7 @@ func main() {
 
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:  "Tunes-Gui",
+		Title:  "Tunes",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
@@ -65,6 +66,9 @@ func main() {
 		},
 		EnumBind: []interface{}{
 			events.Events,
+		},
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId: uuid.NewString(),
 		},
 	})
 
