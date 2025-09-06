@@ -19,7 +19,7 @@ type YtDlp struct {
 	// Path for the binary executable
 	Bin           string
 	DownloadQueue DownloadQueue
-	conn          *db.DB
+	db            *db.DB
 	ctx           context.Context
 }
 
@@ -27,7 +27,7 @@ const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 func (y *YtDlp) Initialize(ctx context.Context, db *db.DB) {
 	y.ctx = ctx
-	y.conn = db
+	y.db = db
 }
 
 func GetLatestRelease() (*YtDlp, error) {

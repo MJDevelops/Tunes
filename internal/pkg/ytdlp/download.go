@@ -2,15 +2,19 @@ package ytdlp
 
 import (
 	"context"
+	"database/sql"
 	"os"
 	"os/exec"
 	"slices"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"gorm.io/gorm"
 )
 
 type Download struct {
@@ -22,8 +26,7 @@ type Download struct {
 type DownloadQueue struct {
 	Running []Download
 	Waiting []Download
-	rMu     sync.Mutex
-	wMu     sync.Mutex
+	mu      sync.Mutex
 	once    sync.Once
 }
 
@@ -39,8 +42,8 @@ func init() {
 // Adds download to queue and returns the corresponding ID
 func (y *YtDlp) AddToQueue(download *Download) string {
 	dq := &y.DownloadQueue
-	dq.wMu.Lock()
-	defer dq.wMu.Unlock()
+	dq.mu.Lock()
+	defer dq.mu.Unlock()
 	id := uuid.NewString()
 	download.ID = id
 
@@ -62,8 +65,7 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 			case <-ctx.Done():
 				return
 			default:
-				dq.rMu.Lock()
-				dq.wMu.Lock()
+				dq.mu.Lock()
 				for len(dq.Waiting) > 0 && len(dq.Running) < MaxThreads {
 					newDown := dq.Waiting[0]
 
@@ -77,9 +79,7 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 					dq.Running = append(dq.Running, newDown)
 					dq.Waiting = slices.Delete(dq.Waiting, 0, 1)
 				}
-
-				dq.rMu.Unlock()
-				dq.wMu.Unlock()
+				dq.mu.Unlock()
 			}
 		}
 	})
@@ -87,25 +87,36 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 
 func (y *YtDlp) StopQueue() {
 	dq := &y.DownloadQueue
-	dq.rMu.Lock()
-	dq.wMu.Lock()
+	dq.mu.Lock()
 	y.saveQueueState()
 }
 
 func (y *YtDlp) removeFromQueue(id string) {
 	dq := &y.DownloadQueue
-	dq.rMu.Lock()
-	defer dq.rMu.Unlock()
+	dq.mu.Lock()
+	defer dq.mu.Unlock()
 	for i, d := range dq.Running {
 		if d.ID == id {
+			ctx := context.Background()
+			dn := db.Download{ID: d.ID, Url: d.Url, FinishedAt: sql.NullTime{Time: time.Now(), Valid: true}}
+			gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
 			dq.Running = slices.Delete(dq.Running, i, i+1)
 			return
 		}
 	}
 }
 
-// TODO
-func (y *YtDlp) saveQueueState() {}
+func (y *YtDlp) saveQueueState() {
+	var dbDownloads []db.Download
+
+	allUnfinished := append(y.DownloadQueue.Waiting, y.DownloadQueue.Running...)
+	for _, d := range allUnfinished {
+		dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
+	}
+
+	ctx := context.Background()
+	gorm.G[db.Download](y.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
+}
 
 func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Download) {
 	wg.Add(1)
