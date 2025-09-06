@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"log"
 	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
@@ -21,20 +22,24 @@ func main() {
 	// Fetch latest ytdlp version
 	ytdlp, _ := ytdlp.GetLatestRelease()
 
+	// Context and waitgroup for the download queue
 	var queueWg sync.WaitGroup
+	ctx := context.Background()
+	queueContext, cancel := context.WithCancel(ctx)
 
 	// Create an instance of the app structure
 	app := NewApp()
 	pq := &sound.PlayingQueue{}
 
-	db := db.NewDB()
+	// Initialize db connection
+	db, err := db.NewDB()
+	if err != nil {
+		log.Fatalf("Couldn't initialize connection to databaser: %v", err)
+	}
 	defer db.Close()
 
-	ctx := context.Background()
-	queueContext, cancel := context.WithCancel(ctx)
-
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "Tunes-Gui",
 		Width:  1024,
 		Height: 768,
@@ -44,8 +49,7 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			app.SetContext(ctx)
-			ytdlp.SetContext(ctx)
-			db.SetContext(ctx)
+			ytdlp.Initialize(ctx, db)
 			go ytdlp.StartQueue(queueContext, &queueWg)
 			pq.SetContext(ctx)
 		},
@@ -57,7 +61,6 @@ func main() {
 		Bind: []interface{}{
 			app,
 			ytdlp,
-			db,
 			pq,
 		},
 		EnumBind: []interface{}{

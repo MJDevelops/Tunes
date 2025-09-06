@@ -1,29 +1,26 @@
 package db
 
 import (
-	"context"
 	"database/sql"
 
 	_ "github.com/marcboeker/go-duckdb/v2"
 )
 
 type DB struct {
-	conn *sql.DB
-	ctx  context.Context
+	Conn *sql.DB
 }
 
-func NewDB() *DB {
-	db, _ := sql.Open("duckdb", "")
+func NewDB() (*DB, error) {
+	conn, err := sql.Open("duckdb", "")
+	if err != nil {
+		return nil, err
+	}
 
 	return &DB{
-		conn: db,
-	}
+		Conn: conn,
+	}, nil
 }
 
-func (db *DB) SetContext(ctx context.Context) {
-	db.ctx = ctx
-}
-
-func (db *DB) Close() {
-	db.conn.Close()
+func (d *DB) Close() {
+	d.Conn.Close()
 }

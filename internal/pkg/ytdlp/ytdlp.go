@@ -12,19 +12,22 @@ import (
 	"strings"
 
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	"github.com/mjdevelops/tunes/internal/pkg/db"
 )
 
 type YtDlp struct {
 	// Path for the binary executable
 	Bin           string
 	DownloadQueue DownloadQueue
+	conn          *db.DB
 	ctx           context.Context
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func (y *YtDlp) SetContext(ctx context.Context) {
+func (y *YtDlp) Initialize(ctx context.Context, db *db.DB) {
 	y.ctx = ctx
+	y.conn = db
 }
 
 func GetLatestRelease() (*YtDlp, error) {
