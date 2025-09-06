@@ -1,26 +1,21 @@
 package db
 
 import (
-	"database/sql"
-
-	_ "github.com/marcboeker/go-duckdb/v2"
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
 )
 
 type DB struct {
-	Conn *sql.DB
+	Conn *gorm.DB
 }
 
 func NewDB() (*DB, error) {
-	conn, err := sql.Open("duckdb", "")
+	db, err := gorm.Open(sqlite.Open("tunes.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
 	return &DB{
-		Conn: conn,
+		Conn: db,
 	}, nil
-}
-
-func (d *DB) Close() {
-	d.Conn.Close()
 }

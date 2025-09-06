@@ -34,9 +34,8 @@ func main() {
 	// Initialize db connection
 	db, err := db.NewDB()
 	if err != nil {
-		log.Fatalf("Couldn't initialize connection to databaser: %v", err)
+		log.Fatalf("Couldn't initialize connection to database: %v", err)
 	}
-	defer db.Close()
 
 	// Create application with options
 	err = wails.Run(&options.App{
