@@ -25,7 +25,7 @@ type YtDlp struct {
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func (y *YtDlp) Initialize(ctx context.Context, db *db.DB) {
+func Initialize(y *YtDlp, ctx context.Context, db *db.DB) {
 	y.ctx = ctx
 	y.db = db
 }

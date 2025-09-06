@@ -21,7 +21,7 @@ var assets embed.FS
 
 func main() {
 	// Fetch latest ytdlp version
-	ytdlp, _ := ytdlp.GetLatestRelease()
+	ydl, _ := ytdlp.GetLatestRelease()
 
 	// Context and waitgroup for the download queue
 	var queueWg sync.WaitGroup
@@ -50,18 +50,18 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			app.SetContext(ctx)
-			ytdlp.Initialize(ctx, db)
-			go ytdlp.StartQueue(queueContext, &queueWg)
+			ytdlp.Initialize(ydl, ctx, db)
+			go ydl.StartQueue(queueContext, &queueWg)
 			pq.SetContext(ctx)
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()
 			queueWg.Wait()
-			ytdlp.StopQueue()
+			ydl.StopQueue()
 		},
 		Bind: []interface{}{
 			app,
-			ytdlp,
+			ydl,
 			pq,
 		},
 		EnumBind: []interface{}{
