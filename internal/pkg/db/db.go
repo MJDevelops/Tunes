@@ -19,3 +19,10 @@ func NewDB() (*DB, error) {
 		Conn: db,
 	}, nil
 }
+
+func (db *DB) Migrate() {
+	models := []any{
+		&Download{},
+	}
+	db.Conn.AutoMigrate(models...)
+}

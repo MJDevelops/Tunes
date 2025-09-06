@@ -36,6 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't initialize connection to database: %v", err)
 	}
+	db.Migrate()
 
 	// Create application with options
 	err = wails.Run(&options.App{
