@@ -25,12 +25,21 @@ type YtDlp struct {
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func Initialize(y *YtDlp, ctx context.Context, db *db.DB) {
-	y.ctx = ctx
+func Initialize(db *db.DB) (*YtDlp, error) {
+	y, err := downloadLatestRelease()
+	if err != nil {
+		return nil, err
+	}
+
 	y.db = db
+	return y, nil
 }
 
-func GetLatestRelease() (*YtDlp, error) {
+func (y *YtDlp) SetContext(ctx context.Context) {
+	y.ctx = ctx
+}
+
+func downloadLatestRelease() (*YtDlp, error) {
 	executable := getPlatformExecutable()
 	if executable == "" {
 		return nil, errors.New("unsupported")

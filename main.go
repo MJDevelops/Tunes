@@ -20,9 +20,6 @@ import (
 var assets embed.FS
 
 func main() {
-	// Fetch latest ytdlp version
-	ydl, _ := ytdlp.GetLatestRelease()
-
 	// Context and waitgroup for the download queue
 	var queueWg sync.WaitGroup
 	ctx := context.Background()
@@ -39,6 +36,9 @@ func main() {
 	}
 	db.Migrate()
 
+	// Initialize yt-dlp
+	ydl, _ := ytdlp.Initialize(db)
+
 	// Create application with options
 	err = wails.Run(&options.App{
 		Title:  "Tunes",
@@ -50,7 +50,7 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup: func(ctx context.Context) {
 			app.SetContext(ctx)
-			ytdlp.Initialize(ydl, ctx, db)
+			ydl.SetContext(ctx)
 			go ydl.StartQueue(queueContext, &queueWg)
 			pq.SetContext(ctx)
 		},
