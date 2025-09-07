@@ -58,6 +58,8 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 	dq := &y.DownloadQueue
 	dq.once.Do(func() {
+		// Load all pending downloads from database
+		y.loadPendingFromDB()
 		wg.Add(1)
 		defer wg.Done()
 		for {
@@ -153,5 +155,13 @@ func (y *YtDlp) finishDownload(download *Download) {
 		t := sql.NullTime{Valid: true, Time: currTime}
 		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
 		gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
+	}
+}
+
+func (y *YtDlp) loadPendingFromDB() {
+	ctx := context.Background()
+	downloads, _ := gorm.G[db.Download](y.db.Conn).Where("finished_at IS NULL").Find(ctx)
+	for _, d := range downloads {
+		y.DownloadQueue.Waiting = append(y.DownloadQueue.Waiting, Download{ID: d.ID, Url: d.Url})
 	}
 }
