@@ -146,10 +146,11 @@ func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Downl
 func (y *YtDlp) finishDownload(download *Download) {
 	// Try to update existing
 	ctx := context.Background()
-	t := sql.NullTime{Valid: true, Time: time.Now()}
-	_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", download.ID).Update(ctx, "finished_at", t)
+	currTime := time.Now()
+	_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
 	if err != nil {
 		// The download wasn't created before, create it now
+		t := sql.NullTime{Valid: true, Time: currTime}
 		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
 		gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
 	}
