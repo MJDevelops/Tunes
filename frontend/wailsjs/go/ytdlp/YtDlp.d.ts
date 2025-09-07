@@ -10,6 +10,8 @@ export function GetHighDefinitionThumbnail(arg1:string):Promise<string>;
 
 export function GetThumbnails(arg1:string):Promise<ytdlp.ThumbnailJson>;
 
+export function SetContext(arg1:context.Context):Promise<void>;
+
 export function StartQueue(arg1:context.Context,arg2:sync.WaitGroup):Promise<void>;
 
 export function StopQueue():Promise<void>;

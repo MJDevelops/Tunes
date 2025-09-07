@@ -14,6 +14,10 @@ export function GetThumbnails(arg1) {
   return window['go']['ytdlp']['YtDlp']['GetThumbnails'](arg1);
 }
 
+export function SetContext(arg1) {
+  return window['go']['ytdlp']['YtDlp']['SetContext'](arg1);
+}
+
 export function StartQueue(arg1, arg2) {
   return window['go']['ytdlp']['YtDlp']['StartQueue'](arg1, arg2);
 }

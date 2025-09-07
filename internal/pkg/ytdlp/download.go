@@ -97,9 +97,7 @@ func (y *YtDlp) removeFromQueue(id string) {
 	defer dq.mu.Unlock()
 	for i, d := range dq.Running {
 		if d.ID == id {
-			ctx := context.Background()
-			dn := db.Download{ID: d.ID, Url: d.Url, FinishedAt: sql.NullTime{Time: time.Now(), Valid: true}}
-			gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
+			y.finishDownload(&d)
 			dq.Running = slices.Delete(dq.Running, i, i+1)
 			return
 		}
@@ -107,14 +105,17 @@ func (y *YtDlp) removeFromQueue(id string) {
 }
 
 func (y *YtDlp) saveQueueState() {
+	ctx := context.Background()
 	var dbDownloads []db.Download
 
 	allUnfinished := append(y.DownloadQueue.Waiting, y.DownloadQueue.Running...)
 	for _, d := range allUnfinished {
-		dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
+		_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", d.ID).First(ctx)
+		if err != nil {
+			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
+		}
 	}
 
-	ctx := context.Background()
 	gorm.G[db.Download](y.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
 }
 
@@ -139,5 +140,17 @@ func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Downl
 		runtime.EventsEmit(y.ctx, string(events.DownloadFinished), download.ID)
 		y.removeFromQueue(download.ID)
 		return
+	}
+}
+
+func (y *YtDlp) finishDownload(download *Download) {
+	// Try to update existing
+	ctx := context.Background()
+	t := sql.NullTime{Valid: true, Time: time.Now()}
+	_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", download.ID).Update(ctx, "finished_at", t)
+	if err != nil {
+		// The download wasn't created before, create it now
+		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
+		gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
 	}
 }
