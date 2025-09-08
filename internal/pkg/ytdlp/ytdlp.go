@@ -130,6 +130,8 @@ func getPlatformExecutable() string {
 		return "yt-dlp_arm64.exe"
 	case "linux_amd64":
 		return "yt-dlp_linux"
+	case "linux_arm64":
+		return "yt-dlp_linux_aarch64"
 	default:
 		return ""
 	}
