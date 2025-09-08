@@ -1,7 +1,8 @@
-import {defineConfig} from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()]
-})
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+});
