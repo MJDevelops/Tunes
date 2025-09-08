@@ -37,7 +37,7 @@ func main() {
 	db.Migrate()
 
 	// Initialize yt-dlp
-	ydl, _ := ytdlp.Initialize(db)
+	ydl, _ := ytdlp.Initialize(queueContext, &queueWg, db)
 
 	// Create application with options
 	err = wails.Run(&options.App{
@@ -51,8 +51,8 @@ func main() {
 		OnStartup: func(ctx context.Context) {
 			app.SetContext(ctx)
 			ydl.SetContext(ctx)
-			go ydl.StartQueue(queueContext, &queueWg)
 			pq.SetContext(ctx)
+			go ydl.StartQueue()
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()

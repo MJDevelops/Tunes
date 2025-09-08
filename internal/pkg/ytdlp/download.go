@@ -55,16 +55,14 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	return id
 }
 
-func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
+func (y *YtDlp) StartQueue() {
 	dq := &y.DownloadQueue
 	dq.once.Do(func() {
-		// Load all pending downloads from database
-		y.loadPendingFromDB()
-		wg.Add(1)
-		defer wg.Done()
+		y.wg.Add(1)
+		defer y.wg.Done()
 		for {
 			select {
-			case <-ctx.Done():
+			case <-y.aCtx.Done():
 				return
 			default:
 				dq.mu.Lock()
@@ -72,7 +70,7 @@ func (y *YtDlp) StartQueue(ctx context.Context, wg *sync.WaitGroup) {
 					newDown := dq.Waiting[0]
 
 					go func() {
-						y.download(ctx, wg, newDown)
+						y.download(newDown)
 						if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
 							runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
 						}
@@ -121,9 +119,9 @@ func (y *YtDlp) saveQueueState() {
 	gorm.G[db.Download](y.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
 }
 
-func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Download) {
-	wg.Add(1)
-	defer wg.Done()
+func (y *YtDlp) download(download Download) {
+	y.wg.Add(1)
+	defer y.wg.Done()
 	cmd := exec.CommandContext(context.Background(), y.Bin, download.Url, "-P", download.ID)
 	ch := make(chan error)
 	go func() {
@@ -133,7 +131,7 @@ func (y *YtDlp) download(ctx context.Context, wg *sync.WaitGroup, download Downl
 	runtime.EventsEmit(y.ctx, string(events.DownloadStarted), download.ID)
 
 	select {
-	case <-ctx.Done():
+	case <-y.aCtx.Done():
 		runtime.EventsEmit(y.ctx, string(events.DownloadInterrupt), download.ID)
 		cmd.Cancel()
 		os.RemoveAll(download.ID)

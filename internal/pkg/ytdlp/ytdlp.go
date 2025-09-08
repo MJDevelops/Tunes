@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
@@ -20,18 +21,31 @@ type YtDlp struct {
 	Bin           string
 	DownloadQueue DownloadQueue
 	db            *db.DB
-	ctx           context.Context
+
+	// Wails context
+	ctx context.Context
+
+	// App context
+	aCtx context.Context
+
+	wg *sync.WaitGroup
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func Initialize(db *db.DB) (*YtDlp, error) {
+func Initialize(ctx context.Context, wg *sync.WaitGroup, db *db.DB) (*YtDlp, error) {
 	y, err := downloadLatestRelease()
 	if err != nil {
 		return nil, err
 	}
 
+	y.aCtx = ctx
+	y.wg = wg
 	y.db = db
+
+	// Load all pending downloads from database
+	y.loadPendingFromDB()
+
 	return y, nil
 }
 

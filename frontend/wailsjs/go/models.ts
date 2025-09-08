@@ -11,23 +11,6 @@ export namespace events {
 
 }
 
-export namespace sync {
-	
-	export class WaitGroup {
-	
-	
-	    static createFrom(source: any = {}) {
-	        return new WaitGroup(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	
-	    }
-	}
-
-}
-
 export namespace ytdlp {
 	
 	export class Download {
