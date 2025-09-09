@@ -1,8 +1,9 @@
-package sound
+package audio
 
 import (
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,8 +17,9 @@ import (
 
 type AudioFile struct {
 	Path     string
-	Format   beep.Format
-	streamer beep.StreamSeekCloser
+	Metadata TrackMeta
+	buffer   *beep.Buffer
+	format   beep.Format
 }
 
 type PlayingQueue struct {
@@ -31,9 +33,13 @@ var (
 
 func NewAudioFile(path string) (*AudioFile, error) {
 	af := &AudioFile{}
-	var err error
-	var format beep.Format
-	var streamer beep.StreamSeekCloser
+
+	var (
+		err      error
+		format   beep.Format
+		buffer   *beep.Buffer
+		streamer beep.StreamSeekCloser
+	)
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -47,6 +53,7 @@ func NewAudioFile(path string) (*AudioFile, error) {
 		streamer, format, err = flac.Decode(f)
 	case ".wav":
 		streamer, format, err = wav.Decode(f)
+		af.Metadata, _ = parseWavMeta(f)
 	case ".ogg":
 		streamer, format, err = vorbis.Decode(f)
 	default:
@@ -57,8 +64,18 @@ func NewAudioFile(path string) (*AudioFile, error) {
 		return nil, err
 	}
 
-	af.streamer = streamer
-	af.Format = format
+	buffer = beep.NewBuffer(format)
+	buffer.Append(streamer)
+
+	if af.Metadata == nil {
+		f.Seek(0, io.SeekStart)
+		af.Metadata, _ = parseTagMeta(f, buffer, format)
+	}
+
+	streamer.Close()
+
+	af.buffer = buffer
+	af.format = format
 	af.Path = path
 
 	return af, nil

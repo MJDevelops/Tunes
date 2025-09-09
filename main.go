@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
-	"github.com/mjdevelops/tunes/internal/pkg/sound"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -27,7 +27,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := NewApp()
-	pq := &sound.PlayingQueue{}
+	pq := &audio.PlayingQueue{}
 
 	// Initialize db connection
 	conn, err := db.NewDB()
