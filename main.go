@@ -30,14 +30,14 @@ func main() {
 	pq := &sound.PlayingQueue{}
 
 	// Initialize db connection
-	db, err := db.NewDB()
+	conn, err := db.NewDB()
 	if err != nil {
 		log.Fatalf("Couldn't initialize connection to database: %v", err)
 	}
-	db.Migrate()
+	conn.Migrate()
 
 	// Initialize yt-dlp
-	ydl, _ := ytdlp.Initialize(queueContext, &queueWg, db)
+	ydl, _ := ytdlp.Initialize(queueContext, &queueWg, conn)
 
 	// Create application with options
 	err = wails.Run(&options.App{

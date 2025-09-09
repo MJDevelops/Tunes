@@ -2,6 +2,7 @@ package ytdlp
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -54,15 +55,20 @@ func (y *YtDlp) SetContext(ctx context.Context) {
 }
 
 func downloadLatestRelease() (*YtDlp, error) {
+	var err error
+
 	executable := getPlatformExecutable()
 	if executable == "" {
 		return nil, errors.New("unsupported")
 	}
 
 	ytdlp := &YtDlp{}
-	release := fetchLatestRelease()
+	release, err := fetchLatestRelease()
+	if err != nil {
+		return nil, errors.New("unable to fetch latest release")
+	}
 	execPath := config.GetYtDlpPath()
-	_, err := os.Stat(execPath)
+	_, err = os.Stat(execPath)
 
 	if release == config.GetYtDlpRelease() && !errors.Is(err, os.ErrNotExist) {
 		ytdlp.Bin = execPath
@@ -103,17 +109,27 @@ func downloadLatestRelease() (*YtDlp, error) {
 	return ytdlp, nil
 }
 
-func fetchLatestRelease() string {
-	latestBaseUrl, _ := url.JoinPath(baseUrl, "latest")
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return errors.New("redirect")
-		},
+func fetchLatestRelease() (string, error) {
+	var githubRes struct {
+		TagName string `json:"tag_name"`
 	}
 
-	res, _ := client.Get(latestBaseUrl)
-	releasePath, _ := res.Location()
-	return filepath.Base(releasePath.String())
+	res, err := http.Get("https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.New("failed to read latest release")
+	}
+
+	if err := json.Unmarshal(bytes, &githubRes); err != nil {
+		return "", errors.New("failed to unmarshal latest release")
+	}
+
+	return githubRes.TagName, nil
 }
 
 func getPlatformExecutable() string {
