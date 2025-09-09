@@ -46,14 +46,15 @@ func NewAudioFile(path string) (*AudioFile, error) {
 		return nil, err
 	}
 
-	switch strings.ToLower(filepath.Ext(path)) {
+	ext := strings.ToLower(filepath.Ext(path))
+
+	switch ext {
 	case ".mp3":
 		streamer, format, err = mp3.Decode(f)
 	case ".flac":
 		streamer, format, err = flac.Decode(f)
 	case ".wav":
 		streamer, format, err = wav.Decode(f)
-		af.Metadata, _ = parseWavMeta(f)
 	case ".ogg":
 		streamer, format, err = vorbis.Decode(f)
 	default:
@@ -67,8 +68,10 @@ func NewAudioFile(path string) (*AudioFile, error) {
 	buffer = beep.NewBuffer(format)
 	buffer.Append(streamer)
 
-	if af.Metadata == nil {
-		f.Seek(0, io.SeekStart)
+	f.Seek(0, io.SeekStart)
+	if ext == ".wav" {
+		af.Metadata, _ = parseWavMeta(f)
+	} else {
 		af.Metadata, _ = parseTagMeta(f, buffer, format)
 	}
 
