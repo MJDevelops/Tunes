@@ -72,7 +72,7 @@ func NewAudioFile(path string) (*AudioFile, error) {
 	if ext == ".wav" {
 		af.Metadata, _ = parseWavMeta(f)
 	} else {
-		af.Metadata, _ = parseTagMeta(f, buffer, format)
+		af.Metadata, _ = parseTagMeta(f, buffer)
 	}
 
 	streamer.Close()

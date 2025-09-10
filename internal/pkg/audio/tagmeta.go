@@ -37,12 +37,12 @@ func (f *TagMeta) Title() string {
 	return f.title
 }
 
-func parseTagMeta(file *os.File, buf *beep.Buffer, format beep.Format) (TrackMeta, error) {
+func parseTagMeta(file *os.File, buf *beep.Buffer) (TrackMeta, error) {
 	meta, err := tag.ReadFrom(file)
 	if err != nil {
 		return nil, err
 	}
-	duration := format.SampleRate.D(buf.Len())
+	duration := buf.Format().SampleRate.D(buf.Len())
 
 	return &TagMeta{
 		title:    meta.Title(),
