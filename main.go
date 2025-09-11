@@ -20,10 +20,12 @@ import (
 var assets embed.FS
 
 func main() {
-	// Context and waitgroup for the download queue
-	var queueWg sync.WaitGroup
+	// App waitgroup
+	var wg sync.WaitGroup
+
+	// App context
 	ctx := context.Background()
-	queueContext, cancel := context.WithCancel(ctx)
+	appCtx, cancel := context.WithCancel(ctx)
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -37,7 +39,7 @@ func main() {
 	conn.Migrate()
 
 	// Initialize yt-dlp
-	ydl, _ := ytdlp.Initialize(queueContext, &queueWg, conn)
+	ydl, _ := ytdlp.Initialize(appCtx, &wg, conn)
 
 	// Create application with options
 	err = wails.Run(&options.App{
@@ -56,7 +58,7 @@ func main() {
 		},
 		OnShutdown: func(ctx context.Context) {
 			cancel()
-			queueWg.Wait()
+			wg.Wait()
 			ydl.StopQueue()
 		},
 		Bind: []interface{}{
