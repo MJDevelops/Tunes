@@ -4,10 +4,10 @@ import (
 	"time"
 )
 
-type TrackMeta interface {
-	Title() string
-	Artist() string
-	Duration() time.Duration
-	Album() string
-	Genre() string
+type TrackMeta struct {
+	Title    string
+	Artist   string
+	Duration time.Duration
+	Album    string
+	Genre    string
 }

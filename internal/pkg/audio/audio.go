@@ -31,8 +31,8 @@ var (
 	ErrUnsupported = errors.New("unsupported file format")
 )
 
-func NewAudioFile(path string) (*AudioFile, error) {
-	af := &AudioFile{}
+func NewAudioFile(path string) (AudioFile, error) {
+	af := AudioFile{}
 
 	var (
 		err      error
@@ -43,7 +43,7 @@ func NewAudioFile(path string) (*AudioFile, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return af, err
 	}
 
 	ext := strings.ToLower(filepath.Ext(path))
@@ -58,11 +58,11 @@ func NewAudioFile(path string) (*AudioFile, error) {
 	case ".ogg":
 		streamer, format, err = vorbis.Decode(f)
 	default:
-		return nil, ErrUnsupported
+		return af, ErrUnsupported
 	}
 
 	if err != nil {
-		return nil, err
+		return af, err
 	}
 
 	buffer = beep.NewBuffer(format)
