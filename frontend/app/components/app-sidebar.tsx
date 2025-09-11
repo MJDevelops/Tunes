@@ -9,7 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "app/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 
 type SidebarItem = {
   title: string;
@@ -29,7 +29,7 @@ const items: SidebarItems[] = [
       {
         title: "Home",
         icon: <Home />,
-        url: "#",
+        url: "/",
       },
     ],
   },
@@ -38,7 +38,7 @@ const items: SidebarItems[] = [
     items: [
       {
         title: "yt-dlp",
-        url: "#/download/yt-dlp",
+        url: "/download/yt-dlp",
       },
     ],
   },
