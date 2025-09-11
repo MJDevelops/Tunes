@@ -120,14 +120,7 @@ func fetchLatestRelease() (string, error) {
 	}
 	defer res.Body.Close()
 
-	bytes, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", errors.New("failed to read latest release")
-	}
-
-	if err := json.Unmarshal(bytes, &githubRes); err != nil {
-		return "", errors.New("failed to unmarshal latest release")
-	}
+	json.NewDecoder(res.Body).Decode(&githubRes)
 
 	return githubRes.TagName, nil
 }
