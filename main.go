@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
@@ -14,11 +15,16 @@ import (
 var assets embed.FS
 
 func main() {
+	var err error
+
 	// Create an instance of the app structure
-	app := NewApp()
+	app, err := NewApp()
+	if err != nil {
+		log.Fatalf("Error during initialization of app: %v\n", err)
+	}
 
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "Tunes",
 		Width:  1024,
 		Height: 768,

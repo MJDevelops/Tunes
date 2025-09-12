@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
@@ -28,37 +27,36 @@ type App struct {
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
-}
-
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
+func NewApp() (*App, error) {
+	app := &App{}
+	app.PlayingQueue = &audio.PlayingQueue{}
 
 	aCtx := context.Background()
 	appCtx, cancel := context.WithCancel(aCtx)
-	a.appCtx = appCtx
-	a.cancel = cancel
+	app.appCtx = appCtx
+	app.cancel = cancel
 
 	// Initialize db connection
 	conn, err := db.NewDB()
 	if err != nil {
-		log.Fatalf("Couldn't initialize connection to database: %v", err)
+		return nil, err
 	}
 	conn.Migrate()
 
-	pq := &audio.PlayingQueue{}
-	pq.SetContext(ctx)
-	a.PlayingQueue = pq
-
-	ydl, err := ytdlp.Initialize(appCtx, &a.wg, conn)
+	ydl, err := ytdlp.Initialize(appCtx, &app.wg, conn)
 	if err != nil {
-		log.Fatalf("Error during initialization of yt-dlp: %s", err.Error())
+		return nil, err
 	}
-	a.YtDlp = ydl
+	app.YtDlp = ydl
 
-	ydl.SetContext(ctx)
-	go ydl.StartQueue()
+	return app, nil
+}
+
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+	a.PlayingQueue.SetContext(ctx)
+	a.YtDlp.SetContext(ctx)
+	go a.YtDlp.StartQueue()
 }
 
 func (a *App) shutdown(ctx context.Context) {
