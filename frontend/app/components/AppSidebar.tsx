@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Home, ListMusic, Disc2 } from "lucide-react";
 import { Link } from "react-router";
 import {
   Sidebar,
@@ -31,14 +31,28 @@ const items: SidebarItems[] = [
         icon: <Home />,
         url: "/",
       },
+      {
+        title: "Playlists",
+        icon: <ListMusic />,
+        url: "/playlists",
+      },
+      {
+        title: "Albums",
+        icon: <Disc2 />,
+        url: "/albums",
+      },
     ],
   },
   {
-    groupName: "Download",
+    groupName: "Explore",
     items: [
       {
-        title: "yt-dlp",
-        url: "/download/yt-dlp",
+        title: "YouTube",
+        url: "/explore/youtube",
+      },
+      {
+        title: "Soundcloud",
+        url: "/explore/soundcloud",
       },
     ],
   },
