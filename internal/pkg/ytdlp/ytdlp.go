@@ -23,12 +23,10 @@ type YtDlp struct {
 	DownloadQueue DownloadQueue
 	db            *db.DB
 
-	// Wails context
-	ctx context.Context
-
-	// App context
+	// Reference to app context
 	aCtx context.Context
 
+	// Reference to app waitgroup
 	wg *sync.WaitGroup
 }
 
@@ -48,10 +46,6 @@ func Initialize(ctx context.Context, wg *sync.WaitGroup, db *db.DB) (*YtDlp, err
 	y.loadPendingFromDB()
 
 	return y, nil
-}
-
-func (y *YtDlp) SetContext(ctx context.Context) {
-	y.ctx = ctx
 }
 
 func downloadLatestRelease() (*YtDlp, error) {

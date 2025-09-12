@@ -1,12 +1,12 @@
 package audio
 
 import (
-	"context"
 	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gopxl/beep/v2"
 	"github.com/gopxl/beep/v2/flac"
@@ -24,7 +24,7 @@ type AudioFile struct {
 
 type PlayingQueue struct {
 	Queue []AudioFile
-	ctx   context.Context
+	mu    sync.Mutex
 }
 
 var (
@@ -82,8 +82,4 @@ func NewAudioFile(path string) (AudioFile, error) {
 	af.Path = path
 
 	return af, nil
-}
-
-func (pq *PlayingQueue) SetContext(ctx context.Context) {
-	pq.ctx = ctx
 }

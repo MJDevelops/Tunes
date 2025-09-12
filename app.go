@@ -23,6 +23,7 @@ type App struct {
 	// Cancellation function for app context
 	cancel func()
 
+	// App waitgroup
 	wg sync.WaitGroup
 }
 
@@ -54,9 +55,7 @@ func NewApp() (*App, error) {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	a.PlayingQueue.SetContext(ctx)
-	a.YtDlp.SetContext(ctx)
-	go a.YtDlp.StartQueue()
+	go a.YtDlp.StartQueue(ctx)
 }
 
 func (a *App) shutdown(ctx context.Context) {

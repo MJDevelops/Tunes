@@ -40,7 +40,7 @@ func init() {
 }
 
 // Adds download to queue and returns the corresponding ID
-func (y *YtDlp) AddToQueue(download *Download) string {
+func (y *YtDlp) AddToQueue(ctx context.Context, download *Download) string {
 	dq := &y.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
@@ -48,14 +48,14 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	download.ID = id
 
 	if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-		runtime.EventsEmit(y.ctx, string(events.DownloadQueueStarted))
+		runtime.EventsEmit(ctx, string(events.DownloadQueueStarted))
 	}
 
 	dq.Waiting = append(dq.Waiting, *download)
 	return id
 }
 
-func (y *YtDlp) StartQueue() {
+func (y *YtDlp) StartQueue(ctx context.Context) {
 	dq := &y.DownloadQueue
 	dq.once.Do(func() {
 		y.wg.Add(1)
@@ -70,9 +70,9 @@ func (y *YtDlp) StartQueue() {
 					newDown := dq.Waiting[0]
 
 					go func() {
-						y.download(newDown)
+						y.download(ctx, newDown)
 						if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-							runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
+							runtime.EventsEmit(ctx, string(events.DownloadQueueDone))
 						}
 					}()
 
@@ -119,7 +119,7 @@ func (y *YtDlp) saveQueueState() {
 	gorm.G[db.Download](y.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
 }
 
-func (y *YtDlp) download(download Download) {
+func (y *YtDlp) download(ctx context.Context, download Download) {
 	y.wg.Add(1)
 	defer y.wg.Done()
 	cmd := exec.CommandContext(context.Background(), y.Bin, download.Url, "-P", download.ID)
@@ -128,16 +128,16 @@ func (y *YtDlp) download(download Download) {
 		ch <- cmd.Run()
 	}()
 
-	runtime.EventsEmit(y.ctx, string(events.DownloadStarted), download.ID)
+	runtime.EventsEmit(ctx, string(events.DownloadStarted), download.ID)
 
 	select {
 	case <-y.aCtx.Done():
-		runtime.EventsEmit(y.ctx, string(events.DownloadInterrupt), download.ID)
+		runtime.EventsEmit(ctx, string(events.DownloadInterrupt), download.ID)
 		cmd.Cancel()
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		runtime.EventsEmit(y.ctx, string(events.DownloadFinished), download.ID)
+		runtime.EventsEmit(ctx, string(events.DownloadFinished), download.ID)
 		y.removeFromQueue(download.ID)
 		return
 	}
