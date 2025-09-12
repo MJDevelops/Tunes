@@ -55,6 +55,7 @@ func NewApp() (*App, error) {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	a.YtDlp.SetContext(ctx)
 	go a.YtDlp.StartQueue(ctx)
 }
 
