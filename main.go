@@ -4,7 +4,6 @@ import (
 	"embed"
 	"log"
 
-	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -41,7 +40,7 @@ func main() {
 			events.Events,
 		},
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: uuid.NewString(),
+			UniqueId: "01993fca-6c97-746f-b747-6c0c12b27e32",
 		},
 	})
 
