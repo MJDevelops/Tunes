@@ -55,7 +55,7 @@ func (y *YtDlp) AddToQueue(download *Download) string {
 	return id
 }
 
-func (y *YtDlp) StartQueue(ctx context.Context) {
+func (y *YtDlp) StartQueue() {
 	dq := &y.DownloadQueue
 	dq.once.Do(func() {
 		y.wg.Add(1)
@@ -72,7 +72,7 @@ func (y *YtDlp) StartQueue(ctx context.Context) {
 					go func() {
 						y.download(newDown)
 						if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-							runtime.EventsEmit(ctx, string(events.DownloadQueueDone))
+							runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
 						}
 					}()
 
