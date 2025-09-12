@@ -86,6 +86,24 @@ export namespace ytdlp {
 	        this.Progress = source["Progress"];
 	    }
 	}
+	export class Thumbnail {
+	    url: string;
+	    height: string;
+	    width: string;
+	    resolution: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Thumbnail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.url = source["url"];
+	        this.height = source["height"];
+	        this.width = source["width"];
+	        this.resolution = source["resolution"];
+	    }
+	}
 
 }
 

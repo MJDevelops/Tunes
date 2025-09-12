@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
+	"sync"
 
+	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
+	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -15,12 +19,26 @@ var assets embed.FS
 
 func main() {
 	var err error
+	var wg sync.WaitGroup
+
+	aCtx := context.Background()
+	appCtx, cancel := context.WithCancel(aCtx)
+
+	// Initialize db connection
+	conn, err := db.NewDB()
+	if err != nil {
+		log.Fatalf("Error initializing database: %v\n", err)
+	}
+	conn.Migrate()
+
+	// Initialize yt-dlp
+	ydl, err := ytdlp.Initialize(appCtx, &wg, conn)
+	if err != nil {
+		log.Fatalf("Error initializing yt-dlp: %v\n", err)
+	}
 
 	// Create an instance of the app structure
-	app, err := NewApp()
-	if err != nil {
-		log.Fatalf("Error during initialization of app: %v\n", err)
-	}
+	app := NewApp()
 
 	// Create application with options
 	err = wails.Run(&options.App{
@@ -31,10 +49,19 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
-		OnShutdown:       app.shutdown,
+		OnStartup: func(ctx context.Context) {
+			app.startup(ctx)
+			ydl.SetContext(ctx)
+			go ydl.StartQueue()
+		},
+		OnShutdown: func(_ context.Context) {
+			cancel()
+			wg.Wait()
+			ydl.StopQueue()
+		},
 		Bind: []interface{}{
 			app,
+			ydl,
 		},
 		EnumBind: []interface{}{
 			events.Events,

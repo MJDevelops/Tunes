@@ -13,12 +13,11 @@ type Thumbnail struct {
 	Resolution string      `json:"resolution"`
 }
 
-type ThumbnailJson struct {
-	Thumbnails []Thumbnail `json:"thumbnails"`
-}
+func (y *YtDlp) GetThumbnails(url string) ([]Thumbnail, error) {
+	var thJson struct {
+		Thumbnails []Thumbnail `json:"thumbnails"`
+	}
 
-func (y *YtDlp) GetThumbnails(url string) (*ThumbnailJson, error) {
-	thJson := &ThumbnailJson{}
 	cmd := exec.Command(y.Bin, url, "--dump-json", "-q")
 	oBytes, _ := cmd.Output()
 
@@ -26,17 +25,17 @@ func (y *YtDlp) GetThumbnails(url string) (*ThumbnailJson, error) {
 		return nil, errors.New("couldn't parse json")
 	}
 
-	return thJson, nil
+	return thJson.Thumbnails, nil
 }
 
 func (y *YtDlp) GetHighDefinitionThumbnail(url string) (string, error) {
-	out, err := y.GetThumbnails(url)
+	thumbnails, err := y.GetThumbnails(url)
 
 	if err != nil {
 		return "", err
 	}
 
-	for _, thumbnail := range out.Thumbnails {
+	for _, thumbnail := range thumbnails {
 		if thumbnail.Resolution == "1920x1080" {
 			return thumbnail.Url, nil
 		}
