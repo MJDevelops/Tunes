@@ -20,6 +20,13 @@ type YtDlp struct {
 	Path string
 }
 
+type Thumbnail struct {
+	Url        string      `json:"url"`
+	Height     json.Number `json:"height"`
+	Width      json.Number `json:"width"`
+	Resolution string      `json:"resolution"`
+}
+
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 func DownloadLatestRelease() (*YtDlp, error) {

@@ -3,18 +3,13 @@ package main
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 )
 
-type Thumbnail struct {
-	Url        string      `json:"url"`
-	Height     json.Number `json:"height"`
-	Width      json.Number `json:"width"`
-	Resolution string      `json:"resolution"`
-}
-
-func (a *App) GetThumbnails(url string) ([]Thumbnail, error) {
+func (a *App) GetThumbnails(url string) ([]ytdlp.Thumbnail, error) {
 	var thJson struct {
-		Thumbnails []Thumbnail `json:"thumbnails"`
+		Thumbnails []ytdlp.Thumbnail `json:"thumbnails"`
 	}
 
 	cmd := a.YtDlp.CreateCommandQuiet(url, "--dump-json")
