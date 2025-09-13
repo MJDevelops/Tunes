@@ -86,6 +86,11 @@ export namespace main {
 	        this.Progress = source["Progress"];
 	    }
 	}
+
+}
+
+export namespace ytdlp {
+	
 	export class Thumbnail {
 	    url: string;
 	    height: string;

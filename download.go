@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"os"
-	"os/exec"
 	"slices"
 	"sync"
 	"time"
@@ -40,7 +39,7 @@ func init() {
 }
 
 // Adds download to queue and returns the corresponding ID
-func (a *App) AddToQueue(download *Download) string {
+func (a *App) AddToQueue(download Download) string {
 	dq := &a.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
@@ -51,7 +50,7 @@ func (a *App) AddToQueue(download *Download) string {
 		runtime.EventsEmit(a.ctx, string(events.DownloadQueueStarted))
 	}
 
-	dq.Waiting = append(dq.Waiting, *download)
+	dq.Waiting = append(dq.Waiting, download)
 	return id
 }
 
@@ -122,7 +121,7 @@ func (a *App) saveQueueState() {
 func (a *App) download(download Download) {
 	a.wg.Add(1)
 	defer a.wg.Done()
-	cmd := exec.CommandContext(context.Background(), a.YtDlp.Path, download.Url, "-P", download.ID)
+	cmd := a.YtDlp.CreateCommandQuiet(download.Url, "-P", download.ID)
 	ch := make(chan error)
 	go func() {
 		ch <- cmd.Run()
