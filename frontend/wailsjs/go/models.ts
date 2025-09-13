@@ -68,7 +68,7 @@ export namespace events {
 
 }
 
-export namespace ytdlp {
+export namespace main {
 	
 	export class Download {
 	    ID: string;

@@ -1,62 +1,28 @@
 package ytdlp
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/config"
-	"github.com/mjdevelops/tunes/internal/pkg/db"
 )
 
+// Wrapper for yt-dlp executable
 type YtDlp struct {
-	// Path for the binary executable
-	Bin           string
-	DownloadQueue DownloadQueue
-	db            *db.DB
-
-	// Wails context
-	ctx context.Context
-
-	// Reference to app context
-	aCtx context.Context
-
-	// Reference to app waitgroup
-	wg *sync.WaitGroup
+	Path string
 }
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func Initialize(ctx context.Context, wg *sync.WaitGroup, db *db.DB) (*YtDlp, error) {
-	y, err := downloadLatestRelease()
-	if err != nil {
-		return nil, err
-	}
-
-	y.aCtx = ctx
-	y.wg = wg
-	y.db = db
-
-	// Load all pending downloads from database
-	y.loadPendingFromDB()
-
-	return y, nil
-}
-
-// Set the Wails application context
-func (y *YtDlp) SetContext(ctx context.Context) {
-	y.ctx = ctx
-}
-
-func downloadLatestRelease() (*YtDlp, error) {
+func DownloadLatestRelease() (*YtDlp, error) {
 	var err error
 
 	executable := getPlatformExecutable()
@@ -73,7 +39,7 @@ func downloadLatestRelease() (*YtDlp, error) {
 	_, err = os.Stat(execPath)
 
 	if release == config.GetYtDlpRelease() && !errors.Is(err, os.ErrNotExist) {
-		ytdlp.Bin = execPath
+		ytdlp.Path = execPath
 		return ytdlp, nil
 	}
 
@@ -85,9 +51,9 @@ func downloadLatestRelease() (*YtDlp, error) {
 		os.Mkdir(binPath, 0750)
 	}
 
-	ytdlp.Bin = filepath.Join(binPath, executable)
+	ytdlp.Path = filepath.Join(binPath, executable)
 
-	out, _ := os.Create(ytdlp.Bin)
+	out, _ := os.Create(ytdlp.Path)
 	defer out.Close()
 
 	downloadPath, _ := url.JoinPath(location, executable)
@@ -102,13 +68,19 @@ func downloadLatestRelease() (*YtDlp, error) {
 		return nil, errors.New("couldn't write response data to file")
 	}
 
-	os.Chmod(ytdlp.Bin, 0750)
+	os.Chmod(ytdlp.Path, 0750)
 
 	config.SetYtDlpRelease(release)
-	config.SetYtDlpPath(ytdlp.Bin)
+	config.SetYtDlpPath(ytdlp.Path)
 	config.Write()
 
 	return ytdlp, nil
+}
+
+// Creates command with the given options and sets the quiet flag
+func (y *YtDlp) CreateCommandQuiet(opts ...string) *exec.Cmd {
+	opts = append(opts, "-q")
+	return exec.Command(y.Path, opts...)
 }
 
 func fetchLatestRelease() (string, error) {

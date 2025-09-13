@@ -1,9 +1,8 @@
-package ytdlp
+package main
 
 import (
 	"encoding/json"
 	"errors"
-	"os/exec"
 )
 
 type Thumbnail struct {
@@ -13,23 +12,23 @@ type Thumbnail struct {
 	Resolution string      `json:"resolution"`
 }
 
-func (y *YtDlp) GetThumbnails(url string) ([]Thumbnail, error) {
+func (a *App) GetThumbnails(url string) ([]Thumbnail, error) {
 	var thJson struct {
 		Thumbnails []Thumbnail `json:"thumbnails"`
 	}
 
-	cmd := exec.Command(y.Bin, url, "--dump-json", "-q")
-	oBytes, _ := cmd.Output()
+	cmd := a.YtDlp.CreateCommandQuiet(url, "--dump-json")
+	output, _ := cmd.Output()
 
-	if err := json.Unmarshal(oBytes, &thJson); err != nil {
+	if err := json.Unmarshal(output, &thJson); err != nil {
 		return nil, errors.New("couldn't parse json")
 	}
 
 	return thJson.Thumbnails, nil
 }
 
-func (y *YtDlp) GetHighDefinitionThumbnail(url string) (string, error) {
-	thumbnails, err := y.GetThumbnails(url)
+func (a *App) GetHighDefinitionThumbnail(url string) (string, error) {
+	thumbnails, err := a.GetThumbnails(url)
 
 	if err != nil {
 		return "", err

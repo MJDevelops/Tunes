@@ -1,4 +1,4 @@
-package ytdlp
+package main
 
 import (
 	"context"
@@ -40,29 +40,29 @@ func init() {
 }
 
 // Adds download to queue and returns the corresponding ID
-func (y *YtDlp) AddToQueue(download *Download) string {
-	dq := &y.DownloadQueue
+func (a *App) AddToQueue(download *Download) string {
+	dq := &a.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
 	id := uuid.NewString()
 	download.ID = id
 
 	if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-		runtime.EventsEmit(y.ctx, string(events.DownloadQueueStarted))
+		runtime.EventsEmit(a.ctx, string(events.DownloadQueueStarted))
 	}
 
 	dq.Waiting = append(dq.Waiting, *download)
 	return id
 }
 
-func (y *YtDlp) StartQueue() {
-	dq := &y.DownloadQueue
+func (a *App) startQueue() {
+	dq := &a.DownloadQueue
 	dq.once.Do(func() {
-		y.wg.Add(1)
-		defer y.wg.Done()
+		a.wg.Add(1)
+		defer a.wg.Done()
 		for {
 			select {
-			case <-y.aCtx.Done():
+			case <-a.aCtx.Done():
 				return
 			default:
 				dq.mu.Lock()
@@ -70,9 +70,9 @@ func (y *YtDlp) StartQueue() {
 					newDown := dq.Waiting[0]
 
 					go func() {
-						y.download(newDown)
+						a.download(newDown)
 						if len(dq.Running) == 0 && len(dq.Waiting) == 0 {
-							runtime.EventsEmit(y.ctx, string(events.DownloadQueueDone))
+							runtime.EventsEmit(a.ctx, string(events.DownloadQueueDone))
 						}
 					}()
 
@@ -85,81 +85,81 @@ func (y *YtDlp) StartQueue() {
 	})
 }
 
-func (y *YtDlp) StopQueue() {
-	dq := &y.DownloadQueue
+func (a *App) stopQueue() {
+	dq := &a.DownloadQueue
 	dq.mu.Lock()
-	y.saveQueueState()
+	a.saveQueueState()
 }
 
-func (y *YtDlp) removeFromQueue(id string) {
-	dq := &y.DownloadQueue
+func (a *App) removeFromQueue(id string) {
+	dq := &a.DownloadQueue
 	dq.mu.Lock()
 	defer dq.mu.Unlock()
 	for i, d := range dq.Running {
 		if d.ID == id {
-			y.finishDownload(&d)
+			a.finishDownload(&d)
 			dq.Running = slices.Delete(dq.Running, i, i+1)
 			return
 		}
 	}
 }
 
-func (y *YtDlp) saveQueueState() {
+func (a *App) saveQueueState() {
 	ctx := context.Background()
 	var dbDownloads []db.Download
 
-	allUnfinished := append(y.DownloadQueue.Waiting, y.DownloadQueue.Running...)
+	allUnfinished := append(a.DownloadQueue.Waiting, a.DownloadQueue.Running...)
 	for _, d := range allUnfinished {
-		_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", d.ID).First(ctx)
+		_, err := gorm.G[db.Download](a.db.Conn).Where("id = ?", d.ID).First(ctx)
 		if err != nil {
 			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
 		}
 	}
 
-	gorm.G[db.Download](y.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
+	gorm.G[db.Download](a.db.Conn).CreateInBatches(ctx, &dbDownloads, 10)
 }
 
-func (y *YtDlp) download(download Download) {
-	y.wg.Add(1)
-	defer y.wg.Done()
-	cmd := exec.CommandContext(context.Background(), y.Bin, download.Url, "-P", download.ID)
+func (a *App) download(download Download) {
+	a.wg.Add(1)
+	defer a.wg.Done()
+	cmd := exec.CommandContext(context.Background(), a.YtDlp.Path, download.Url, "-P", download.ID)
 	ch := make(chan error)
 	go func() {
 		ch <- cmd.Run()
 	}()
 
-	runtime.EventsEmit(y.ctx, string(events.DownloadStarted), download.ID)
+	runtime.EventsEmit(a.ctx, string(events.DownloadStarted), download.ID)
 
 	select {
-	case <-y.aCtx.Done():
-		runtime.EventsEmit(y.ctx, string(events.DownloadInterrupt), download.ID)
+	case <-a.aCtx.Done():
+		runtime.EventsEmit(a.ctx, string(events.DownloadInterrupt), download.ID)
 		cmd.Cancel()
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		runtime.EventsEmit(y.ctx, string(events.DownloadFinished), download.ID)
-		y.removeFromQueue(download.ID)
+		runtime.EventsEmit(a.ctx, string(events.DownloadFinished), download.ID)
+		a.removeFromQueue(download.ID)
 		return
 	}
 }
 
-func (y *YtDlp) finishDownload(download *Download) {
+func (a *App) finishDownload(download *Download) {
 	// Try to update existing
 	ctx := context.Background()
 	currTime := time.Now()
-	_, err := gorm.G[db.Download](y.db.Conn).Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
+	_, err := gorm.G[db.Download](a.db.Conn).Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
 	if err != nil {
 		// The download wasn't created before, create it now
 		t := sql.NullTime{Valid: true, Time: currTime}
 		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
-		gorm.G[db.Download](y.db.Conn).Create(ctx, &dn)
+		gorm.G[db.Download](a.db.Conn).Create(ctx, &dn)
 	}
 }
 
-func (y *YtDlp) loadPendingFromDB() {
+func (a *App) loadPendingFromDB() {
 	ctx := context.Background()
-	downloads, _ := gorm.G[db.Download](y.db.Conn).Where("finished_at IS NULL").Find(ctx)
+	downloads, _ := gorm.G[db.Download](a.db.Conn).Where("finished_at IS NULL").Find(ctx)
 	for _, d := range downloads {
-		y.DownloadQueue.Waiting = append(y.DownloadQueue.Waiting, Download{ID: d.ID, Url: d.Url})
+		a.DownloadQueue.Waiting = append(a.DownloadQueue.Waiting, Download{ID: d.ID, Url: d.Url})
 	}
 }
