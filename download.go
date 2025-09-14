@@ -38,6 +38,13 @@ func init() {
 	}
 }
 
+func (dq *DownloadQueue) isRunning() bool {
+	dq.mu.Lock()
+	defer dq.mu.Unlock()
+
+	return len(dq.Running) > 0 || len(dq.Waiting) > 0
+}
+
 // Adds download to queue and returns the corresponding ID
 func (a *App) AddToQueue(download Download) string {
 	dq := &a.DownloadQueue

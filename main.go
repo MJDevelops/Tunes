@@ -30,7 +30,8 @@ func main() {
 			app.startup(ctx)
 			app.initialize()
 		},
-		OnShutdown: app.shutdown,
+		OnShutdown:    app.shutdown,
+		OnBeforeClose: app.beforeClose,
 		Bind: []interface{}{
 			app,
 		},

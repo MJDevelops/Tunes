@@ -8,6 +8,7 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Application state
@@ -55,6 +56,24 @@ func (a *App) initialize() {
 
 	// Start download queue
 	go a.startQueue()
+}
+
+func (a *App) beforeClose(ctx context.Context) bool {
+	if a.DownloadQueue.isRunning() {
+		dialog, err := runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
+			Type:    runtime.QuestionDialog,
+			Title:   "Quit",
+			Message: "Are you sure you want to quit? Currently running downloads will be cancelled.",
+		})
+
+		if err != nil {
+			return false
+		}
+
+		return dialog != "Yes"
+	}
+
+	return true
 }
 
 func (a *App) shutdown(_ context.Context) {
