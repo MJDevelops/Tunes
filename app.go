@@ -73,7 +73,7 @@ func (a *App) beforeClose(ctx context.Context) bool {
 		return dialog != "Yes"
 	}
 
-	return true
+	return false
 }
 
 func (a *App) shutdown(_ context.Context) {
