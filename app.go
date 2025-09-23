@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
+	"github.com/mjdevelops/tunes/internal/pkg/download"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -15,17 +15,9 @@ import (
 type App struct {
 	YtDlp         *ytdlp.YtDlp
 	PlayingQueue  *audio.PlayingQueue
-	DownloadQueue DownloadQueue
+	DownloadQueue *download.DownloadQueue
 	db            *db.DB
-
-	// App context
-	aCtx   context.Context
-	cancel context.CancelFunc
-
-	wg sync.WaitGroup
-
-	// Wails context
-	ctx context.Context
+	ctx           context.Context
 }
 
 // NewApp creates a new App application struct
@@ -41,8 +33,6 @@ func NewApp() *App {
 	conn.Migrate()
 	app.db = conn
 
-	app.aCtx, app.cancel = context.WithCancel(context.Background())
-
 	return app
 }
 
@@ -52,14 +42,13 @@ func (a *App) startup(ctx context.Context) {
 
 func (a *App) initialize() {
 	// Load all pending downloads from database
-	a.loadPendingFromDB()
-
-	// Start download queue
-	go a.startQueue()
+	downloads := a.loadPendingFromDB()
+	a.DownloadQueue = download.NewDownloadQueue(5, downloads...)
+	a.DownloadQueue.Start()
 }
 
 func (a *App) beforeClose(ctx context.Context) bool {
-	if a.DownloadQueue.isRunning() {
+	if a.DownloadQueue.IsRunning() {
 		dialog, err := runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
 			Type:    runtime.QuestionDialog,
 			Title:   "Quit",
@@ -77,7 +66,6 @@ func (a *App) beforeClose(ctx context.Context) bool {
 }
 
 func (a *App) shutdown(_ context.Context) {
-	a.cancel()
-	a.wg.Wait()
-	a.stopQueue()
+	a.DownloadQueue.Stop()
+	a.saveQueueState()
 }
