@@ -47,3 +47,12 @@ func (a *App) loadPendingFromDB() []download.Download {
 
 	return qDownloads
 }
+
+func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
+	down := download.NewDownload(a.YtDlp.Path, url, opts...)
+	down.OnFinished(func() {
+		a.finishDownload(&down)
+	})
+
+	return a.DownloadQueue.SendToQueue(down)
+}

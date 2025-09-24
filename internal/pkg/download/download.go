@@ -21,9 +21,9 @@ type ProgressFormat struct {
 type Download struct {
 	ID         string
 	Url        string
-	OnProgress func(ProgressFormat)
-	OnFinished func(*Download)
-	command    string
+	onProgress func(ProgressFormat)
+	onFinished func()
+	command    *exec.Cmd
 }
 
 type DownloadQueue struct {
@@ -35,6 +35,15 @@ type DownloadQueue struct {
 	workers    uint
 	started    uint32
 	onShutdown func(downloads <-chan Download)
+}
+
+func NewDownload(executable string, url string, options ...string) Download {
+	download := Download{}
+
+	opts := append(options, "--progress", "--newline", "--progress-template", "'%(progress)j'")
+	download.command = exec.CommandContext(context.Background(), executable, opts...)
+
+	return download
 }
 
 func NewDownloadQueue(workers uint, downloads ...Download) *DownloadQueue {
@@ -104,19 +113,28 @@ func (dq *DownloadQueue) Stop() {
 func (dq *DownloadQueue) download(download Download) {
 	dq.wg.Add(1)
 	defer dq.wg.Done()
-	cmd := exec.Command(download.command, download.Url, "--progress", "--newline", "--progress-template", "'%(progress)j'")
 	ch := make(chan error)
 	go func() {
-		ch <- cmd.Run()
+		ch <- download.command.Run()
 	}()
 
 	select {
 	case <-dq.ctx.Done():
-		cmd.Cancel()
+		download.command.Cancel()
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		download.OnFinished(&download)
+		download.onFinished()
 		return
 	}
+}
+
+func (d *Download) OnFinished(f func()) *Download {
+	d.onFinished = f
+	return d
+}
+
+func (d *Download) OnProgress(f func(ProgressFormat)) *Download {
+	d.onProgress = f
+	return d
 }
