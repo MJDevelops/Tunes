@@ -6,7 +6,7 @@ import (
 )
 
 type DB struct {
-	Conn *gorm.DB
+	conn *gorm.DB
 }
 
 func NewDB() (*DB, error) {
@@ -16,7 +16,7 @@ func NewDB() (*DB, error) {
 	}
 
 	return &DB{
-		Conn: db,
+		conn: db,
 	}, nil
 }
 
@@ -24,5 +24,9 @@ func (db *DB) Migrate() {
 	models := []any{
 		&Download{},
 	}
-	db.Conn.AutoMigrate(models...)
+	db.conn.AutoMigrate(models...)
+}
+
+func (db *DB) Conn() *gorm.DB {
+	return db.conn
 }
