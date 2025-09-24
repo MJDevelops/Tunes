@@ -10,12 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (a *App) saveQueueState() {
+func (a *App) saveQueueState(downloads <-chan download.Download) {
 	ctx := context.Background()
 	var dbDownloads []db.Download
 
-	allUnfinished := append(a.DownloadQueue.Waiting(), a.DownloadQueue.Running()...)
-	for _, d := range allUnfinished {
+	for d := range downloads {
 		_, err := gorm.G[db.Download](a.db.Conn).Where("id = ?", d.ID).First(ctx)
 		if err != nil {
 			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})

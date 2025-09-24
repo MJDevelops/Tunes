@@ -43,7 +43,7 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) initialize() {
 	// Load all pending downloads from database
 	downloads := a.loadPendingFromDB()
-	a.DownloadQueue = download.NewDownloadQueue(5, downloads...)
+	a.DownloadQueue = download.NewDownloadQueue(5, downloads...).OnShutdown(a.saveQueueState)
 	a.DownloadQueue.Start()
 }
 
@@ -67,5 +67,4 @@ func (a *App) beforeClose(ctx context.Context) bool {
 
 func (a *App) shutdown(_ context.Context) {
 	a.DownloadQueue.Stop()
-	a.saveQueueState()
 }

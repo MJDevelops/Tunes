@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 	"os/exec"
-	"slices"
 	"sync"
+	"sync/atomic"
 
 	"github.com/google/uuid"
 )
@@ -27,14 +27,14 @@ type Download struct {
 }
 
 type DownloadQueue struct {
-	running []Download
-	waiting []Download
-	ctx     context.Context
-	cancel  context.CancelFunc
-	mu      sync.RWMutex
-	once    sync.Once
-	wg      sync.WaitGroup
-	workers uint
+	queue      chan Download
+	ctx        context.Context
+	cancel     context.CancelFunc
+	once       sync.Once
+	wg         sync.WaitGroup
+	workers    uint
+	started    uint32
+	onShutdown func(downloads <-chan Download)
 }
 
 func NewDownloadQueue(workers uint, downloads ...Download) *DownloadQueue {
@@ -44,41 +44,34 @@ func NewDownloadQueue(workers uint, downloads ...Download) *DownloadQueue {
 	dq.ctx = ctx
 	dq.cancel = cancel
 	dq.workers = workers
+	dq.queue = make(chan Download, len(downloads))
+
+	for _, d := range downloads {
+		dq.queue <- d
+	}
 
 	return dq
 }
 
-func (dq *DownloadQueue) Running() []Download {
-	dq.mu.RLock()
-	defer dq.mu.RUnlock()
-
-	return dq.running
-}
-
-func (dq *DownloadQueue) Waiting() []Download {
-	dq.mu.RLock()
-	defer dq.mu.RUnlock()
-
-	return dq.waiting
+func (dq *DownloadQueue) OnShutdown(f func(downloads <-chan Download)) *DownloadQueue {
+	dq.onShutdown = f
+	return dq
 }
 
 // Adds download to queue and returns the corresponding ID
-func (dq *DownloadQueue) AddToQueue(download Download) string {
+func (dq *DownloadQueue) SendToQueue(download Download) string {
 	id := uuid.NewString()
 	download.ID = id
 
-	dq.mu.Lock()
-	defer dq.mu.Unlock()
+	go func() {
+		dq.queue <- download
+	}()
 
-	dq.waiting = append(dq.waiting, download)
 	return id
 }
 
 func (dq *DownloadQueue) IsRunning() bool {
-	dq.mu.RLock()
-	defer dq.mu.RUnlock()
-
-	return len(dq.running) > 0 || len(dq.waiting) > 0
+	return atomic.LoadUint32(&dq.started) > 0
 }
 
 func (dq *DownloadQueue) Start() {
@@ -91,19 +84,10 @@ func (dq *DownloadQueue) Start() {
 					select {
 					case <-dq.ctx.Done():
 						return
-					default:
-						if dq.isWaiting() {
-							dq.mu.RLock()
-							newDown := dq.waiting[0]
-							dq.mu.RUnlock()
-
-							dq.download(newDown)
-
-							dq.mu.Lock()
-							dq.running = append(dq.running, newDown)
-							dq.waiting = slices.Delete(dq.waiting, 0, 1)
-							dq.mu.Unlock()
-						}
+					case down := <-dq.queue:
+						atomic.AddUint32(&dq.started, 1)
+						dq.download(down)
+						atomic.AddUint32(&dq.started, ^uint32(0))
 					}
 				}
 			}()
@@ -111,33 +95,16 @@ func (dq *DownloadQueue) Start() {
 	})
 }
 
-func (dq *DownloadQueue) isWaiting() bool {
-	dq.mu.RLock()
-	defer dq.mu.RUnlock()
-
-	return len(dq.waiting) > 0
-}
-
-func (dq *DownloadQueue) removeFromQueue(id string) {
-	dq.mu.Lock()
-	defer dq.mu.Unlock()
-	for i, d := range dq.running {
-		if d.ID == id {
-			dq.running = slices.Delete(dq.running, i, i+1)
-			return
-		}
-	}
-}
-
 func (dq *DownloadQueue) Stop() {
 	dq.cancel()
 	dq.wg.Wait()
+	dq.onShutdown(dq.queue)
 }
 
 func (dq *DownloadQueue) download(download Download) {
 	dq.wg.Add(1)
 	defer dq.wg.Done()
-	cmd := exec.Command(download.command, download.Url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
+	cmd := exec.Command(download.command, download.Url, "--progress", "--newline", "--progress-template", "'%(progress)j'")
 	ch := make(chan error)
 	go func() {
 		ch <- cmd.Run()
@@ -149,7 +116,7 @@ func (dq *DownloadQueue) download(download Download) {
 		os.RemoveAll(download.ID)
 		return
 	case <-ch:
-		dq.removeFromQueue(download.ID)
+		download.OnFinished(&download)
 		return
 	}
 }
