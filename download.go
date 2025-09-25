@@ -7,6 +7,8 @@ import (
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/download"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
 
@@ -50,8 +52,14 @@ func (a *App) loadPendingFromDB() []download.Download {
 
 func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 	down := download.NewDownload(a.YtDlp.Path, url, opts...)
+
 	down.OnFinished(func() {
 		a.finishDownload(&down)
+		runtime.EventsEmit(a.ctx, string(events.DownloadFinished), down.ID)
+	})
+
+	down.OnProgress(func(pf download.ProgressFormat) {
+		runtime.EventsEmit(a.ctx, string(events.DownloadProgress), pf)
 	})
 
 	return a.DownloadQueue.SendToQueue(down)

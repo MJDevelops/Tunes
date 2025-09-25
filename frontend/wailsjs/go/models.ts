@@ -60,31 +60,11 @@ export namespace events {
 	export enum Event {
 	    QUEUE_STARTED = "tunes:dqueue:started",
 	    QUEUE_DONE = "tunes:dqueue:done",
-	    DOWNLOAD_STARTED = "tunes:dqueue:downloadStarted",
-	    DOWNLOAD_INTERRUPT = "tunes:dqueue:downloadInterrupt",
-	    DOWNLOAD_FINISHED = "tunes:dqueue:downloadFinished",
+	    DOWNLOAD_STARTED = "tunes:dl:downloadStarted",
+	    DOWNLOAD_INTERRUPT = "tunes:dl:downloadInterrupt",
+	    DOWNLOAD_FINISHED = "tunes:dl:downloadFinished",
+	    DOWNLOAD_PROGRESS = "tunes:dl:downloadProgress",
 	    TRACK_PROGRESS = "tunes:track:progress",
-	}
-
-}
-
-export namespace main {
-	
-	export class Download {
-	    ID: string;
-	    Url: string;
-	    Progress: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new Download(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.ID = source["ID"];
-	        this.Url = source["Url"];
-	        this.Progress = source["Progress"];
-	    }
 	}
 
 }
