@@ -1,21 +1,48 @@
 package config
 
-import "github.com/spf13/viper"
-
-const (
-	ytDlpRelease string = "executables.ytdlp.release"
-	ytDlpPath    string = "executables.ytdlp.path"
-	maxThreads   string = "application.maxThreads"
+import (
+	"encoding/json"
+	"os"
 )
 
-func init() {
-	viper.SetConfigName("tunes.config")
-	viper.SetConfigType("json")
-	viper.AddConfigPath(".")
+type YtDlp struct {
+	Release string `json:"release"`
+	Path    string `json:"path"`
+}
 
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			viper.SafeWriteConfig()
-		}
+type Executables struct {
+	YtDlp `json:"ytdlp"`
+}
+
+type Options struct {
+	MaxThreads uint `json:"maxThreads"`
+}
+
+type ApplicationConfig struct {
+	Executables `json:"executables"`
+	Options     `json:"options"`
+	configPath  string
+}
+
+func LoadApplicationConfig(path string) (ApplicationConfig, error) {
+	config := ApplicationConfig{}
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0550)
+	if err != nil {
+		return config, err
 	}
+	defer f.Close()
+
+	json.NewDecoder(f).Decode(&config)
+	config.configPath = path
+	return config, nil
+}
+
+func (c *ApplicationConfig) Write() error {
+	f, err := os.OpenFile(c.configPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0550)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return json.NewEncoder(f).Encode(c)
 }

@@ -29,7 +29,7 @@ type Thumbnail struct {
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func DownloadLatestRelease() (*YtDlp, error) {
+func DownloadLatestRelease(c *config.ApplicationConfig) (*YtDlp, error) {
 	var err error
 
 	executable := getPlatformExecutable()
@@ -42,10 +42,10 @@ func DownloadLatestRelease() (*YtDlp, error) {
 	if err != nil {
 		return nil, errors.New("unable to fetch latest release")
 	}
-	execPath := config.GetYtDlpPath()
+	execPath := c.Executables.YtDlp.Path
 	_, err = os.Stat(execPath)
 
-	if release == config.GetYtDlpRelease() && !errors.Is(err, os.ErrNotExist) {
+	if release == c.Executables.YtDlp.Release && !errors.Is(err, os.ErrNotExist) {
 		ytdlp.Path = execPath
 		return ytdlp, nil
 	}
@@ -77,9 +77,9 @@ func DownloadLatestRelease() (*YtDlp, error) {
 
 	os.Chmod(ytdlp.Path, 0750)
 
-	config.SetYtDlpRelease(release)
-	config.SetYtDlpPath(ytdlp.Path)
-	config.Write()
+	c.Executables.YtDlp.Release = release
+	c.Executables.YtDlp.Path = ytdlp.Path
+	c.Write()
 
 	return ytdlp, nil
 }
