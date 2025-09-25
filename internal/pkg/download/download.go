@@ -1,7 +1,9 @@
 package download
 
 import (
+	"bufio"
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"sync"
@@ -114,8 +116,18 @@ func (dq *DownloadQueue) download(download Download) {
 	dq.wg.Add(1)
 	defer dq.wg.Done()
 	ch := make(chan error)
+
 	go func() {
-		ch <- download.command.Run()
+		parsed := ProgressFormat{}
+		r, _ := download.command.StdoutPipe()
+		download.command.Start()
+		s := bufio.NewScanner(r)
+		for s.Scan() {
+			line := s.Bytes()
+			json.Unmarshal(line, &parsed)
+			download.onProgress(parsed)
+		}
+		ch <- download.command.Wait()
 	}()
 
 	select {
