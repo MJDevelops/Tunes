@@ -26,7 +26,7 @@ type ApplicationConfig struct {
 
 func LoadApplicationConfig(path string) (ApplicationConfig, error) {
 	config := ApplicationConfig{}
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0550)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0660)
 	if err != nil {
 		return config, err
 	}
@@ -38,7 +38,7 @@ func LoadApplicationConfig(path string) (ApplicationConfig, error) {
 }
 
 func (c *ApplicationConfig) Write() error {
-	f, err := os.OpenFile(c.configPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0550)
+	f, err := os.OpenFile(c.configPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0660)
 	if err != nil {
 		return err
 	}
