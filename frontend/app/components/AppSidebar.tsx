@@ -1,4 +1,4 @@
-import { Home, ListMusic, Disc2 } from "lucide-react";
+import { Home, ListMusic, Disc2, Settings } from "lucide-react";
 import { Link } from "react-router";
 import {
   Sidebar,
@@ -8,8 +8,9 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAnimate } from "motion/react";
+import SidebarItem from "@/components/SidebarItem";
 
 type SidebarItem = {
   title: string;
@@ -59,8 +60,10 @@ const items: SidebarItems[] = [
 ];
 
 export function AppSidebar() {
+  const [scope, animate] = useAnimate();
+
   return (
-    <Sidebar>
+    <Sidebar className="flex flex-col justify-between p-1 rounded-md">
       <SidebarContent>
         {items.map((group) => (
           <SidebarGroup key={group.groupName}>
@@ -68,20 +71,28 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <Link to={item.url}>
                         {item.icon}
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  </SidebarItem>
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <div
+        className="p-2 hover:cursor-pointer hover:bg-gray-900 flex justify-baseline gap-2 align-center"
+        onMouseEnter={() => animate(scope.current, { rotate: -90 })}
+        onMouseLeave={() => animate(scope.current, { rotate: 90 })}
+      >
+        <Settings ref={scope} />
+        Settings
+      </div>
     </Sidebar>
   );
 }
