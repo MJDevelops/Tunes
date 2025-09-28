@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAnimate } from "motion/react";
 import SidebarItem from "@/components/SidebarItem";
+import { MotionButton } from "@/components/Button";
 
 type SidebarItem = {
   title: string;
@@ -85,14 +86,15 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <div
-        className="p-2 hover:cursor-pointer hover:bg-gray-900 flex justify-baseline gap-2 align-center"
+      <MotionButton
+        className="m-2 p-2 hover:cursor-pointer flex justify-baseline gap-2 align-center"
         onMouseEnter={() => animate(scope.current, { rotate: -90 })}
         onMouseLeave={() => animate(scope.current, { rotate: 90 })}
+        variant="outline"
       >
         <Settings ref={scope} />
         Settings
-      </div>
+      </MotionButton>
     </Sidebar>
   );
 }
