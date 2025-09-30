@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"log"
+	"path"
+	"path/filepath"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
+	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/download"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
@@ -17,6 +20,7 @@ type App struct {
 	PlayingQueue  *audio.PlayingQueue
 	DownloadQueue *download.DownloadQueue
 	db            *db.DB
+	config        config.ApplicationConfig
 	ctx           context.Context
 }
 
@@ -24,6 +28,15 @@ type App struct {
 func NewApp() *App {
 	app := &App{}
 	app.PlayingQueue = &audio.PlayingQueue{}
+	config, err := config.LoadApplicationConfig(path.Join(".", "tunes.config.json"))
+	if err != nil {
+		log.Fatalf("Error loading config: %v\n", err)
+	}
+
+	ytdlp, err := ytdlp.DownloadLatestRelease(path.Join(".", "bin"))
+	if err != nil {
+		log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
+	}
 
 	// Initialize db connection
 	conn, err := db.NewDB()
@@ -31,7 +44,16 @@ func NewApp() *App {
 		log.Fatalf("Error initializing database: %v\n", err)
 	}
 	conn.Migrate()
+
+	abs, _ := filepath.Abs(ytdlp.Path)
+
+	config.Executables.YtDlp.Path = abs
+	config.Executables.YtDlp.Release = ytdlp.Release
+	config.Write()
+
+	app.YtDlp = ytdlp
 	app.db = conn
+	app.config = config
 
 	return app
 }

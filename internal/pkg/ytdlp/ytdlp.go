@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,13 +12,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/mjdevelops/tunes/internal/pkg/config"
 )
 
 // Wrapper for yt-dlp executable
 type YtDlp struct {
-	Path string
+	Path    string
+	Release string
 }
 
 type Thumbnail struct {
@@ -29,57 +29,24 @@ type Thumbnail struct {
 
 const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
-func DownloadLatestRelease(c *config.ApplicationConfig) (*YtDlp, error) {
+var ErrUnsupported error = errors.New("unsupported platform")
+
+func DownloadLatestRelease(binPath string) (*YtDlp, error) {
 	var err error
-
-	executable := getPlatformExecutable()
-	if executable == "" {
-		return nil, errors.New("unsupported")
-	}
-
 	ytdlp := &YtDlp{}
-	release, err := fetchLatestRelease()
+
+	latestRelease, err := fetchLatestRelease()
 	if err != nil {
 		return nil, errors.New("unable to fetch latest release")
 	}
-	execPath := c.Executables.YtDlp.Path
-	_, err = os.Stat(execPath)
 
-	if release == c.Executables.YtDlp.Release && !errors.Is(err, os.ErrNotExist) {
-		ytdlp.Path = execPath
-		return ytdlp, nil
-	}
-
-	location, _ := url.JoinPath(baseUrl, "download", release)
-
-	wd, _ := os.Getwd()
-	binPath := filepath.Join(wd, "bin")
-	if _, err := os.Stat(binPath); errors.Is(err, os.ErrNotExist) {
-		os.Mkdir(binPath, 0750)
-	}
-
-	ytdlp.Path = filepath.Join(binPath, executable)
-
-	out, _ := os.Create(ytdlp.Path)
-	defer out.Close()
-
-	downloadPath, _ := url.JoinPath(location, executable)
-	res, err := http.Get(downloadPath)
+	executable, err := downloadRelease(latestRelease, binPath)
 	if err != nil {
-		return nil, errors.New("request failed")
-	}
-	defer res.Body.Close()
-
-	_, err = io.Copy(out, res.Body)
-	if err != nil {
-		return nil, errors.New("couldn't write response data to file")
+		return nil, err
 	}
 
-	os.Chmod(ytdlp.Path, 0750)
-
-	c.Executables.YtDlp.Release = release
-	c.Executables.YtDlp.Path = ytdlp.Path
-	c.Write()
+	ytdlp.Path = executable
+	ytdlp.Release = latestRelease
 
 	return ytdlp, nil
 }
@@ -88,6 +55,49 @@ func DownloadLatestRelease(c *config.ApplicationConfig) (*YtDlp, error) {
 func (y *YtDlp) CreateCommandQuiet(opts ...string) *exec.Cmd {
 	opts = append(opts, "-q")
 	return exec.Command(y.Path, opts...)
+}
+
+// Downloads the provided yt-dlp release and returns the resulting output path.
+func downloadRelease(release string, toPath string) (string, error) {
+	executable := getPlatformExecutable()
+	if executable == "" {
+		return "", ErrUnsupported
+	}
+
+	if _, err := os.Stat(toPath); errors.Is(err, os.ErrNotExist) {
+		os.MkdirAll(toPath, 0750)
+	}
+
+	outPath := filepath.Join(toPath, executable)
+
+	output, err := exec.Command(outPath, "--version").Output()
+	if err != nil {
+		log.Printf("error fetching yt-dlp version: %v\n", err)
+	} else {
+		outputRelease := strings.TrimSpace(string(output))
+		if release == outputRelease {
+			return outPath, nil
+		}
+	}
+
+	out, _ := os.Create(outPath)
+	defer out.Close()
+
+	location, _ := url.JoinPath(baseUrl, "download", release, executable)
+	res, err := http.Get(location)
+	if err != nil {
+		return "", errors.New("request failed")
+	}
+	defer res.Body.Close()
+
+	_, err = io.Copy(out, res.Body)
+	if err != nil {
+		return "", errors.New("couldn't write response data to file")
+	}
+
+	os.Chmod(outPath, 0750)
+
+	return outPath, nil
 }
 
 func fetchLatestRelease() (string, error) {
