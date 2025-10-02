@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 
 const MotionButton = motion.create(SButton);
 
-export default function Button({
+function Button({
   children,
   ...props
 }: React.ComponentPropsWithoutRef<typeof MotionButton>) {
