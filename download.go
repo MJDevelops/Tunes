@@ -14,30 +14,31 @@ import (
 
 func (a *App) saveQueueState(downloads <-chan download.Download) {
 	ctx := context.Background()
-	conn := a.db.Conn()
 	var dbDownloads []db.Download
+	g := gorm.G[db.Download](a.db.Conn())
 
 	for d := range downloads {
-		_, err := gorm.G[db.Download](conn).Where("id = ?", d.ID).First(ctx)
+		_, err := g.Where("id = ?", d.ID).First(ctx)
 		if err != nil {
 			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
 		}
 	}
 
-	gorm.G[db.Download](conn).CreateInBatches(ctx, &dbDownloads, 10)
+	g.CreateInBatches(ctx, &dbDownloads, 10)
 }
 
 func (a *App) finishDownload(download *download.Download) {
 	// Try to update existing
 	ctx := context.Background()
-	conn := a.db.Conn()
 	currTime := time.Now()
-	_, err := gorm.G[db.Download](conn).Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
+	g := gorm.G[db.Download](a.db.Conn())
+
+	_, err := g.Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
 	if err != nil {
 		// The download wasn't created before, create it now
 		t := sql.NullTime{Valid: true, Time: currTime}
 		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
-		gorm.G[db.Download](conn).Create(ctx, &dn)
+		g.Create(ctx, &dn)
 	}
 }
 
