@@ -42,7 +42,7 @@ func (a *App) finishDownload(download *download.Download) {
 	}
 }
 
-func (a *App) loadPendingFromDB() []download.Download {
+func (a *App) PendingDownloads() []download.Download {
 	var qDownloads []download.Download
 	ctx := context.Background()
 	conn := a.db.Conn()

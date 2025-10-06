@@ -17,3 +17,7 @@ export function GetThumbnails(arg1) {
 export function NewAudioFile(arg1) {
   return window['go']['main']['App']['NewAudioFile'](arg1);
 }
+
+export function PendingDownloads() {
+  return window['go']['main']['App']['PendingDownloads']();
+}
