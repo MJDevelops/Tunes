@@ -46,15 +46,19 @@ const items: SidebarItems[] = [
     ],
   },
   {
-    groupName: "Explore",
+    groupName: "Download",
     items: [
       {
         title: "YouTube",
-        url: "/explore/youtube",
+        url: "/download/youtube",
       },
       {
         title: "Soundcloud",
-        url: "/explore/soundcloud",
+        url: "/download/soundcloud",
+      },
+      {
+        title: "Pending",
+        url: "/downloads",
       },
     ],
   },

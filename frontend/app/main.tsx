@@ -3,12 +3,16 @@ import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import Home from "@/components/Home";
 import App from "./App";
+import DownloadOverview from "@/components/DownloadOverview";
 
 const router = createHashRouter([
   {
     path: "/",
     Component: App,
-    children: [{ index: true, Component: Home }],
+    children: [
+      { index: true, Component: Home },
+      { path: "/downloads", Component: DownloadOverview },
+    ],
   },
 ]);
 
