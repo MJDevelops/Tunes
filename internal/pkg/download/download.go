@@ -42,7 +42,7 @@ type DownloadQueue struct {
 func NewDownload(executable string, url string, options ...string) Download {
 	download := Download{}
 
-	opts := append(options, "--progress", "--newline", "--progress-template", "'%(progress)j'")
+	opts := append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
 	download.command = exec.CommandContext(context.Background(), executable, opts...)
 
 	return download
@@ -124,8 +124,9 @@ func (dq *DownloadQueue) download(download Download) {
 		s := bufio.NewScanner(r)
 		for s.Scan() {
 			line := s.Bytes()
-			json.Unmarshal(line, &parsed)
-			download.onProgress(parsed)
+			if err := json.Unmarshal(line[1:len(line)-1], &parsed); err == nil {
+				download.onProgress(parsed)
+			}
 		}
 		ch <- download.command.Wait()
 	}()
@@ -134,10 +135,8 @@ func (dq *DownloadQueue) download(download Download) {
 	case <-dq.ctx.Done():
 		download.command.Cancel()
 		os.RemoveAll(download.ID)
-		return
 	case <-ch:
 		download.onFinished()
-		return
 	}
 }
 
