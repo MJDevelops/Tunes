@@ -10,8 +10,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
+
+	"github.com/mjdevelops/tunes/internal/pkg/util"
 )
 
 // Wrapper for yt-dlp executable
@@ -117,9 +118,7 @@ func fetchLatestRelease() (string, error) {
 }
 
 func getPlatformExecutable() string {
-	platform := strings.Join([]string{runtime.GOOS, runtime.GOARCH}, "_")
-
-	switch platform {
+	switch util.GetPlatform() {
 	case "darwin_amd64", "darwin_arm64":
 		return "yt-dlp_macos"
 	case "windows_amd64":
