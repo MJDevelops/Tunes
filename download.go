@@ -8,7 +8,6 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/download"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
 
@@ -59,11 +58,11 @@ func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)
-		runtime.EventsEmit(a.ctx, string(events.DownloadFinished), down.ID)
+		a.EventsEmit(events.DownloadFinished, down.ID)
 	})
 
 	down.OnProgress(func(pf download.ProgressFormat) {
-		runtime.EventsEmit(a.ctx, string(events.DownloadProgress), pf)
+		a.EventsEmit(events.DownloadProgress, pf)
 	})
 
 	return a.DownloadQueue.SendToQueue(down)

@@ -10,6 +10,7 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/download"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -89,4 +90,8 @@ func (a *App) beforeClose(ctx context.Context) bool {
 
 func (a *App) shutdown(_ context.Context) {
 	a.DownloadQueue.Stop()
+}
+
+func (a *App) EventsEmit(event events.Event, optionalData ...any) {
+	runtime.EventsEmit(a.ctx, string(event), optionalData...)
 }
