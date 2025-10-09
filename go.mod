@@ -10,6 +10,7 @@ require (
 	github.com/go-audio/wav v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/gopxl/beep/v2 v2.1.1
+	github.com/mholt/archives v0.1.4
 	github.com/wailsapp/wails/v2 v2.10.2
 	gorm.io/gorm v1.30.3
 )
@@ -51,11 +52,10 @@ require (
 	github.com/mewkiz/flac v1.0.13 // indirect
 	github.com/mewkiz/pkg v0.0.0-20250417130911-3f050ff8c56d // indirect
 	github.com/mewpkg/term v0.0.0-20241026122259-37a80af23985 // indirect
-	github.com/mholt/archives v0.1.4 // indirect
 	github.com/mikelolasagasti/xz v1.0.1 // indirect
 	github.com/minio/minlz v1.0.1 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/nwaples/rardecode/v2 v2.2.0 // indirect
+	github.com/nwaples/rardecode/v2 v2.1.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect

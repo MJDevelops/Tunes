@@ -36,15 +36,18 @@ var (
 	ErrUnsupported error = errors.New("unsupported platform")
 )
 
-var (
-	filepathUnix    = filepath.Join("bin", "ffmpeg")
-	filepathWindows = filepath.Join("bin", "ffmpeg.exe")
-)
-
 func NewFfmpeg() *Ffmpeg {
-	return &Ffmpeg{
-		Platform: util.GetPlatform(),
+	f := &Ffmpeg{}
+	f.Platform = util.GetPlatform()
+
+	switch f.Platform {
+	case "darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64":
+		f.Path = filepath.Join("bin", "ffmpeg")
+	case "windows_amd64", "windows_arm64":
+		f.Path = filepath.Join("bin", "ffmpeg.exe")
 	}
+
+	return f
 }
 
 func (f *Ffmpeg) DownloadLatest() error {
@@ -61,38 +64,27 @@ func (f *Ffmpeg) DownloadLatest() error {
 	case "darwin_amd64", "darwin_arm64":
 		path = "https://evermeet.cx/ffmpeg/getrelease/zip"
 		archive = ArchiveZip
-		f.Path = filepathUnix
 	case "windows_amd64":
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-win64-gpl.zip")
-		if err != nil {
-			return err
-		}
 		archive = ArchiveZip
-		f.Path = filepathWindows
 	case "windows_arm64":
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-winarm64-gpl.zip")
-		if err != nil {
-			return err
-		}
 		archive = ArchiveZip
 	case "linux_amd64":
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linux64-gpl.tar.xz")
-		if err != nil {
-			return err
-		}
 		archive = ArchiveTar
 	case "linux_arm64":
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linuxarm64-gpl.tar.xz")
-		if err != nil {
-			return err
-		}
 		archive = ArchiveTar
 	default:
 		return ErrUnsupported
 	}
 
-	binData, err = f.downloadFfmpeg(path, archive)
+	if err != nil {
+		return err
+	}
 
+	binData, err = f.downloadFfmpeg(path, archive)
 	if err != nil {
 		return err
 	}
@@ -156,10 +148,20 @@ func extractFfmpeg(binData []byte, archive int) ([]byte, error) {
 			}
 		}
 	case ArchiveTar:
-		var format archives.Tar
+		var (
+			compression archives.Xz
+			format      archives.Tar
+			err         error
+		)
 
-		err := format.Extract(context.Background(), bytes.NewReader(binData), func(ctx context.Context, info archives.FileInfo) error {
-			if name := info.Name(); name == "ffmpeg" {
+		decompressedReader, err := compression.OpenReader(bytes.NewReader(binData))
+		if err != nil {
+			return nil, ErrExtraction
+		}
+		defer decompressedReader.Close()
+
+		err = format.Extract(context.Background(), decompressedReader, func(ctx context.Context, info archives.FileInfo) error {
+			if info.Name() == "ffmpeg" {
 				f, err := info.Open()
 				if err != nil {
 					return err
