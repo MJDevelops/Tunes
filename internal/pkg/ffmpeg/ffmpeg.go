@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -27,7 +28,7 @@ const (
 )
 
 const (
-	ffmpegBuildsRepo string = "https://github.com/BtbN/FFmpeg-Builds"
+	ffmpegBuildsRepo string = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
 )
 
 var (
@@ -51,16 +52,46 @@ func (f *Ffmpeg) DownloadLatest() error {
 
 	var (
 		binData []byte
+		path    string
+		archive int
 		err     error
 	)
 
 	switch f.Platform {
 	case "darwin_amd64", "darwin_arm64":
-		binData, err = f.downloadMacOS()
+		path = "https://evermeet.cx/ffmpeg/getrelease/zip"
+		archive = ArchiveZip
 		f.Path = filepathUnix
+	case "windows_amd64":
+		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-win64-gpl.zip")
+		if err != nil {
+			return err
+		}
+		archive = ArchiveZip
+		f.Path = filepathWindows
+	case "windows_arm64":
+		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-winarm64-gpl.zip")
+		if err != nil {
+			return err
+		}
+		archive = ArchiveZip
+	case "linux_amd64":
+		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linux64-gpl.tar.xz")
+		if err != nil {
+			return err
+		}
+		archive = ArchiveTar
+	case "linux_arm64":
+		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linuxarm64-gpl.tar.xz")
+		if err != nil {
+			return err
+		}
+		archive = ArchiveTar
 	default:
 		return ErrUnsupported
 	}
+
+	binData, err = f.downloadFfmpeg(path, archive)
 
 	if err != nil {
 		return err
@@ -80,8 +111,8 @@ func (f *Ffmpeg) DownloadLatest() error {
 	return nil
 }
 
-func (f *Ffmpeg) downloadMacOS() ([]byte, error) {
-	res, err := http.Get("https://evermeet.cx/ffmpeg/getrelease/zip")
+func (f *Ffmpeg) downloadFfmpeg(path string, archive int) ([]byte, error) {
+	res, err := http.Get(path)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +123,7 @@ func (f *Ffmpeg) downloadMacOS() ([]byte, error) {
 		return nil, err
 	}
 
-	extractedBin, err := extractFfmpeg(b, ArchiveZip)
+	extractedBin, err := extractFfmpeg(b, archive)
 	if err != nil {
 		return nil, err
 	}
