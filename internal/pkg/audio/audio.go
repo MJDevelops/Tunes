@@ -22,7 +22,7 @@ type AudioFile struct {
 	format   beep.Format
 }
 
-type PlayingQueue struct {
+type Queue struct {
 	Queue []AudioFile
 	mu    sync.Mutex
 }

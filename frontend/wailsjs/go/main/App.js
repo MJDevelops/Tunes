@@ -6,6 +6,10 @@ export function EnqueueDownload(arg1, arg2) {
   return window['go']['main']['App']['EnqueueDownload'](arg1, arg2);
 }
 
+export function EventsEmit(arg1, arg2) {
+  return window['go']['main']['App']['EventsEmit'](arg1, arg2);
+}
+
 export function GetHighDefinitionThumbnail(arg1) {
   return window['go']['main']['App']['GetHighDefinitionThumbnail'](arg1);
 }

@@ -28,7 +28,7 @@ type Download struct {
 	command    *exec.Cmd
 }
 
-type DownloadQueue struct {
+type Queue struct {
 	queue      chan Download
 	ctx        context.Context
 	cancel     context.CancelFunc
@@ -48,9 +48,9 @@ func NewDownload(executable string, url string, options ...string) Download {
 	return download
 }
 
-func NewDownloadQueue(workers uint, downloads ...Download) *DownloadQueue {
+func NewQueue(workers uint, downloads ...Download) *Queue {
 	ctx, cancel := context.WithCancel(context.Background())
-	dq := &DownloadQueue{}
+	dq := &Queue{}
 
 	dq.ctx = ctx
 	dq.cancel = cancel
@@ -64,13 +64,13 @@ func NewDownloadQueue(workers uint, downloads ...Download) *DownloadQueue {
 	return dq
 }
 
-func (dq *DownloadQueue) OnShutdown(f func(downloads <-chan Download)) *DownloadQueue {
+func (dq *Queue) OnShutdown(f func(downloads <-chan Download)) *Queue {
 	dq.onShutdown = f
 	return dq
 }
 
 // Adds download to queue and returns the corresponding ID
-func (dq *DownloadQueue) SendToQueue(download Download) string {
+func (dq *Queue) SendToQueue(download Download) string {
 	id := uuid.NewString()
 	download.ID = id
 
@@ -81,11 +81,11 @@ func (dq *DownloadQueue) SendToQueue(download Download) string {
 	return id
 }
 
-func (dq *DownloadQueue) IsRunning() bool {
+func (dq *Queue) IsRunning() bool {
 	return atomic.LoadUint32(&dq.started) > 0
 }
 
-func (dq *DownloadQueue) Start() {
+func (dq *Queue) Start() {
 	dq.once.Do(func() {
 		for range dq.workers {
 			dq.wg.Add(1)
@@ -106,13 +106,13 @@ func (dq *DownloadQueue) Start() {
 	})
 }
 
-func (dq *DownloadQueue) Stop() {
+func (dq *Queue) Stop() {
 	dq.cancel()
 	dq.wg.Wait()
 	dq.onShutdown(dq.queue)
 }
 
-func (dq *DownloadQueue) download(download Download) {
+func (dq *Queue) download(download Download) {
 	dq.wg.Add(1)
 	defer dq.wg.Done()
 	ch := make(chan error)

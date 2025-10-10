@@ -18,31 +18,40 @@ type Options struct {
 	MaxThreads uint `json:"maxThreads"`
 }
 
-type ApplicationConfig struct {
+type Application struct {
 	Executables `json:"executables"`
 	Options     `json:"options"`
 	configPath  string
 }
 
-func LoadApplicationConfig(path string) (ApplicationConfig, error) {
-	config := ApplicationConfig{}
+func LoadApplicationConfig(path string) (Application, error) {
+	config := Application{}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0660)
 	if err != nil {
 		return config, err
 	}
 	defer f.Close()
 
-	json.NewDecoder(f).Decode(&config)
+	if err := json.NewDecoder(f).Decode(&config); err != nil {
+		return config, err
+	}
 	config.configPath = path
+
 	return config, nil
 }
 
-func (c *ApplicationConfig) Write() error {
+func (c *Application) Write() error {
 	f, err := os.OpenFile(c.configPath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0660)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	return json.NewEncoder(f).Encode(c)
+	pretty, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
+	f.Write(pretty)
+
+	return nil
 }
