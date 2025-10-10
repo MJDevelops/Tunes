@@ -10,8 +10,14 @@ type YtDlp struct {
 	Path    string `json:"path"`
 }
 
+type Ffmpeg struct {
+	Version string `json:"version"`
+	Path    string `json:"path"`
+}
+
 type Executables struct {
-	YtDlp `json:"ytdlp"`
+	YtDlp  `json:"ytdlp"`
+	Ffmpeg `json:"ffmpeg"`
 }
 
 type Options struct {

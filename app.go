@@ -56,16 +56,20 @@ func (a *App) startup(ctx context.Context) {
 		log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
 	}
 
-	abs, _ := filepath.Abs(ytdlp.Path)
-	config.Executables.YtDlp.Path = abs
-	config.Executables.YtDlp.Release = ytdlp.Release
-	config.Write()
-
 	a.Ffmpeg = ffmpeg.NewFfmpeg()
 	err = a.Ffmpeg.DownloadLatest()
 	if err != nil {
 		log.Fatalf("Error fetching ffmpeg: %v\n", err)
 	}
+
+	ytdlpAbs, _ := filepath.Abs(ytdlp.Path)
+	ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path)
+
+	config.Executables.YtDlp.Path = ytdlpAbs
+	config.Executables.YtDlp.Release = ytdlp.Release
+	config.Ffmpeg.Version = a.Ffmpeg.Version()
+	config.Ffmpeg.Path = ffmpegAbs
+	config.Write()
 
 	a.YtDlp = ytdlp
 	a.config = config

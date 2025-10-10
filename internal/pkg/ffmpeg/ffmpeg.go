@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/mholt/archives"
 	"github.com/mjdevelops/tunes/internal/pkg/util"
@@ -17,7 +19,6 @@ import (
 
 // ffmpeg executable wrapper
 type Ffmpeg struct {
-	Version  string
 	Platform string
 	Path     string
 }
@@ -101,6 +102,15 @@ func (f *Ffmpeg) DownloadLatest() error {
 	}
 
 	return nil
+}
+
+func (f *Ffmpeg) Version() string {
+	v, err := exec.Command(f.Path, "-version").Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.Split(string(v), " ")[2]
 }
 
 func (f *Ffmpeg) downloadFfmpeg(path string, archive int) ([]byte, error) {
