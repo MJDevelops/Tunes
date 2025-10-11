@@ -1,8 +1,6 @@
 module github.com/mjdevelops/tunes
 
-go 1.24.0
-
-toolchain go1.24.5
+go 1.25.0
 
 require (
 	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8

@@ -56,9 +56,7 @@ func (a *App) startup(ctx context.Context) {
 
 	a.config = config
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		ytdlp, err := ytdlp.DownloadLatest(path.Join(".", "bin"))
 		if err != nil {
 			log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
@@ -67,11 +65,9 @@ func (a *App) startup(ctx context.Context) {
 		config.Executables.YtDlp.Path = ytdlpAbs
 		config.Executables.YtDlp.Release = ytdlp.Release
 		a.YtDlp = ytdlp
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		a.Ffmpeg = ffmpeg.NewFfmpeg()
 		err = a.Ffmpeg.DownloadLatest()
 		if err != nil {
@@ -82,10 +78,10 @@ func (a *App) startup(ctx context.Context) {
 
 		config.Ffmpeg.Version = a.Ffmpeg.Version()
 		config.Ffmpeg.Path = ffmpegAbs
-		config.Write()
-	}()
+	})
 
 	wg.Wait()
+	config.Write()
 }
 
 func (a *App) initialize() {

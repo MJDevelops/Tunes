@@ -88,9 +88,7 @@ func (dq *Queue) IsRunning() bool {
 func (dq *Queue) Start() {
 	dq.once.Do(func() {
 		for range dq.workers {
-			dq.wg.Add(1)
-			go func() {
-				defer dq.wg.Done()
+			dq.wg.Go(func() {
 				for {
 					select {
 					case <-dq.ctx.Done():
@@ -101,7 +99,7 @@ func (dq *Queue) Start() {
 						atomic.AddUint32(&dq.started, ^uint32(0))
 					}
 				}
-			}()
+			})
 		}
 	})
 }
