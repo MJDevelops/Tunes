@@ -5,6 +5,7 @@ import (
 	"log"
 	"path"
 	"path/filepath"
+	"sync"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
@@ -38,6 +39,8 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
+	var wg sync.WaitGroup
+
 	// Initialize db connection
 	conn, err := db.NewDB()
 	if err != nil {
@@ -51,28 +54,38 @@ func (a *App) startup(ctx context.Context) {
 		log.Fatalf("Error loading config: %v\n", err)
 	}
 
-	ytdlp, err := ytdlp.DownloadLatest(path.Join(".", "bin"))
-	if err != nil {
-		log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
-	}
-
-	a.Ffmpeg = ffmpeg.NewFfmpeg()
-	err = a.Ffmpeg.DownloadLatest()
-	if err != nil {
-		log.Fatalf("Error fetching ffmpeg: %v\n", err)
-	}
-
-	ytdlpAbs, _ := filepath.Abs(ytdlp.Path)
-	ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path)
-
-	config.Executables.YtDlp.Path = ytdlpAbs
-	config.Executables.YtDlp.Release = ytdlp.Release
-	config.Ffmpeg.Version = a.Ffmpeg.Version()
-	config.Ffmpeg.Path = ffmpegAbs
-	config.Write()
-
-	a.YtDlp = ytdlp
 	a.config = config
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ytdlp, err := ytdlp.DownloadLatest(path.Join(".", "bin"))
+		if err != nil {
+			log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
+		}
+		ytdlpAbs, _ := filepath.Abs(ytdlp.Path)
+		config.Executables.YtDlp.Path = ytdlpAbs
+		config.Executables.YtDlp.Release = ytdlp.Release
+		a.YtDlp = ytdlp
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		a.Ffmpeg = ffmpeg.NewFfmpeg()
+		err = a.Ffmpeg.DownloadLatest()
+		if err != nil {
+			log.Fatalf("Error fetching ffmpeg: %v\n", err)
+		}
+
+		ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path)
+
+		config.Ffmpeg.Version = a.Ffmpeg.Version()
+		config.Ffmpeg.Path = ffmpegAbs
+		config.Write()
+	}()
+
+	wg.Wait()
 }
 
 func (a *App) initialize() {
