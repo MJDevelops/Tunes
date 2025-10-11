@@ -23,8 +23,10 @@ type Ffmpeg struct {
 	Path     string
 }
 
+type ArchiveType int
+
 const (
-	ArchiveTar int = iota
+	ArchiveTar ArchiveType = iota
 	ArchiveZip
 )
 
@@ -57,7 +59,7 @@ func (f *Ffmpeg) DownloadLatest() error {
 	var (
 		binData []byte
 		path    string
-		archive int
+		archive ArchiveType
 		err     error
 	)
 
@@ -113,7 +115,7 @@ func (f *Ffmpeg) Version() string {
 	return strings.Split(string(v), " ")[2]
 }
 
-func (f *Ffmpeg) downloadFfmpeg(path string, archive int) ([]byte, error) {
+func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error) {
 	res, err := http.Get(path)
 	if err != nil {
 		return nil, err
@@ -133,7 +135,7 @@ func (f *Ffmpeg) downloadFfmpeg(path string, archive int) ([]byte, error) {
 	return extractedBin, nil
 }
 
-func extractFfmpeg(binData []byte, archive int) ([]byte, error) {
+func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 	switch archive {
 	case ArchiveZip:
 		zipReader, err := zip.NewReader(bytes.NewReader(binData), int64(len(binData)))
@@ -170,7 +172,9 @@ func extractFfmpeg(binData []byte, archive int) ([]byte, error) {
 		}
 		defer decompressedReader.Close()
 
-		err = format.Extract(context.Background(), decompressedReader, func(ctx context.Context, info archives.FileInfo) error {
+		ctx, cancel := context.WithCancel(context.Background())
+
+		err = format.Extract(ctx, decompressedReader, func(ctx context.Context, info archives.FileInfo) error {
 			if info.Name() == "ffmpeg" {
 				f, err := info.Open()
 				if err != nil {
@@ -182,6 +186,7 @@ func extractFfmpeg(binData []byte, archive int) ([]byte, error) {
 				if err != nil {
 					return err
 				}
+				cancel()
 			}
 			return nil
 		})
