@@ -54,7 +54,7 @@ func (a *App) PendingDownloads() []ytdlp.Download {
 }
 
 func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
-	down := ytdlp.NewDownload(a.YtDlp.Path, url, opts...)
+	down := a.YtDlp.NewDownload(url, opts...)
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)

@@ -41,11 +41,11 @@ type Queue struct {
 	onShutdown func(downloads <-chan Download)
 }
 
-func NewDownload(executable string, url string, options ...string) Download {
+func (y *YtDlp) NewDownload(url string, options ...string) Download {
 	download := Download{}
 	download.ID = uuid.NewString()
 	download.Options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
-	download.executable = executable
+	download.executable = y.path
 	return download
 }
 

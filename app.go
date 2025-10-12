@@ -60,7 +60,7 @@ func (a *App) startup(ctx context.Context) {
 		if err != nil {
 			log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
 		}
-		ytdlpAbs, _ := filepath.Abs(ytdlp.Path)
+		ytdlpAbs, _ := filepath.Abs(ytdlp.Path())
 		config.Executables.YtDlp.Path = ytdlpAbs
 		config.Executables.YtDlp.Release = ytdlp.Release
 		a.YtDlp = ytdlp

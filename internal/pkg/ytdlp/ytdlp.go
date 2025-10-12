@@ -17,7 +17,7 @@ import (
 
 // Wrapper for yt-dlp executable
 type YtDlp struct {
-	Path    string
+	path    string
 	Release string
 }
 
@@ -46,7 +46,7 @@ func DownloadLatest(binPath string) (*YtDlp, error) {
 		return nil, err
 	}
 
-	ytdlp.Path = executable
+	ytdlp.path = executable
 	ytdlp.Release = latestRelease
 
 	return ytdlp, nil
@@ -55,7 +55,11 @@ func DownloadLatest(binPath string) (*YtDlp, error) {
 // Creates command with the given options and sets the quiet flag
 func (y *YtDlp) CreateCommandQuiet(opts ...string) *exec.Cmd {
 	opts = append(opts, "-q")
-	return exec.Command(y.Path, opts...)
+	return exec.Command(y.path, opts...)
+}
+
+func (y *YtDlp) Path() string {
+	return y.path
 }
 
 // Downloads the provided yt-dlp release and returns the resulting output path.
