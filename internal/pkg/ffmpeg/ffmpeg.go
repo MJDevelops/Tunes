@@ -191,7 +191,7 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 			return nil
 		})
 
-		if err != nil {
+		if !errors.Is(err, context.Canceled) && err != nil {
 			return nil, err
 		}
 
