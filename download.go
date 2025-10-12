@@ -65,5 +65,7 @@ func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 		a.EventsEmit(events.DownloadProgress, pf)
 	})
 
-	return a.YtDownloadQueue.SendToQueue(down)
+	a.YtDownloadQueue.SendToQueue(down)
+
+	return down.ID
 }

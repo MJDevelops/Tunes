@@ -43,6 +43,7 @@ type Queue struct {
 
 func NewDownload(executable string, url string, options ...string) Download {
 	download := Download{}
+	download.ID = uuid.NewString()
 	download.Options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
 	download.executable = executable
 	return download
@@ -94,16 +95,10 @@ func (dq *Queue) OnShutdown(f func(downloads <-chan Download)) *Queue {
 	return dq
 }
 
-// Adds download to queue and returns the corresponding ID
-func (dq *Queue) SendToQueue(download Download) string {
-	id := uuid.NewString()
-	download.ID = id
-
+func (dq *Queue) SendToQueue(download Download) {
 	go func() {
 		dq.queue <- download
 	}()
-
-	return id
 }
 
 func (dq *Queue) IsRunning() bool {
