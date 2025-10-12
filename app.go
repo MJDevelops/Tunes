@@ -10,7 +10,6 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/db"
-	"github.com/mjdevelops/tunes/internal/pkg/download"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/ffmpeg"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
@@ -19,13 +18,13 @@ import (
 
 // Application state
 type App struct {
-	YtDlp         *ytdlp.YtDlp
-	Ffmpeg        *ffmpeg.Ffmpeg
-	PlayingQueue  *audio.Queue
-	DownloadQueue *download.Queue
-	db            *db.DB
-	config        config.Application
-	ctx           context.Context
+	YtDlp           *ytdlp.YtDlp
+	Ffmpeg          *ffmpeg.Ffmpeg
+	PlayingQueue    *audio.Queue
+	YtDownloadQueue *ytdlp.Queue
+	db              *db.DB
+	config          config.Application
+	ctx             context.Context
 }
 
 // NewApp creates a new App application struct
@@ -87,12 +86,12 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) initialize() {
 	// Load all pending downloads from database
 	downloads := a.PendingDownloads()
-	a.DownloadQueue = download.NewQueue(5, downloads...).OnShutdown(a.saveQueueState)
-	a.DownloadQueue.Start()
+	a.YtDownloadQueue = ytdlp.NewQueue(5, downloads...).OnShutdown(a.saveQueueState)
+	a.YtDownloadQueue.Start()
 }
 
 func (a *App) beforeClose(ctx context.Context) bool {
-	if a.DownloadQueue.IsRunning() {
+	if a.YtDownloadQueue.IsRunning() {
 		dialog, err := runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
 			Type:    runtime.QuestionDialog,
 			Title:   "Quit",
@@ -110,7 +109,7 @@ func (a *App) beforeClose(ctx context.Context) bool {
 }
 
 func (a *App) shutdown(_ context.Context) {
-	a.DownloadQueue.Stop()
+	a.YtDownloadQueue.Stop()
 }
 
 func (a *App) EventsEmit(event events.Event, optionalData ...any) {

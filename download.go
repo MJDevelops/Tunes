@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/mjdevelops/tunes/internal/pkg/db"
-	"github.com/mjdevelops/tunes/internal/pkg/download"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
+	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"gorm.io/gorm"
 )
 
-func (a *App) saveQueueState(downloads <-chan download.Download) {
+func (a *App) saveQueueState(downloads <-chan ytdlp.Download) {
 	ctx := context.Background()
 	var dbDownloads []db.Download
 	g := gorm.G[db.Download](a.db.Conn())
@@ -26,7 +26,7 @@ func (a *App) saveQueueState(downloads <-chan download.Download) {
 	g.CreateInBatches(ctx, &dbDownloads, 10)
 }
 
-func (a *App) finishDownload(download *download.Download) {
+func (a *App) finishDownload(download *ytdlp.Download) {
 	// Try to update existing
 	ctx := context.Background()
 	currTime := time.Now()
@@ -41,29 +41,29 @@ func (a *App) finishDownload(download *download.Download) {
 	}
 }
 
-func (a *App) PendingDownloads() []download.Download {
-	var qDownloads []download.Download
+func (a *App) PendingDownloads() []ytdlp.Download {
+	var qDownloads []ytdlp.Download
 	ctx := context.Background()
 	conn := a.db.Conn()
 	downloads, _ := gorm.G[db.Download](conn).Where("finished_at IS NULL").Find(ctx)
 	for _, d := range downloads {
-		qDownloads = append(qDownloads, download.Download{ID: d.ID, Url: d.Url})
+		qDownloads = append(qDownloads, ytdlp.Download{ID: d.ID, Url: d.Url})
 	}
 
 	return qDownloads
 }
 
 func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
-	down := download.NewDownload(a.YtDlp.Path, url, opts...)
+	down := ytdlp.NewDownload(a.YtDlp.Path, url, opts...)
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)
 		a.EventsEmit(events.DownloadFinished, down.ID)
 	})
 
-	down.OnProgress(func(pf download.ProgressFormat) {
+	down.OnProgress(func(pf ytdlp.ProgressFormat) {
 		a.EventsEmit(events.DownloadProgress, pf)
 	})
 
-	return a.DownloadQueue.SendToQueue(down)
+	return a.YtDownloadQueue.SendToQueue(down)
 }
