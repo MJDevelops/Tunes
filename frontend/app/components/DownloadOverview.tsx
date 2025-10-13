@@ -1,13 +1,9 @@
 import { Suspense, use } from "react";
 import { PendingDownloads } from "~/wailsjs/go/main/App";
-import { download } from "~/wailsjs/go/models";
+import { ytdlp } from "~/wailsjs/go/models";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function Downloads({
-  promise,
-}: {
-  promise: Promise<download.Download[] | null>;
-}) {
+function Downloads({ promise }: { promise: Promise<ytdlp.Download[] | null> }) {
   const downloads = use(promise);
 
   return (

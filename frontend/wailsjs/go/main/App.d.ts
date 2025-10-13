@@ -3,7 +3,6 @@
 import {events} from '../models';
 import {ytdlp} from '../models';
 import {audio} from '../models';
-import {download} from '../models';
 
 export function EnqueueDownload(arg1:string,arg2:Array<string>):Promise<string>;
 
@@ -15,4 +14,4 @@ export function GetThumbnails(arg1:string):Promise<Array<ytdlp.Thumbnail>>;
 
 export function NewAudioFile(arg1:string):Promise<audio.AudioFile>;
 
-export function PendingDownloads():Promise<Array<download.Download>>;
+export function PendingDownloads():Promise<Array<ytdlp.Download>>;
