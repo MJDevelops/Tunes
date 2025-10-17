@@ -39,7 +39,7 @@ type Queue struct {
 	once       sync.Once
 	wg         sync.WaitGroup
 	workers    uint
-	started    uint32
+	started    atomic.Uint32
 	waiting    []Download
 	waitingMu  sync.Mutex
 	onShutdown func([]Download)
@@ -134,7 +134,7 @@ func (dq *Queue) Enqueue(download Download) {
 }
 
 func (dq *Queue) IsRunning() bool {
-	return atomic.LoadUint32(&dq.started) > 0
+	return dq.started.Load() > 0
 }
 
 func (dq *Queue) Start() {
@@ -146,9 +146,9 @@ func (dq *Queue) Start() {
 					case <-dq.ctx.Done():
 						return
 					case down := <-dq.queue:
-						atomic.AddUint32(&dq.started, 1)
+						dq.started.Add(1)
 						dq.download(down)
-						atomic.AddUint32(&dq.started, ^uint32(0))
+						dq.started.Add(^uint32(0))
 					}
 				}
 			})
