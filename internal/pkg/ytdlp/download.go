@@ -72,21 +72,30 @@ func NewQueue(workers uint, downloads ...Download) *Queue {
 func (d *Download) Start() (err <-chan error, cancel func()) {
 	cmd := exec.CommandContext(context.Background(), d.executable, d.Options...)
 	ch := make(chan error)
-	d.onStart()
+
+	if d.onStart != nil {
+		d.onStart()
+	}
 
 	go func() {
 		parsed := ProgressFormat{}
 		r, _ := cmd.StdoutPipe()
 		cmd.Start()
-		s := bufio.NewScanner(r)
-		for s.Scan() {
-			line := s.Bytes()
-			if err := json.Unmarshal(line[1:len(line)-1], &parsed); err == nil {
-				d.onProgress(parsed)
+		if d.onProgress != nil {
+			s := bufio.NewScanner(r)
+			for s.Scan() {
+				line := s.Bytes()
+				if err := json.Unmarshal(line[1:len(line)-1], &parsed); err == nil {
+					d.onProgress(parsed)
+				}
 			}
 		}
 		err := cmd.Wait()
-		d.onFinished()
+
+		if d.onFinished != nil {
+			d.onFinished()
+		}
+
 		ch <- err
 	}()
 
@@ -150,7 +159,9 @@ func (dq *Queue) Start() {
 func (dq *Queue) Stop() {
 	dq.cancel()
 	dq.wg.Wait()
-	dq.onShutdown(dq.waiting)
+	if dq.onShutdown != nil {
+		dq.onShutdown(dq.waiting)
+	}
 }
 
 func (dq *Queue) download(download Download) {
