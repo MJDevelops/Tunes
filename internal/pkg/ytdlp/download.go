@@ -72,6 +72,7 @@ func NewQueue(workers uint, downloads ...Download) *Queue {
 func (d *Download) Start() (err <-chan error, cancel func()) {
 	cmd := exec.CommandContext(context.Background(), d.executable, d.Options...)
 	ch := make(chan error)
+	d.onStart()
 
 	go func() {
 		parsed := ProgressFormat{}
