@@ -2,6 +2,8 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"os"
 )
 
@@ -38,7 +40,7 @@ func LoadApplicationConfig(path string) (Application, error) {
 	}
 	defer f.Close()
 
-	if err := json.NewDecoder(f).Decode(&config); err != nil {
+	if err := json.NewDecoder(f).Decode(&config); !errors.Is(err, io.EOF) && err != nil {
 		return config, err
 	}
 	config.configPath = path
