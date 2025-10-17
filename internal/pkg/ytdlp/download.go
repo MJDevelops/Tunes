@@ -42,7 +42,7 @@ type Queue struct {
 	started    uint32
 	waiting    []Download
 	waitingMu  sync.Mutex
-	onShutdown func(downloads <-chan Download)
+	onShutdown func([]Download)
 }
 
 func (y *YtDlp) NewDownload(url string, options ...string) Download {
@@ -60,10 +60,10 @@ func NewQueue(workers uint, downloads ...Download) *Queue {
 	dq.ctx = ctx
 	dq.cancel = cancel
 	dq.workers = workers
-	dq.queue = make(chan Download, len(downloads))
+	dq.queue = make(chan Download, workers)
 
 	for _, d := range downloads {
-		dq.queue <- d
+		dq.Enqueue(d)
 	}
 
 	return dq
@@ -94,7 +94,7 @@ func (d *Download) Start() (err <-chan error, cancel func()) {
 	}
 }
 
-func (dq *Queue) OnShutdown(f func(downloads <-chan Download)) *Queue {
+func (dq *Queue) OnShutdown(f func([]Download)) *Queue {
 	dq.onShutdown = f
 	return dq
 }
@@ -149,7 +149,7 @@ func (dq *Queue) Start() {
 func (dq *Queue) Stop() {
 	dq.cancel()
 	dq.wg.Wait()
-	dq.onShutdown(dq.queue)
+	dq.onShutdown(dq.waiting)
 }
 
 func (dq *Queue) download(download Download) {
