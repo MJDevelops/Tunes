@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"slices"
 	"sync"
 	"sync/atomic"
 
@@ -28,6 +29,7 @@ type Download struct {
 	executable string
 	onProgress func(ProgressFormat)
 	onFinished func()
+	onStart    func()
 }
 
 type Queue struct {
@@ -38,6 +40,8 @@ type Queue struct {
 	wg         sync.WaitGroup
 	workers    uint
 	started    uint32
+	waiting    []Download
+	waitingMu  sync.Mutex
 	onShutdown func(downloads <-chan Download)
 }
 
@@ -95,9 +99,27 @@ func (dq *Queue) OnShutdown(f func(downloads <-chan Download)) *Queue {
 	return dq
 }
 
-func (dq *Queue) SendToQueue(download Download) {
+func (dq *Queue) addWaiting(download Download) {
+	dq.waitingMu.Lock()
+	defer dq.waitingMu.Unlock()
+	dq.waiting = append(dq.waiting, download)
+}
+
+func (dq *Queue) removeWaiting(id string) {
+	dq.waitingMu.Lock()
+	defer dq.waitingMu.Unlock()
+	for i := range dq.waiting {
+		if dq.waiting[i].ID == id {
+			dq.waiting = slices.Delete(dq.waiting, i, i+1)
+		}
+	}
+}
+
+func (dq *Queue) Enqueue(download Download) {
+	dq.addWaiting(download)
 	go func() {
 		dq.queue <- download
+		dq.removeWaiting(download.ID)
 	}()
 }
 
@@ -139,6 +161,7 @@ func (dq *Queue) download(download Download) {
 	case <-dq.ctx.Done():
 		cancel()
 		os.RemoveAll(download.ID)
+		dq.addWaiting(download)
 	case err := <-err:
 		if err != nil {
 			log.Printf("Error executing download with ID %s: %s", download.ID, err.Error())
@@ -150,6 +173,11 @@ func (dq *Queue) download(download Download) {
 
 func (d *Download) OnFinished(f func()) *Download {
 	d.onFinished = f
+	return d
+}
+
+func (d *Download) OnStart(start func()) *Download {
+	d.onStart = start
 	return d
 }
 
