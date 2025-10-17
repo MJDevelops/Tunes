@@ -11,12 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func (a *App) saveQueueState(downloads <-chan ytdlp.Download) {
+func (a *App) saveQueueState(downloads []ytdlp.Download) {
 	ctx := context.Background()
 	var dbDownloads []db.Download
 	g := gorm.G[db.Download](a.db.Conn())
 
-	for d := range downloads {
+	for _, d := range downloads {
 		_, err := g.Where("id = ?", d.ID).First(ctx)
 		if err != nil {
 			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
@@ -62,7 +62,11 @@ func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 	})
 
 	down.OnProgress(func(pf ytdlp.ProgressFormat) {
-		a.EventsEmit(events.DownloadProgress, pf)
+		a.EventsEmit(events.DownloadProgress, down.ID, pf)
+	})
+
+	down.OnStart(func() {
+		a.EventsEmit(events.DownloadStarted, down.ID)
 	})
 
 	a.YtDownloadQueue.Enqueue(down)
