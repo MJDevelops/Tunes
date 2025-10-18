@@ -121,6 +121,7 @@ func (dq *Queue) removeWaiting(id string) {
 	for i := range dq.waiting {
 		if dq.waiting[i].ID == id {
 			dq.waiting = slices.Delete(dq.waiting, i, i+1)
+			return
 		}
 	}
 }
