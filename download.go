@@ -3,51 +3,52 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
-	"github.com/mjdevelops/tunes/internal/pkg/db"
+	"github.com/mjdevelops/tunes/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
-	"gorm.io/gorm"
 )
 
 func (a *App) saveQueueState(downloads []ytdlp.Download) {
 	ctx := context.Background()
-	var dbDownloads []db.Download
-	g := gorm.G[db.Download](a.db.Conn())
 
 	for _, d := range downloads {
-		_, err := g.Where("id = ?", d.ID).First(ctx)
+		_, err := a.queries.GetDownload(ctx, d.ID)
 		if err != nil {
-			dbDownloads = append(dbDownloads, db.Download{ID: d.ID, Url: d.Url})
+			options, _ := json.Marshal(d.Options)
+			a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.ID, Options: string(options), FinishedAt: sql.NullTime{}})
 		}
 	}
-
-	g.CreateInBatches(ctx, &dbDownloads, 10)
 }
 
 func (a *App) finishDownload(download *ytdlp.Download) {
 	// Try to update existing
 	ctx := context.Background()
-	currTime := time.Now()
-	g := gorm.G[db.Download](a.db.Conn())
+	t := sql.NullTime{Time: time.Now(), Valid: true}
 
-	_, err := g.Where("id = ?", download.ID).Update(ctx, "finished_at", currTime)
+	err := a.queries.UpdateDownloadFinishedAt(ctx, db.UpdateDownloadFinishedAtParams{
+		ID:         download.ID,
+		FinishedAt: t,
+	})
+
 	if err != nil {
 		// The download wasn't created before, create it now
-		t := sql.NullTime{Valid: true, Time: currTime}
-		dn := db.Download{ID: download.ID, Url: download.Url, FinishedAt: t}
-		g.Create(ctx, &dn)
+		options, _ := json.Marshal(download.Options)
+		a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.ID, FinishedAt: t, Options: string(options)})
 	}
 }
 
 func (a *App) PendingDownloads() []ytdlp.Download {
 	var qDownloads []ytdlp.Download
 	ctx := context.Background()
-	conn := a.db.Conn()
-	downloads, _ := gorm.G[db.Download](conn).Where("finished_at IS NULL").Find(ctx)
+	downloads, _ := a.queries.GetPendingDownloads(ctx)
+
 	for _, d := range downloads {
-		qDownloads = append(qDownloads, ytdlp.Download{ID: d.ID, Url: d.Url})
+		var opts []string
+		json.Unmarshal([]byte(d.Options), &opts)
+		qDownloads = append(qDownloads, a.YtDlp.NewDownloadWithId(d.ID, d.Url, opts...))
 	}
 
 	return qDownloads

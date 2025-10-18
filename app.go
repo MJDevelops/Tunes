@@ -2,18 +2,21 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	_ "embed"
 	"log"
 	"path"
 	"path/filepath"
 	"sync"
 
+	"github.com/mjdevelops/tunes/db"
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
-	"github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/ffmpeg"
 	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	_ "modernc.org/sqlite"
 )
 
 // Application state
@@ -22,10 +25,14 @@ type App struct {
 	Ffmpeg          *ffmpeg.Ffmpeg
 	PlayingQueue    *audio.Queue
 	YtDownloadQueue *ytdlp.Queue
-	db              *db.DB
+	db              *sql.DB
+	queries         *db.Queries
 	config          config.Application
 	ctx             context.Context
 }
+
+//go:embed schema.sql
+var ddl string
 
 // NewApp creates a new App application struct
 func NewApp() *App {
@@ -41,12 +48,17 @@ func (a *App) startup(ctx context.Context) {
 	var wg sync.WaitGroup
 
 	// Initialize db connection
-	conn, err := db.NewDB()
+	conn, err := sql.Open("sqlite", "file:tunes.db")
 	if err != nil {
 		log.Fatalf("Error initializing database: %v\n", err)
 	}
-	conn.Migrate()
 	a.db = conn
+
+	bCtx := context.Background()
+	if _, err := conn.ExecContext(bCtx, ddl); err != nil {
+		log.Fatalf("Error creating db tables: %v\n", err)
+	}
+	a.queries = db.New(conn)
 
 	config, err := config.LoadApplicationConfig(path.Join(".", "tunes.config.json"))
 	if err != nil {

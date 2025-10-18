@@ -4,13 +4,12 @@ go 1.25.0
 
 require (
 	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8
-	github.com/glebarez/sqlite v1.11.0
 	github.com/go-audio/wav v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/gopxl/beep/v2 v2.1.1
 	github.com/mholt/archives v0.1.4
 	github.com/wailsapp/wails/v2 v2.10.2
-	gorm.io/gorm v1.30.3
+	modernc.org/sqlite v1.38.2
 )
 
 require (
@@ -23,7 +22,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/go-audio/audio v1.0.0 // indirect
 	github.com/go-audio/riff v1.0.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -35,8 +33,6 @@ require (
 	github.com/jchv/go-winloader v0.0.0-20250406163304-c1995be93bd1 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/labstack/echo/v4 v4.13.4 // indirect
@@ -78,7 +74,6 @@ require (
 	modernc.org/libc v1.66.8 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.38.2 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.10.2 => /home/joel/go/pkg/mod

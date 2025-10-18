@@ -53,6 +53,14 @@ func (y *YtDlp) NewDownload(url string, options ...string) Download {
 	return download
 }
 
+func (y *YtDlp) NewDownloadWithId(id string, url string, options ...string) Download {
+	download := Download{}
+	download.ID = id
+	download.Options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
+	download.executable = y.path
+	return download
+}
+
 func NewQueue(workers uint, downloads ...Download) *Queue {
 	ctx, cancel := context.WithCancel(context.Background())
 	dq := &Queue{}
