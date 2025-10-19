@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/mholt/archives"
 	"github.com/mjdevelops/tunes/internal/pkg/util"
@@ -49,7 +51,9 @@ func NewFfmpeg(path string) (*Ffmpeg, error) {
 }
 
 func (f *Ffmpeg) GetLatest() error {
-	// TODO: Check existing binary
+	if f.isLatest() {
+		return nil
+	}
 
 	var (
 		binData []byte
@@ -134,6 +138,18 @@ func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error
 	return extractedBin, nil
 }
 
+func (f *Ffmpeg) isLatest() bool {
+	releaseInfo := strings.Split(f.Version(), "-")
+	releaseDate := getLatestReleaseDate()
+	if len(releaseInfo) > 0 {
+		date := releaseInfo[3]
+		if parsed, _ := time.Parse("20060102", date); parsed.Equal(releaseDate) {
+			return true
+		}
+	}
+	return false
+}
+
 func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 	switch archive {
 	case ArchiveZip:
@@ -209,4 +225,24 @@ func getPlatformExecutable(platform string) string {
 	default:
 		return ""
 	}
+}
+
+func getLatestReleaseDate() time.Time {
+	resp, err := http.Get("https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest")
+	if err != nil {
+		return time.Time{}
+	}
+	defer resp.Body.Close()
+
+	var release struct {
+		PublishedAt string `json:"published_at"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return time.Time{}
+	}
+
+	t, _ := time.Parse(time.RFC3339, release.PublishedAt)
+
+	return t
 }
