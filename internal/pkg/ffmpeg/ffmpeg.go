@@ -40,7 +40,7 @@ var (
 
 func NewFfmpeg(path string) (*Ffmpeg, error) {
 	f := &Ffmpeg{}
-	executable := getPlatformExecutable(util.GetPlatform())
+	executable := getPlatformExecutable()
 	if executable == "" {
 		return nil, ErrUnsupported
 	}
@@ -221,7 +221,7 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 	return nil, errors.New("invalid archive type")
 }
 
-func getPlatformExecutable(platform string) string {
+func getPlatformExecutable() string {
 	switch util.GetOSType() {
 	case util.OSUnix:
 		return "ffmpeg"
