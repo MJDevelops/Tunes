@@ -32,7 +32,7 @@ const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 var ErrUnsupported error = errors.New("unsupported platform")
 
-func DownloadLatest(binPath string) (*YtDlp, error) {
+func GetLatest(binPath string) (*YtDlp, error) {
 	var err error
 	ytdlp := &YtDlp{}
 

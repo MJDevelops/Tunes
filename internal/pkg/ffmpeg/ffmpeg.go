@@ -19,8 +19,7 @@ import (
 
 // ffmpeg executable wrapper
 type Ffmpeg struct {
-	Platform string
-	Path     string
+	binPath string
 }
 
 type ArchiveType int
@@ -30,30 +29,26 @@ const (
 	ArchiveZip
 )
 
-const (
-	ffmpegBuildsRepo string = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
-)
+const ffmpegBuildsRepo string = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
 
 var (
 	ErrExtraction  error = errors.New("error during extraction")
 	ErrUnsupported error = errors.New("unsupported platform")
 )
 
-func NewFfmpeg() *Ffmpeg {
+func NewFfmpeg(path string) (*Ffmpeg, error) {
 	f := &Ffmpeg{}
-	f.Platform = util.GetPlatform()
-
-	switch f.Platform {
-	case "darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64":
-		f.Path = filepath.Join("bin", "ffmpeg")
-	case "windows_amd64", "windows_arm64":
-		f.Path = filepath.Join("bin", "ffmpeg.exe")
+	executable := getPlatformExecutable(util.GetPlatform())
+	if executable == "" {
+		return nil, ErrUnsupported
 	}
 
-	return f
+	f.binPath = filepath.Join(path, executable)
+
+	return f, nil
 }
 
-func (f *Ffmpeg) DownloadLatest() error {
+func (f *Ffmpeg) GetLatest() error {
 	// TODO: Check existing binary
 
 	var (
@@ -63,7 +58,7 @@ func (f *Ffmpeg) DownloadLatest() error {
 		err     error
 	)
 
-	switch f.Platform {
+	switch util.GetPlatform() {
 	case "darwin_amd64", "darwin_arm64":
 		path = "https://evermeet.cx/ffmpeg/getrelease/zip"
 		archive = ArchiveZip
@@ -92,7 +87,7 @@ func (f *Ffmpeg) DownloadLatest() error {
 		return err
 	}
 
-	file, err := os.OpenFile(f.Path, os.O_CREATE|os.O_WRONLY, 0750)
+	file, err := os.OpenFile(f.binPath, os.O_CREATE|os.O_WRONLY, 0750)
 	if err != nil {
 		return err
 	}
@@ -107,12 +102,16 @@ func (f *Ffmpeg) DownloadLatest() error {
 }
 
 func (f *Ffmpeg) Version() string {
-	v, err := exec.Command(f.Path, "-version").Output()
+	v, err := exec.Command(f.binPath, "-version").Output()
 	if err != nil {
 		return ""
 	}
 
 	return strings.Split(string(v), " ")[2]
+}
+
+func (f *Ffmpeg) Path() string {
+	return f.binPath
 }
 
 func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error) {
@@ -199,4 +198,15 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 	}
 
 	return nil, errors.New("invalid archive type")
+}
+
+func getPlatformExecutable(platform string) string {
+	switch platform {
+	case "darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64":
+		return "ffmpeg"
+	case "windows_amd64", "windows_arm64":
+		return "ffmpeg.exe"
+	default:
+		return ""
+	}
 }

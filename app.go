@@ -34,6 +34,8 @@ type App struct {
 //go:embed schema.sql
 var ddl string
 
+var binPath = path.Join(".", "bin")
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	app := &App{}
@@ -68,10 +70,11 @@ func (a *App) startup(ctx context.Context) {
 	a.config = config
 
 	wg.Go(func() {
-		ytdlp, err := ytdlp.DownloadLatest(path.Join(".", "bin"))
+		ytdlp, err := ytdlp.GetLatest(binPath)
 		if err != nil {
 			log.Fatalf("Error fetching latest yt-dlp release: %v\n", err)
 		}
+
 		ytdlpAbs, _ := filepath.Abs(ytdlp.Path())
 		config.YtDlp.Path = ytdlpAbs
 		config.YtDlp.Release = ytdlp.Release
@@ -79,14 +82,16 @@ func (a *App) startup(ctx context.Context) {
 	})
 
 	wg.Go(func() {
-		a.Ffmpeg = ffmpeg.NewFfmpeg()
-		err = a.Ffmpeg.DownloadLatest()
+		a.Ffmpeg, err = ffmpeg.NewFfmpeg(binPath)
 		if err != nil {
+			log.Fatalf("Error initializing ffmpeg: %v\n", err)
+		}
+
+		if err = a.Ffmpeg.GetLatest(); err != nil {
 			log.Fatalf("Error fetching ffmpeg: %v\n", err)
 		}
 
-		ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path)
-
+		ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path())
 		config.Ffmpeg.Version = a.Ffmpeg.Version()
 		config.Ffmpeg.Path = ffmpegAbs
 	})
