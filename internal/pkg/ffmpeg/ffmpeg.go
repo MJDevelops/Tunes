@@ -63,19 +63,19 @@ func (f *Ffmpeg) GetLatest() error {
 	)
 
 	switch util.GetPlatform() {
-	case "darwin_amd64", "darwin_arm64":
+	case util.PlatformDarwinX64, util.PlatformDarwinArm64:
 		path = "https://evermeet.cx/ffmpeg/getrelease/zip"
 		archive = ArchiveZip
-	case "windows_amd64":
+	case util.PlatformWindowsX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-win64-gpl.zip")
 		archive = ArchiveZip
-	case "windows_arm64":
+	case util.PlatformWindowsArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-winarm64-gpl.zip")
 		archive = ArchiveZip
-	case "linux_amd64":
+	case util.PlatformLinuxX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linux64-gpl.tar.xz")
 		archive = ArchiveTar
-	case "linux_arm64":
+	case util.PlatformLinuxArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linuxarm64-gpl.tar.xz")
 		archive = ArchiveTar
 	default:
@@ -139,15 +139,20 @@ func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error
 }
 
 func (f *Ffmpeg) isLatest() bool {
-	releaseInfo := strings.Split(f.Version(), "-")
-	releaseDate := getLatestReleaseDate()
-	if len(releaseInfo) > 0 {
-		date := releaseInfo[3]
-		if parsed, _ := time.Parse("20060102", date); parsed.Equal(releaseDate) {
-			return true
+	if platform := util.GetPlatform(); strings.Contains(platform, "darwin") {
+		// TODO: Implement isLatest for macOS
+		return false
+	} else {
+		releaseInfo := strings.Split(f.Version(), "-")
+		releaseDate := getLatestReleaseDate()
+		if len(releaseInfo) > 0 {
+			date := releaseInfo[3]
+			if parsed, _ := time.Parse("20060102", date); parsed.Equal(releaseDate) {
+				return true
+			}
 		}
+		return false
 	}
-	return false
 }
 
 func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
@@ -217,10 +222,10 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 }
 
 func getPlatformExecutable(platform string) string {
-	switch platform {
-	case "darwin_amd64", "darwin_arm64", "linux_amd64", "linux_arm64":
+	switch util.GetOSType() {
+	case util.OSUnix:
 		return "ffmpeg"
-	case "windows_amd64", "windows_arm64":
+	case util.OSWindows:
 		return "ffmpeg.exe"
 	default:
 		return ""
