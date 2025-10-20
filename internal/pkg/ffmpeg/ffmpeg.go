@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/mholt/archives"
 	"github.com/mjdevelops/tunes/internal/pkg/util"
@@ -30,11 +30,15 @@ const (
 	ArchiveZip
 )
 
-const ffmpegBuildsRepo string = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
+const (
+	ffmpegBuildsRepo = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest"
+	evermeetFfmpeg   = "https://evermeet.cx/ffmpeg"
+)
 
 var (
-	ErrExtraction  error = errors.New("error during extraction")
-	ErrUnsupported error = errors.New("unsupported platform")
+	ErrExtraction   = errors.New("error during extraction")
+	ErrUnsupported  = errors.New("unsupported platform")
+	ErrFetchRelease = errors.New("error fetching release version")
 )
 
 func NewFfmpeg(path string) (*Ffmpeg, error) {
@@ -42,6 +46,10 @@ func NewFfmpeg(path string) (*Ffmpeg, error) {
 	executable := getPlatformExecutable()
 	if executable == "" {
 		return nil, ErrUnsupported
+	}
+
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		os.MkdirAll(path, 0750)
 	}
 
 	f.binPath = filepath.Join(path, executable)
@@ -54,6 +62,11 @@ func (f *Ffmpeg) GetLatest() error {
 		return nil
 	}
 
+	version := getLatestReleaseVersion()
+	if version == "" {
+		return ErrFetchRelease
+	}
+
 	var (
 		binData []byte
 		path    string
@@ -63,19 +76,19 @@ func (f *Ffmpeg) GetLatest() error {
 
 	switch util.GetPlatform() {
 	case util.PlatformDarwinX64, util.PlatformDarwinArm64:
-		path = "https://evermeet.cx/ffmpeg/getrelease/zip"
+		path, err = url.JoinPath(evermeetFfmpeg, "getrelease", "zip")
 		archive = ArchiveZip
 	case util.PlatformWindowsX64:
-		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-win64-gpl.zip")
+		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-win64-gpl-%s.zip", version, version))
 		archive = ArchiveZip
 	case util.PlatformWindowsArm64:
-		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-winarm64-gpl.zip")
+		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-winarm64-gpl-%s.zip", version, version))
 		archive = ArchiveZip
 	case util.PlatformLinuxX64:
-		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linux64-gpl.tar.xz")
+		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linux64-gpl-%s.tar.xz", version, version))
 		archive = ArchiveTar
 	case util.PlatformLinuxArm64:
-		path, err = url.JoinPath(ffmpegBuildsRepo, "ffmpeg-master-latest-linuxarm64-gpl.tar.xz")
+		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linuxarm64-gpl-%s.tar.xz", version, version))
 		archive = ArchiveTar
 	default:
 		return ErrUnsupported
@@ -138,19 +151,18 @@ func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error
 }
 
 func (f *Ffmpeg) isLatest() bool {
+	version := f.Version()
+	if version == "" {
+		return false
+	}
+
+	versionNumber := strings.Split(version, "-")[0]
+	latestVersion := getLatestReleaseVersion()
+
 	if platform := util.GetPlatform(); strings.Contains(platform, "darwin") {
-		// TODO: Implement isLatest for macOS
-		return false
+		return versionNumber == latestVersion
 	} else {
-		releaseInfo := strings.Split(f.Version(), "-")
-		releaseDate := getLatestReleaseDate()
-		if len(releaseInfo) > 0 {
-			date := releaseInfo[3]
-			if parsed, _ := time.Parse("20060102", date); parsed.Equal(releaseDate) {
-				return true
-			}
-		}
-		return false
+		return versionNumber[1:4] == latestVersion
 	}
 }
 
@@ -218,22 +230,21 @@ func getPlatformExecutable() string {
 	}
 }
 
-func getLatestReleaseDate() time.Time {
-	resp, err := http.Get("https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest")
+func getLatestReleaseVersion() string {
+	evermeetInfoUrl, _ := url.JoinPath(evermeetFfmpeg, "info", "ffmpeg", "release")
+	resp, err := http.Get(evermeetInfoUrl)
 	if err != nil {
-		return time.Time{}
+		return ""
 	}
 	defer resp.Body.Close()
 
 	var release struct {
-		PublishedAt string `json:"published_at"`
+		Version string `json:"version"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return time.Time{}
+		return ""
 	}
 
-	t, _ := time.Parse(time.RFC3339, release.PublishedAt)
-
-	return t
+	return release.Version
 }
