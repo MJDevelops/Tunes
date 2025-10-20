@@ -1,7 +1,6 @@
 package ffmpeg
 
 import (
-	"archive/zip"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -156,34 +155,38 @@ func (f *Ffmpeg) isLatest() bool {
 }
 
 func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
+	var (
+		err error
+		bin []byte
+	)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	extractor := func(ctx context.Context, info archives.FileInfo) error {
+		if name := info.Name(); name == "ffmpeg" || name == "ffmpeg.exe" {
+			file, err := info.Open()
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			bin, err = io.ReadAll(file)
+			if err != nil {
+				return err
+			}
+
+			cancel()
+		}
+		return nil
+	}
+
 	switch archive {
 	case ArchiveZip:
-		zipReader, err := zip.NewReader(bytes.NewReader(binData), int64(len(binData)))
-		if err != nil || !(len(zipReader.File) > 0) {
-			return nil, ErrExtraction
-		}
-
-		for _, f := range zipReader.File {
-			if name := f.FileInfo().Name(); name == "ffmpeg" || name == "ffmpeg.exe" {
-				file, err := f.Open()
-				if err != nil {
-					return nil, err
-				}
-				defer file.Close()
-
-				binData, err := io.ReadAll(file)
-				if err != nil {
-					return nil, err
-				}
-
-				return binData, nil
-			}
-		}
+		var format archives.Zip
+		err = format.Extract(ctx, bytes.NewReader(binData), extractor)
 	case ArchiveTar:
 		var (
 			compression archives.Xz
 			format      archives.Tar
-			err         error
 		)
 
 		decompressedReader, err := compression.OpenReader(bytes.NewReader(binData))
@@ -192,33 +195,16 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 		}
 		defer decompressedReader.Close()
 
-		ctx, cancel := context.WithCancel(context.Background())
-
-		err = format.Extract(ctx, decompressedReader, func(ctx context.Context, info archives.FileInfo) error {
-			if info.Name() == "ffmpeg" {
-				f, err := info.Open()
-				if err != nil {
-					return err
-				}
-				defer f.Close()
-
-				binData, err = io.ReadAll(f)
-				if err != nil {
-					return err
-				}
-				cancel()
-			}
-			return nil
-		})
-
-		if !errors.Is(err, context.Canceled) && err != nil {
-			return nil, err
-		}
-
-		return binData, nil
+		err = format.Extract(ctx, decompressedReader, extractor)
+	default:
+		return nil, errors.New("invalid archive type")
 	}
 
-	return nil, errors.New("invalid archive type")
+	if !errors.Is(err, context.Canceled) && err != nil {
+		return nil, err
+	}
+
+	return bin, nil
 }
 
 func getPlatformExecutable() string {
