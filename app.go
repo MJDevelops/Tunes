@@ -13,13 +13,13 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
-	"github.com/mjdevelops/tunes/internal/pkg/ffmpeg"
-	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
+	"github.com/mjdevelops/tunes/internal/pkg/exec/ffmpeg"
+	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	_ "modernc.org/sqlite"
 )
 
-// Application state
+// App Application state
 type App struct {
 	YtDlp           *ytdlp.YtDlp
 	Ffmpeg          *ffmpeg.Ffmpeg

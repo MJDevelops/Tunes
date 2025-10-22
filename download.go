@@ -9,10 +9,10 @@ import (
 
 	"github.com/mjdevelops/tunes/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
-	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
+	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
 )
 
-func (a *App) saveQueueState(downloads []ytdlp.Download) {
+func (a *App) saveQueueState(downloads []*ytdlp.Download) {
 	ctx := context.Background()
 
 	for _, d := range downloads {

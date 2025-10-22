@@ -15,7 +15,7 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/util"
 )
 
-// Wrapper for yt-dlp executable
+// YtDlp Wrapper for yt-dlp executable
 type YtDlp struct {
 	path    string
 	Release string

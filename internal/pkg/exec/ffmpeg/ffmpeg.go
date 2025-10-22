@@ -18,16 +18,16 @@ import (
 	"github.com/mjdevelops/tunes/internal/pkg/util"
 )
 
-// ffmpeg executable wrapper
+// Ffmpeg executable wrapper
 type Ffmpeg struct {
 	binPath string
 }
 
-type ArchiveType int
+type archiveType int
 
 const (
-	ArchiveTar ArchiveType = iota
-	ArchiveZip
+	archiveTar archiveType = iota
+	archiveZip
 )
 
 const (
@@ -70,26 +70,26 @@ func (f *Ffmpeg) GetLatest() error {
 	var (
 		binData []byte
 		path    string
-		archive ArchiveType
+		archive archiveType
 		err     error
 	)
 
 	switch util.GetPlatform() {
 	case util.PlatformDarwinX64, util.PlatformDarwinArm64:
 		path, err = url.JoinPath(evermeetFfmpeg, "getrelease", "zip")
-		archive = ArchiveZip
+		archive = archiveZip
 	case util.PlatformWindowsX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-win64-gpl-%s.zip", version, version))
-		archive = ArchiveZip
+		archive = archiveZip
 	case util.PlatformWindowsArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-winarm64-gpl-%s.zip", version, version))
-		archive = ArchiveZip
+		archive = archiveZip
 	case util.PlatformLinuxX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linux64-gpl-%s.tar.xz", version, version))
-		archive = ArchiveTar
+		archive = archiveTar
 	case util.PlatformLinuxArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linuxarm64-gpl-%s.tar.xz", version, version))
-		archive = ArchiveTar
+		archive = archiveTar
 	default:
 		return ErrUnsupported
 	}
@@ -130,7 +130,7 @@ func (f *Ffmpeg) Path() string {
 	return f.binPath
 }
 
-func (f *Ffmpeg) downloadFfmpeg(path string, archive ArchiveType) ([]byte, error) {
+func (f *Ffmpeg) downloadFfmpeg(path string, archive archiveType) ([]byte, error) {
 	res, err := http.Get(path)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (f *Ffmpeg) isLatest() bool {
 	}
 }
 
-func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
+func extractFfmpeg(binData []byte, archive archiveType) ([]byte, error) {
 	var (
 		err error
 		bin []byte
@@ -192,10 +192,10 @@ func extractFfmpeg(binData []byte, archive ArchiveType) ([]byte, error) {
 	}
 
 	switch archive {
-	case ArchiveZip:
+	case archiveZip:
 		var format archives.Zip
 		err = format.Extract(ctx, bytes.NewReader(binData), extractor)
-	case ArchiveTar:
+	case archiveTar:
 		var (
 			compression archives.Xz
 			format      archives.Tar

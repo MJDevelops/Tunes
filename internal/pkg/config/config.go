@@ -23,7 +23,7 @@ type Executables struct {
 }
 
 type Options struct {
-	MaxThreads uint `json:"maxThreads"`
+	MaxThreads uint `json:"maxThreads,omitempty"`
 }
 
 type Application struct {

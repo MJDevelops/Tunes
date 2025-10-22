@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/mjdevelops/tunes/internal/pkg/ytdlp"
+	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
 )
 
 func (a *App) GetThumbnails(url string) ([]ytdlp.Thumbnail, error) {
