@@ -57,6 +57,7 @@ func (y *YtDlp) NewDownload(id string, url string, options ...string) (Download,
 		if err := uuid.Validate(id); err != nil {
 			return download, err
 		}
+		download.id = id
 	}
 
 	download.options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
