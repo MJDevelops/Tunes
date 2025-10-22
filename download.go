@@ -49,7 +49,7 @@ func (a *App) PendingDownloads() []ytdlp.Download {
 	for i := range downloads {
 		var opts []string
 		json.Unmarshal([]byte(downloads[i].Options), &opts)
-		download, err := a.YtDlp.NewDownload(downloads[i].ID, downloads[i].Url, opts...)
+		download, err := a.ytDlp.NewDownload(downloads[i].ID, downloads[i].Url, opts...)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -61,7 +61,7 @@ func (a *App) PendingDownloads() []ytdlp.Download {
 }
 
 func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
-	down, _ := a.YtDlp.NewDownload("", url, opts...)
+	down, _ := a.ytDlp.NewDownload("", url, opts...)
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)
@@ -76,7 +76,7 @@ func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 		a.EventsEmit(events.DownloadStarted, down.Id())
 	})
 
-	a.YtDownloadQueue.Enqueue(&down)
+	a.downloadQueue.Enqueue(&down)
 
 	return down.Id()
 }

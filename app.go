@@ -21,14 +21,14 @@ import (
 
 // App Application state
 type App struct {
-	YtDlp           *ytdlp.YtDlp
-	Ffmpeg          *ffmpeg.Ffmpeg
-	PlayingQueue    *audio.Queue
-	YtDownloadQueue *ytdlp.Queue
-	db              *sql.DB
-	queries         *db.Queries
-	config          config.Application
-	ctx             context.Context
+	ytDlp         *ytdlp.YtDlp
+	ffmpeg        *ffmpeg.Ffmpeg
+	playingQueue  *audio.Queue
+	downloadQueue *ytdlp.Queue
+	db            *sql.DB
+	queries       *db.Queries
+	config        config.Application
+	ctx           context.Context
 }
 
 //go:embed schema.sql
@@ -39,7 +39,7 @@ var binPath = path.Join(".", "bin")
 // NewApp creates a new App application struct
 func NewApp() *App {
 	app := &App{}
-	app.PlayingQueue = &audio.Queue{}
+	app.playingQueue = &audio.Queue{}
 
 	return app
 }
@@ -78,21 +78,21 @@ func (a *App) startup(ctx context.Context) {
 		ytdlpAbs, _ := filepath.Abs(ytdlp.Path())
 		config.YtDlp.Path = ytdlpAbs
 		config.YtDlp.Release = ytdlp.Release
-		a.YtDlp = ytdlp
+		a.ytDlp = ytdlp
 	})
 
 	wg.Go(func() {
-		a.Ffmpeg, err = ffmpeg.NewFfmpeg(binPath)
+		a.ffmpeg, err = ffmpeg.NewFfmpeg(binPath)
 		if err != nil {
 			log.Fatalf("Error initializing ffmpeg: %v\n", err)
 		}
 
-		if err = a.Ffmpeg.GetLatest(); err != nil {
+		if err = a.ffmpeg.GetLatest(); err != nil {
 			log.Fatalf("Error fetching ffmpeg: %v\n", err)
 		}
 
-		ffmpegAbs, _ := filepath.Abs(a.Ffmpeg.Path())
-		config.Ffmpeg.Version = a.Ffmpeg.Version()
+		ffmpegAbs, _ := filepath.Abs(a.ffmpeg.Path())
+		config.Ffmpeg.Version = a.ffmpeg.Version()
 		config.Ffmpeg.Path = ffmpegAbs
 	})
 
@@ -103,12 +103,12 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) initialize() {
 	// Load all pending downloads from database
 	downloads := a.PendingDownloads()
-	a.YtDownloadQueue = ytdlp.NewQueue(5, downloads...).OnShutdown(a.saveQueueState)
-	a.YtDownloadQueue.Start()
+	a.downloadQueue = ytdlp.NewQueue(5, downloads...).OnShutdown(a.saveQueueState)
+	a.downloadQueue.Start()
 }
 
 func (a *App) beforeClose(ctx context.Context) bool {
-	if a.YtDownloadQueue.IsRunning() {
+	if a.downloadQueue.IsRunning() {
 		dialog, err := runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
 			Type:    runtime.QuestionDialog,
 			Title:   "Quit",
@@ -126,7 +126,7 @@ func (a *App) beforeClose(ctx context.Context) bool {
 }
 
 func (a *App) shutdown(_ context.Context) {
-	a.YtDownloadQueue.Stop()
+	a.downloadQueue.Stop()
 }
 
 func (a *App) EventsEmit(event events.Event, optionalData ...any) {
