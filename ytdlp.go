@@ -12,7 +12,7 @@ func (a *App) GetThumbnails(url string) ([]ytdlp.Thumbnail, error) {
 		Thumbnails []ytdlp.Thumbnail `json:"thumbnails"`
 	}
 
-	cmd := a.YtDlp.CreateCommandQuiet(url, "--dump-json")
+	cmd := a.ytDlp.CreateCommandQuiet(url, "--dump-json")
 	output, _ := cmd.Output()
 
 	if err := json.Unmarshal(output, &thJson); err != nil {
