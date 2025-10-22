@@ -19,7 +19,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// App Application state
+// App represents the application state.
 type App struct {
 	ytDlp         *ytdlp.YtDlp
 	ffmpeg        *ffmpeg.Ffmpeg
@@ -91,9 +91,8 @@ func (a *App) startup(ctx context.Context) {
 			log.Fatalf("Error fetching ffmpeg: %v\n", err)
 		}
 
-		ffmpegAbs, _ := filepath.Abs(a.ffmpeg.Path())
 		config.Ffmpeg.Version = a.ffmpeg.Version()
-		config.Ffmpeg.Path = ffmpegAbs
+		config.Ffmpeg.Path = a.ffmpeg.Path()
 	})
 
 	wg.Wait()

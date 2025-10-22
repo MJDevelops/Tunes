@@ -52,7 +52,13 @@ func NewFfmpeg(path string) (*Ffmpeg, error) {
 		os.MkdirAll(path, 0750)
 	}
 
-	f.binPath = filepath.Join(path, executable)
+	f.binPath, _ = filepath.Abs(filepath.Join(path, executable))
+
+	// Inject ffmpeg path
+	pathVar := fmt.Sprintf("%s%c%s", path, os.PathListSeparator, os.Getenv("PATH"))
+	if err := os.Setenv("PATH", pathVar); err != nil {
+		return nil, err
+	}
 
 	return f, nil
 }
