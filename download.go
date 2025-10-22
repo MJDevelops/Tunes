@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/mjdevelops/tunes/db"
@@ -15,10 +16,10 @@ func (a *App) saveQueueState(downloads []ytdlp.Download) {
 	ctx := context.Background()
 
 	for _, d := range downloads {
-		_, err := a.queries.GetDownload(ctx, d.ID)
+		_, err := a.queries.GetDownload(ctx, d.Id())
 		if err != nil {
-			options, _ := json.Marshal(d.Options)
-			a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.ID, Options: string(options), FinishedAt: sql.NullTime{}})
+			options, _ := json.Marshal(*d.Options())
+			a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.Id(), Options: string(options), FinishedAt: sql.NullTime{}})
 		}
 	}
 }
@@ -29,14 +30,14 @@ func (a *App) finishDownload(download *ytdlp.Download) {
 	t := sql.NullTime{Time: time.Now(), Valid: true}
 
 	err := a.queries.UpdateDownloadFinishedAt(ctx, db.UpdateDownloadFinishedAtParams{
-		ID:         download.ID,
+		ID:         download.Id(),
 		FinishedAt: t,
 	})
 
 	if err != nil {
 		// The download wasn't created before, create it now
-		options, _ := json.Marshal(download.Options)
-		a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.ID, FinishedAt: t, Options: string(options)})
+		options, _ := json.Marshal(download.Options())
+		a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.Id(), FinishedAt: t, Options: string(options)})
 	}
 }
 
@@ -45,32 +46,37 @@ func (a *App) PendingDownloads() []ytdlp.Download {
 	ctx := context.Background()
 	downloads, _ := a.queries.GetPendingDownloads(ctx)
 
-	for _, d := range downloads {
+	for i := range downloads {
 		var opts []string
-		json.Unmarshal([]byte(d.Options), &opts)
-		qDownloads = append(qDownloads, a.YtDlp.NewDownloadWithId(d.ID, d.Url, opts...))
+		json.Unmarshal([]byte(downloads[i].Options), &opts)
+		download, err := a.YtDlp.NewDownload(downloads[i].ID, downloads[i].Url, opts...)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		qDownloads = append(qDownloads, download)
 	}
 
 	return qDownloads
 }
 
 func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
-	down := a.YtDlp.NewDownload(url, opts...)
+	down, _ := a.YtDlp.NewDownload("", url, opts...)
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)
-		a.EventsEmit(events.DownloadFinished, down.ID)
+		a.EventsEmit(events.DownloadFinished, down.Id())
 	})
 
 	down.OnProgress(func(pf ytdlp.ProgressFormat) {
-		a.EventsEmit(events.DownloadProgress, down.ID, pf)
+		a.EventsEmit(events.DownloadProgress, down.Id(), pf)
 	})
 
 	down.OnStart(func() {
-		a.EventsEmit(events.DownloadStarted, down.ID)
+		a.EventsEmit(events.DownloadStarted, down.Id())
 	})
 
-	a.YtDownloadQueue.Enqueue(down)
+	a.YtDownloadQueue.Enqueue(&down)
 
-	return down.ID
+	return down.Id()
 }
