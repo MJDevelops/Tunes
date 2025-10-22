@@ -1,4 +1,5 @@
-import { Home, ListMusic, Disc2, Settings } from "lucide-react";
+import { Home, ListMusic, Disc2, Settings, ArrowDownToLine } from "lucide-react";
+import { SiYoutube, SiSoundcloud } from "@icons-pack/react-simple-icons";
 import { Link } from "react-router";
 import {
   Sidebar,
@@ -49,16 +50,19 @@ const items: SidebarItems[] = [
     groupName: "Download",
     items: [
       {
+        title: "All Downloads",
+        icon: <ArrowDownToLine />,
+        url: "/downloads",
+      },
+      {
         title: "YouTube",
+        icon: <SiYoutube />,
         url: "/download/youtube",
       },
       {
         title: "Soundcloud",
+        icon: <SiSoundcloud />,
         url: "/download/soundcloud",
-      },
-      {
-        title: "Pending",
-        url: "/downloads",
       },
     ],
   },
