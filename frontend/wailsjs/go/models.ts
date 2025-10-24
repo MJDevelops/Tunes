@@ -15,7 +15,9 @@ export namespace events {
 export namespace ytdlp {
 	
 	export class Download {
-	
+	    ID: string;
+	    Url: string;
+	    Options: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Download(source);
@@ -23,7 +25,9 @@ export namespace ytdlp {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	
+	        this.ID = source["ID"];
+	        this.Url = source["Url"];
+	        this.Options = source["Options"];
 	    }
 	}
 	export class Thumbnail {

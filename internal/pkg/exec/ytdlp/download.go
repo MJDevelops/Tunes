@@ -23,9 +23,9 @@ type ProgressFormat struct {
 }
 
 type Download struct {
-	id         string
-	url        string
-	options    []string
+	ID         string
+	Url        string
+	Options    []string
 	executable string
 	onProgress func(ProgressFormat)
 	onFinished func()
@@ -52,15 +52,15 @@ func (y *YtDlp) NewDownload(id string, url string, options ...string) (Download,
 	download := Download{}
 
 	if id == "" {
-		download.id = uuid.NewString()
+		download.ID = uuid.NewString()
 	} else {
 		if err := uuid.Validate(id); err != nil {
 			return download, err
 		}
-		download.id = id
+		download.ID = id
 	}
 
-	download.options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
+	download.Options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
 	download.executable = y.path
 	return download, nil
 }
@@ -82,7 +82,7 @@ func NewQueue(workers uint, downloads ...Download) *Queue {
 }
 
 func (d *Download) Start() (err <-chan error, cancel func()) {
-	cmd := exec.CommandContext(context.Background(), d.executable, d.options...)
+	cmd := exec.CommandContext(context.Background(), d.executable, d.Options...)
 	ch := make(chan error)
 
 	if d.onStart != nil {
@@ -131,7 +131,7 @@ func (dq *Queue) removeWaiting(id string) {
 	dq.waitingMu.Lock()
 	defer dq.waitingMu.Unlock()
 	for i, d := range dq.waiting {
-		if d.id == id {
+		if d.ID == id {
 			dq.waiting = slices.Delete(dq.waiting, i, i+1)
 			return
 		}
@@ -142,7 +142,7 @@ func (dq *Queue) Enqueue(download *Download) {
 	dq.addWaiting(download)
 	go func() {
 		dq.queue <- download
-		dq.removeWaiting(download.id)
+		dq.removeWaiting(download.ID)
 	}()
 }
 
@@ -185,23 +185,15 @@ func (dq *Queue) download(download *Download) {
 	select {
 	case <-dq.ctx.Done():
 		cancel()
-		os.RemoveAll(download.id)
+		os.RemoveAll(download.ID)
 		dq.addWaiting(download)
 	case err := <-err:
 		if err != nil {
-			log.Printf("Error executing download with ID %s: %s", download.id, err.Error())
+			log.Printf("Error executing download with ID %s: %s", download.ID, err.Error())
 		} else {
-			log.Printf("Download with ID %s finished", download.id)
+			log.Printf("Download with ID %s finished", download.ID)
 		}
 	}
-}
-
-func (d *Download) Id() string {
-	return d.id
-}
-
-func (d *Download) Options() *[]string {
-	return &d.options
 }
 
 func (d *Download) OnFinished(f func()) *Download {

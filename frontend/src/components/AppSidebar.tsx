@@ -1,6 +1,11 @@
-import { Home, ListMusic, Disc2, Settings, ArrowDownToLine } from "lucide-react";
+import {
+  Home,
+  ListMusic,
+  Disc2,
+  Settings,
+  ArrowDownToLine,
+} from "lucide-react";
 import { SiYoutube, SiSoundcloud } from "@icons-pack/react-simple-icons";
-import { Link } from "react-router";
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +18,7 @@ import {
 import { useAnimate } from "motion/react";
 import SidebarItem from "@/components/SidebarItem";
 import { MotionButton } from "@/components/Button";
+import { Link } from "@tanstack/react-router";
 
 type SidebarItem = {
   title: string;

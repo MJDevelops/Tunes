@@ -16,10 +16,10 @@ func (a *App) saveQueueState(downloads []*ytdlp.Download) {
 	ctx := context.Background()
 
 	for _, d := range downloads {
-		_, err := a.queries.GetDownload(ctx, d.Id())
+		_, err := a.queries.GetDownload(ctx, d.ID)
 		if err != nil {
-			options, _ := json.Marshal(*d.Options())
-			a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.Id(), Options: string(options), FinishedAt: sql.NullTime{}})
+			options, _ := json.Marshal(d.Options)
+			a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.ID, Options: string(options), FinishedAt: sql.NullTime{}})
 		}
 	}
 }
@@ -30,14 +30,14 @@ func (a *App) finishDownload(download *ytdlp.Download) {
 	t := sql.NullTime{Time: time.Now(), Valid: true}
 
 	err := a.queries.UpdateDownloadFinishedAt(ctx, db.UpdateDownloadFinishedAtParams{
-		ID:         download.Id(),
+		ID:         download.ID,
 		FinishedAt: t,
 	})
 
 	if err != nil {
 		// The download wasn't created before, create it now
-		options, _ := json.Marshal(download.Options())
-		a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.Id(), FinishedAt: t, Options: string(options)})
+		options, _ := json.Marshal(download.Options)
+		a.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.ID, FinishedAt: t, Options: string(options)})
 	}
 }
 
@@ -65,18 +65,18 @@ func (a *App) EnqueueDownload(url string, opts ...string) (id string) {
 
 	down.OnFinished(func() {
 		a.finishDownload(&down)
-		a.EventsEmit(events.DownloadFinished, down.Id())
+		a.EventsEmit(events.DownloadFinished, down.ID)
 	})
 
 	down.OnProgress(func(pf ytdlp.ProgressFormat) {
-		a.EventsEmit(events.DownloadProgress, down.Id(), pf)
+		a.EventsEmit(events.DownloadProgress, down.ID, pf)
 	})
 
 	down.OnStart(func() {
-		a.EventsEmit(events.DownloadStarted, down.Id())
+		a.EventsEmit(events.DownloadStarted, down.ID)
 	})
 
 	a.downloadQueue.Enqueue(&down)
 
-	return down.Id()
+	return down.ID
 }
