@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -119,18 +118,6 @@ func (f *Ffmpeg) GetLatest() error {
 	}
 
 	return nil
-}
-
-// Version returns the version of Ffmpeg at the specified path.
-//
-// A version == "" is returned when the version could not be determined.
-func (f *Ffmpeg) Version() (version string) {
-	v, err := exec.Command(f.binPath, "-version").Output()
-	if err != nil {
-		return ""
-	}
-
-	return strings.Split(string(v), " ")[2]
 }
 
 // Path returns the path of the executable

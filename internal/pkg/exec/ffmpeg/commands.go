@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 var ErrNotAFile = errors.New("not a file")
@@ -23,4 +24,16 @@ func (f *Ffmpeg) Transcode(inFile string, outFile string) (err error) {
 	}
 
 	return exec.Command(f.binPath, "-i", inFile, outFile).Run()
+}
+
+// Version returns the version of Ffmpeg at the specified path.
+//
+// A version == "" is returned when the version could not be determined.
+func (f *Ffmpeg) Version() (version string) {
+	v, err := exec.Command(f.binPath, "-version").Output()
+	if err != nil {
+		return ""
+	}
+
+	return strings.Split(string(v), " ")[2]
 }
