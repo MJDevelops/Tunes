@@ -130,8 +130,8 @@ func (dq *Queue) addWaiting(download *Download) {
 func (dq *Queue) removeWaiting(id string) {
 	dq.waitingMu.Lock()
 	defer dq.waitingMu.Unlock()
-	for i := range dq.waiting {
-		if dq.waiting[i].id == id {
+	for i, d := range dq.waiting {
+		if d.id == id {
 			dq.waiting = slices.Delete(dq.waiting, i, i+1)
 			return
 		}

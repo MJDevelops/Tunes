@@ -2,34 +2,32 @@ package audio
 
 import (
 	"os"
-	"slices"
 
 	"github.com/dhowden/tag"
 	"github.com/gopxl/beep/v2"
 	"github.com/gopxl/beep/v2/flac"
 	"github.com/gopxl/beep/v2/mp3"
 	"github.com/gopxl/beep/v2/vorbis"
-	"github.com/mjdevelops/tunes/internal/pkg/util"
+	tunesos "github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
-// Audio file decoder for formats supported by github.com/dhowden/tag
+// TagDecoder represents an audio file decoder for formats supported by github.com/dhowden/tag
 type TagDecoder struct {
 	file    *os.File
 	fileExt string
 }
 
-var TagFormats = []string{".flac", ".ogg", ".mp3"}
-
 func NewTagDecoder(path string) (*TagDecoder, error) {
 	td := &TagDecoder{}
-	td.fileExt = util.GetFileExtension(path)
+	td.fileExt = tunesos.GetFileExtension(path)
 
-	if slices.Contains(TagFormats, td.fileExt) {
-		td.file, _ = os.Open(path)
-		return td, nil
+	if err := IsSupportedFormat(td.fileExt); err != nil {
+		return nil, err
+
 	}
 
-	return nil, ErrUnsupported
+	td.file, _ = os.Open(path)
+	return td, nil
 }
 
 func (td *TagDecoder) DecodeAudio() (beep.StreamSeekCloser, beep.Format, error) {

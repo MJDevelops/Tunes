@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mjdevelops/tunes/internal/pkg/util"
+	tunesos "github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
 // YtDlp Wrapper for yt-dlp executable
@@ -52,7 +52,7 @@ func GetLatest(binPath string) (*YtDlp, error) {
 	return ytdlp, nil
 }
 
-// Creates command with the given options and sets the quiet flag
+// CreateCommandQuiet creates a command with the given options and sets the quiet flag.
 func (y *YtDlp) CreateCommandQuiet(opts ...string) *exec.Cmd {
 	opts = append(opts, "-q")
 	return exec.Command(y.path, opts...)
@@ -122,7 +122,7 @@ func fetchLatestRelease() (string, error) {
 }
 
 func getPlatformExecutable() string {
-	switch util.GetPlatform() {
+	switch tunesos.GetPlatform() {
 	case "darwin_amd64", "darwin_arm64":
 		return "yt-dlp_macos"
 	case "windows_amd64":

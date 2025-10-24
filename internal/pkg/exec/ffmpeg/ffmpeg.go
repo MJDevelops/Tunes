@@ -15,7 +15,7 @@ import (
 	"strings"
 
 	"github.com/mholt/archives"
-	"github.com/mjdevelops/tunes/internal/pkg/util"
+	tunesos "github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
 // Ffmpeg executable wrapper
@@ -41,6 +41,9 @@ var (
 	ErrFetchRelease = errors.New("error fetching release version")
 )
 
+// NewFfmpeg constructs a new Ffmpeg executable wrapper for the specified path.
+//
+// If the current platform is not supported, an error of type ErrUnsupported is returned.
 func NewFfmpeg(path string) (*Ffmpeg, error) {
 	f := &Ffmpeg{}
 	executable := getPlatformExecutable()
@@ -54,15 +57,10 @@ func NewFfmpeg(path string) (*Ffmpeg, error) {
 
 	f.binPath, _ = filepath.Abs(filepath.Join(path, executable))
 
-	// Inject ffmpeg path
-	pathVar := fmt.Sprintf("%s%c%s", path, os.PathListSeparator, os.Getenv("PATH"))
-	if err := os.Setenv("PATH", pathVar); err != nil {
-		return nil, err
-	}
-
 	return f, nil
 }
 
+// GetLatest fetches the latest version of Ffmpeg and writes it to the path specified in NewFfmpeg.
 func (f *Ffmpeg) GetLatest() error {
 	if f.isLatest() {
 		return nil
@@ -80,20 +78,20 @@ func (f *Ffmpeg) GetLatest() error {
 		err     error
 	)
 
-	switch util.GetPlatform() {
-	case util.PlatformDarwinX64, util.PlatformDarwinArm64:
+	switch tunesos.GetPlatform() {
+	case tunesos.PlatformDarwinX64, tunesos.PlatformDarwinArm64:
 		path, err = url.JoinPath(evermeetFfmpeg, "getrelease", "zip")
 		archive = archiveZip
-	case util.PlatformWindowsX64:
+	case tunesos.PlatformWindowsX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-win64-gpl-%s.zip", version, version))
 		archive = archiveZip
-	case util.PlatformWindowsArm64:
+	case tunesos.PlatformWindowsArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-winarm64-gpl-%s.zip", version, version))
 		archive = archiveZip
-	case util.PlatformLinuxX64:
+	case tunesos.PlatformLinuxX64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linux64-gpl-%s.tar.xz", version, version))
 		archive = archiveTar
-	case util.PlatformLinuxArm64:
+	case tunesos.PlatformLinuxArm64:
 		path, err = url.JoinPath(ffmpegBuildsRepo, fmt.Sprintf("ffmpeg-n%s-latest-linuxarm64-gpl-%s.tar.xz", version, version))
 		archive = archiveTar
 	default:
@@ -123,7 +121,10 @@ func (f *Ffmpeg) GetLatest() error {
 	return nil
 }
 
-func (f *Ffmpeg) Version() string {
+// Version returns the version of Ffmpeg at the specified path.
+//
+// A version == "" is returned when the version could not be determined.
+func (f *Ffmpeg) Version() (version string) {
 	v, err := exec.Command(f.binPath, "-version").Output()
 	if err != nil {
 		return ""
@@ -132,6 +133,7 @@ func (f *Ffmpeg) Version() string {
 	return strings.Split(string(v), " ")[2]
 }
 
+// Path returns the path of the executable
 func (f *Ffmpeg) Path() string {
 	return f.binPath
 }
@@ -165,7 +167,7 @@ func (f *Ffmpeg) isLatest() bool {
 	versionNumber := strings.Split(version, "-")[0]
 	latestVersion := getLatestReleaseVersion()
 
-	if platform := util.GetPlatform(); strings.Contains(platform, "darwin") {
+	if platform := tunesos.GetPlatform(); strings.Contains(platform, "darwin") {
 		return versionNumber == latestVersion
 	} else {
 		return versionNumber[1:4] == latestVersion
@@ -226,10 +228,10 @@ func extractFfmpeg(binData []byte, archive archiveType) ([]byte, error) {
 }
 
 func getPlatformExecutable() string {
-	switch util.GetOSType() {
-	case util.OSUnix:
+	switch tunesos.GetOSType() {
+	case tunesos.OSUnix:
 		return "ffmpeg"
-	case util.OSWindows:
+	case tunesos.OSWindows:
 		return "ffmpeg.exe"
 	default:
 		return ""

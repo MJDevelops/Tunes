@@ -7,7 +7,7 @@ import (
 	"github.com/go-audio/wav"
 	"github.com/gopxl/beep/v2"
 	beepwav "github.com/gopxl/beep/v2/wav"
-	"github.com/mjdevelops/tunes/internal/pkg/util"
+	tunesos "github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
 type WavDecoder struct {
@@ -18,7 +18,7 @@ func NewWavDecoder(path string) (*WavDecoder, error) {
 	var err error
 
 	wd := &WavDecoder{}
-	if util.GetFileExtension(path) != ".wav" {
+	if tunesos.GetFileExtension(path) != ".wav" {
 		return nil, ErrUnsupported
 	}
 

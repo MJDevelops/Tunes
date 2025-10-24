@@ -2,11 +2,14 @@ package audio
 
 import (
 	"errors"
+	"slices"
 	"sync"
 	"time"
 
 	"github.com/gopxl/beep/v2"
 )
+
+var supportedFormats = []string{".flac", ".ogg", ".mp3", ".wav"}
 
 type Decoder interface {
 	DecodeAudio() (beep.StreamSeekCloser, beep.Format, error)
@@ -28,11 +31,13 @@ var (
 	ErrUnsupported = errors.New("unsupported file format")
 )
 
-func NewAudioFile(decoder Decoder) (AudioFile, error) {
+// NewAudioFile constructs a new AudioFile struct with the provided decoder.
+//
+// This function returns err != nil if the audio decoding fails.
+func NewAudioFile(decoder Decoder) (ad AudioFile, err error) {
 	af := AudioFile{}
 
 	var (
-		err      error
 		format   beep.Format
 		buffer   *beep.Buffer
 		streamer beep.StreamSeekCloser
@@ -57,4 +62,14 @@ func NewAudioFile(decoder Decoder) (AudioFile, error) {
 
 func (ad *AudioFile) Duration() time.Duration {
 	return ad.buffer.Format().SampleRate.D(ad.buffer.Len())
+}
+
+// IsSupportedFormat reports whether the provided format is supported
+// in the scope of audio decoding. If the format is not supported this
+// will return an error of type ErrUnsupported.
+func IsSupportedFormat(format string) error {
+	if !slices.Contains(supportedFormats, format) {
+		return ErrUnsupported
+	}
+	return nil
 }
