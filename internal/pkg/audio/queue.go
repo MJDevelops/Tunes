@@ -9,7 +9,7 @@ type Queue struct {
 	list    *list.List
 	current *list.Element
 	size    int
-	mu      sync.Mutex
+	mu      sync.RWMutex
 }
 
 func NewQueue(size int) *Queue {
@@ -103,11 +103,20 @@ func (q *Queue) Play(e *list.Element) {
 }
 
 func (q *Queue) Pause() {
-	q.mu.Lock()
-	defer q.mu.Unlock()
+	q.mu.RLock()
+	defer q.mu.RUnlock()
 
 	if q.current != nil {
 		q.current.Value.(*AudioFile).Pause()
+	}
+}
+
+func (q *Queue) Resume() {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+
+	if q.current != nil {
+		q.current.Value.(*AudioFile).Resume()
 	}
 }
 

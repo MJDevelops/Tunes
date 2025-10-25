@@ -74,8 +74,9 @@ func (ad *AudioFile) Duration() time.Duration {
 }
 
 // TODO: Implement this
-func (ad *AudioFile) Play()  {}
-func (ad *AudioFile) Pause() {}
+func (ad *AudioFile) Play()   {}
+func (ad *AudioFile) Pause()  {}
+func (ad *AudioFile) Resume() {}
 
 // IsSupportedFormat reports whether the provided format is supported
 // in the scope of audio decoding. If the format is not supported this
