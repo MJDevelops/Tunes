@@ -48,7 +48,7 @@ func (s *DownloadService) ServiceStartup(ctx context.Context, options applicatio
 	return nil
 }
 
-func (s *DownloadService) ServiceShutdown(ctx context.Context) error {
+func (s *DownloadService) ServiceShutdown() error {
 	s.queue.Stop()
 	return nil
 }

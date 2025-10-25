@@ -105,6 +105,9 @@ func (q *Queue) Add(ad *AudioFile) *list.Element {
 }
 
 func (q *Queue) AddAfter(ad *AudioFile, e *list.Element) *list.Element {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
 	return q.list.InsertAfter(ad, e)
 }
 
