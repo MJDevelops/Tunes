@@ -13,13 +13,13 @@ CREATE TABLE IF NOT EXISTS tracks(
 
 CREATE TABLE IF NOT EXISTS albums(
   id INTEGER PRIMARY KEY,
-  title TEXT NOT NULL
+  title TEXT NOT NULL,
+  artwork BLOB
 );
 
 CREATE TABLE IF NOT EXISTS playlists(
   id INTEGER PRIMARY KEY,
-  title TEXT NOT NULL,
-  artwork BLOB
+  title TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS playlists_tracks(

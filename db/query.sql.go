@@ -58,6 +58,46 @@ func (q *Queries) GetPendingDownloads(ctx context.Context) ([]Download, error) {
 	return items, nil
 }
 
+const getPlaylist = `-- name: GetPlaylist :one
+SELECT id, title FROM playlists WHERE id = ?
+`
+
+func (q *Queries) GetPlaylist(ctx context.Context, id int64) (Playlist, error) {
+	row := q.db.QueryRowContext(ctx, getPlaylist, id)
+	var i Playlist
+	err := row.Scan(&i.ID, &i.Title)
+	return i, err
+}
+
+const getPlaylistTracks = `-- name: GetPlaylistTracks :many
+SELECT t.id, t.path, t.album_id FROM tracks t
+JOIN playlists_tracks pt ON t.id = pt.track_id
+WHERE pt.playlist_id = ?
+`
+
+func (q *Queries) GetPlaylistTracks(ctx context.Context, playlistID int64) ([]Track, error) {
+	rows, err := q.db.QueryContext(ctx, getPlaylistTracks, playlistID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Track
+	for rows.Next() {
+		var i Track
+		if err := rows.Scan(&i.ID, &i.Path, &i.AlbumID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTrack = `-- name: GetTrack :one
 SELECT id, path, album_id FROM tracks WHERE id = ?
 `

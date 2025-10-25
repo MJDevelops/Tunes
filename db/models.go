@@ -9,8 +9,9 @@ import (
 )
 
 type Album struct {
-	ID    int64
-	Title string
+	ID      int64
+	Title   string
+	Artwork []byte
 }
 
 type Download struct {
@@ -21,9 +22,8 @@ type Download struct {
 }
 
 type Playlist struct {
-	ID      int64
-	Title   string
-	Artwork []byte
+	ID    int64
+	Title string
 }
 
 type PlaylistsTrack struct {

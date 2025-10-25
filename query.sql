@@ -16,3 +16,11 @@ UPDATE downloads SET finished_at = ? WHERE id = ?;
 
 -- name: GetTrack :one
 SELECT * FROM tracks WHERE id = ?;
+
+-- name: GetPlaylistTracks :many
+SELECT t.* FROM tracks t
+JOIN playlists_tracks pt ON t.id = pt.track_id
+WHERE pt.playlist_id = ?;
+
+-- name: GetPlaylist :one
+SELECT * FROM playlists WHERE id = ?;
