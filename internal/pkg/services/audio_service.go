@@ -18,7 +18,7 @@ type AudioService struct {
 
 func NewAudioService(queries *db.Queries) *AudioService {
 	return &AudioService{
-		queue: audio.NewQueue(),
+		queue: audio.NewQueue(50),
 	}
 }
 
