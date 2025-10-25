@@ -82,24 +82,17 @@ func (q *Queue) Play(e *list.Element) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 
-	c := q.list.Front()
-	if c == e {
-		q.current = c
-	} else if q.current != e {
-		for {
-			c = c.Next()
-			if c == nil {
-				break
-			}
-
+	if q.current == e {
+		q.current.Value.(*AudioFile).Play()
+	} else {
+		for c := q.list.Front(); c != nil; c = c.Next() {
 			if c == e {
 				q.current = c
+				c.Value.(*AudioFile).Play()
 				break
 			}
 		}
 	}
-
-	q.current.Value.(*AudioFile).Play()
 }
 
 func (q *Queue) Pause() {
