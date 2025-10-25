@@ -5,3 +5,6 @@ bin/
 *.config.json
 tunes.db
 .idea/
+.task/
+build/linux/appimage/build/
+build/windows/nsis/MicrosoftEdgeWebview2Setup.exe

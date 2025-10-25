@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 )
 
 type YtDlp struct {
@@ -30,10 +31,11 @@ type Application struct {
 	Executables `json:"executables"`
 	Options     `json:"options"`
 	configPath  string
+	mu          sync.Mutex
 }
 
-func LoadApplicationConfig(path string) (Application, error) {
-	config := Application{}
+func LoadApplicationConfig(path string) (*Application, error) {
+	config := &Application{}
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0660)
 	if err != nil {
 		return config, err
@@ -46,6 +48,18 @@ func LoadApplicationConfig(path string) (Application, error) {
 	config.configPath = path
 
 	return config, nil
+}
+
+// Lock acquires a lock on the application configuration.
+// This function should be called before modifying the configuration.
+func (c *Application) Lock() {
+	c.mu.Lock()
+}
+
+// Unlock releases the lock on the application configuration.
+// This function needs to be called after acquiring the lock with Lock.
+func (c *Application) Unlock() {
+	c.mu.Unlock()
 }
 
 func (c *Application) Write() error {

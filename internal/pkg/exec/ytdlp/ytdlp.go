@@ -32,24 +32,28 @@ const baseUrl string = "https://github.com/yt-dlp/yt-dlp/releases"
 
 var ErrUnsupported error = errors.New("unsupported platform")
 
-func GetLatest(binPath string) (*YtDlp, error) {
-	var err error
+func NewYtDlp(binPath string) *YtDlp {
 	ytdlp := &YtDlp{}
+	ytdlp.path = binPath
 
+	return ytdlp
+}
+
+func (y *YtDlp) GetLatest() error {
 	latestRelease, err := fetchLatestRelease()
 	if err != nil {
-		return nil, errors.New("unable to fetch latest release")
+		return errors.New("unable to fetch latest release")
 	}
 
-	executable, err := downloadRelease(latestRelease, binPath)
+	executable, err := downloadRelease(latestRelease, y.path)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	ytdlp.path = executable
-	ytdlp.Release = latestRelease
+	y.path = executable
+	y.Release = latestRelease
 
-	return ytdlp, nil
+	return nil
 }
 
 // CreateCommandQuiet creates a command with the given options and sets the quiet flag.
