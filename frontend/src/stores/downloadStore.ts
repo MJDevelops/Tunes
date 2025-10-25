@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { PendingDownloads } from "~/wailsjs/go/main/App";
-import { ytdlp } from "~/wailsjs/go/models";
+import { PendingDownloads } from "@bindings/internal/pkg/services/downloadservice";
+import { Download } from "@bindings/internal/pkg/exec/ytdlp";
 
 type DownloadState = {
-  downloads: ytdlp.Download[];
+  downloads: Download[];
   fetchPending: () => Promise<void>;
 };
 
