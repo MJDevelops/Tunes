@@ -8,9 +8,31 @@ import (
 	"database/sql"
 )
 
+type Album struct {
+	ID    int64
+	Title string
+}
+
 type Download struct {
 	ID         string
 	Options    string
 	Url        string
 	FinishedAt sql.NullTime
+}
+
+type Playlist struct {
+	ID      int64
+	Title   string
+	Artwork []byte
+}
+
+type PlaylistsTrack struct {
+	TrackID    int64
+	PlaylistID int64
+}
+
+type Track struct {
+	ID      int64
+	Path    string
+	AlbumID int64
 }

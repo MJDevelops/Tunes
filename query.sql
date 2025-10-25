@@ -13,3 +13,6 @@ INSERT INTO downloads (
 
 -- name: UpdateDownloadFinishedAt :exec
 UPDATE downloads SET finished_at = ? WHERE id = ?;
+
+-- name: GetTrack :one
+SELECT * FROM tracks WHERE id = ?;

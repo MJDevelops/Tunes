@@ -20,10 +20,11 @@ var assets embed.FS
 //go:embed schema.sql
 var ddl string
 
-var binPath = path.Join(".", "bin")
-
 func main() {
-	var err error
+	var (
+		err     error
+		binPath = path.Join(".", "bin")
+	)
 
 	// Initialize db connection
 	conn, err := sql.Open("sqlite", "file:tunes.db")
@@ -52,6 +53,7 @@ func main() {
 		Services: []application.Service{
 			application.NewService(services.NewFfmpegService(binPath, config)),
 			application.NewService(services.NewYtDlpService(binPath, config)),
+			application.NewService(services.NewAudioService(queries)),
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: false,

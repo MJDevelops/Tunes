@@ -1,12 +1,14 @@
 package audio
 
 import (
+	"container/list"
 	"errors"
 	"slices"
 	"sync"
 	"time"
 
 	"github.com/gopxl/beep/v2"
+	"github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
 var supportedFormats = []string{".flac", ".ogg", ".mp3", ".wav"}
@@ -23,8 +25,9 @@ type AudioFile struct {
 }
 
 type Queue struct {
-	Queue []AudioFile
-	mu    sync.Mutex
+	list    *list.List
+	current *list.Element
+	mu      sync.Mutex
 }
 
 var (
@@ -60,8 +63,125 @@ func NewAudioFile(decoder Decoder) (ad AudioFile, err error) {
 	return af, nil
 }
 
+func NewDecoder(file string) (Decoder, error) {
+	ext := os.GetFileExtension(file)
+	if err := IsSupportedFormat(ext); err != nil {
+		return nil, err
+	}
+
+	switch ext {
+	case ".wav":
+		return NewWavDecoder(file)
+	default:
+		return NewTagDecoder(file)
+	}
+}
+
 func (ad *AudioFile) Duration() time.Duration {
 	return ad.buffer.Format().SampleRate.D(ad.buffer.Len())
+}
+
+// TODO: Implement this
+func (ad *AudioFile) Play()  {}
+func (ad *AudioFile) Pause() {}
+
+func NewQueue() *Queue {
+	return &Queue{
+		list: list.New(),
+	}
+}
+
+func (q *Queue) Add(ad *AudioFile) *list.Element {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	e := q.list.PushBack(ad)
+
+	if q.current == nil {
+		q.current = e
+	}
+
+	return e
+}
+
+func (q *Queue) AddAfter(ad *AudioFile, e *list.Element) *list.Element {
+	return q.list.InsertAfter(ad, e)
+}
+
+func (q *Queue) Next() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	if q.current != nil {
+		next := q.current.Next()
+
+		if next != nil {
+			q.current = next
+		}
+	}
+}
+
+func (q *Queue) Previous() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	if q.current != nil {
+		prev := q.current.Prev()
+
+		if prev != nil {
+			q.current = prev
+		}
+
+		q.current.Value.(*AudioFile).Play()
+	}
+}
+
+func (q *Queue) MoveAfter(e *list.Element, mark *list.Element) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	q.list.MoveAfter(e, mark)
+}
+
+func (q *Queue) Play(e *list.Element) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	c := q.list.Front()
+	if c == e {
+		c.Value.(*AudioFile).Play()
+	} else if q.current == e {
+		q.current.Value.(*AudioFile).Play()
+	} else {
+		for {
+			c = c.Next()
+			if c == nil {
+				break
+			}
+
+			if c == e {
+				q.current = c
+				c.Value.(*AudioFile).Play()
+				break
+			}
+		}
+	}
+}
+
+func (q *Queue) Pause() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	if q.current != nil {
+		q.current.Value.(*AudioFile).Pause()
+	}
+}
+
+func (q *Queue) Reset() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	q.list.Init()
 }
 
 // IsSupportedFormat reports whether the provided format is supported

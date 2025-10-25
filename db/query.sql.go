@@ -58,6 +58,17 @@ func (q *Queries) GetPendingDownloads(ctx context.Context) ([]Download, error) {
 	return items, nil
 }
 
+const getTrack = `-- name: GetTrack :one
+SELECT id, path, album_id FROM tracks WHERE id = ?
+`
+
+func (q *Queries) GetTrack(ctx context.Context, id int64) (Track, error) {
+	row := q.db.QueryRowContext(ctx, getTrack, id)
+	var i Track
+	err := row.Scan(&i.ID, &i.Path, &i.AlbumID)
+	return i, err
+}
+
 const insertDownload = `-- name: InsertDownload :exec
 INSERT INTO downloads (
   id, url, options, finished_at

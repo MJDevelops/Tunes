@@ -30,7 +30,7 @@ func (wd *WavDecoder) DecodeAudio() (beep.StreamSeekCloser, beep.Format, error) 
 	return beepwav.Decode(wd.file)
 }
 
-func (wd *WavDecoder) ParseMeta() TrackMeta {
+func (wd *WavDecoder) ParseMeta() (TrackMeta, error) {
 	wd.file.Seek(0, io.SeekStart)
 
 	dec := wav.NewDecoder(wd.file)
@@ -42,5 +42,5 @@ func (wd *WavDecoder) ParseMeta() TrackMeta {
 		Album:  dec.Metadata.Product,
 		Genre:  dec.Metadata.Genre,
 		Artist: dec.Metadata.Artist,
-	}
+	}, nil
 }
