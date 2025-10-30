@@ -17,10 +17,14 @@ type AudioService struct {
 }
 
 func NewAudioService(queries *db.Queries) *AudioService {
-	return &AudioService{
-		queue:   audio.NewQueue(50),
-		queries: queries,
-	}
+	ad := &AudioService{}
+	ad.queue = audio.NewQueue(50)
+	ad.queries = queries
+
+	audio.RegisterDecoder(&audio.TagDecoder{}, ".flac", ".ogg", ".mp3")
+	audio.RegisterDecoder(&audio.WavDecoder{}, ".wav")
+
+	return ad
 }
 
 func (s *AudioService) ServiceStartup(ctx context.Context, option application.ServiceOptions) error {
@@ -29,17 +33,5 @@ func (s *AudioService) ServiceStartup(ctx context.Context, option application.Se
 }
 
 func (s *AudioService) AddToQueue(trackId int64) error {
-	t, err := s.queries.GetTrack(context.TODO(), trackId)
-	if err != nil {
-		return err
-	}
-
-	d, _ := audio.NewDecoder(t.Path)
-	f, _ := audio.NewAudioFile(d)
-
-	if _, ok := s.elems[trackId]; !ok {
-		s.elems[trackId] = s.queue.Add(&f)
-	}
-
 	return nil
 }
