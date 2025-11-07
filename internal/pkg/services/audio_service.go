@@ -35,3 +35,7 @@ func (s *AudioService) ServiceStartup(ctx context.Context, option application.Se
 func (s *AudioService) AddToQueue(trackId int64) error {
 	return nil
 }
+
+func (s *AudioService) GetPlaylistTracks(playlistId int64) ([]db.Track, error) {
+	return s.queries.GetPlaylistTracks(context.TODO(), playlistId)
+}
