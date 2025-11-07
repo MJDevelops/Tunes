@@ -18,7 +18,7 @@ type AudioFile struct {
 	format beep.Format
 }
 
-var supportedFormats map[string]Decoder
+var supportedFormats = make(map[string]Decoder)
 
 var (
 	ErrUnsupported = errors.New("unsupported file format")
