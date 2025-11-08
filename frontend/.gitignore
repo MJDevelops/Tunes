@@ -4,5 +4,4 @@
 # React Router
 /.react-router/
 /build/
-routeTree.gen.ts
 .tanstack/
