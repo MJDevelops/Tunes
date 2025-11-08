@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"os"
 	"os/exec"
+	"path"
 	"slices"
 	"sync"
 	"sync/atomic"
@@ -45,6 +45,8 @@ type Queue struct {
 	onShutdown func([]*Download)
 }
 
+var downloadPath = path.Join(".", "downloads")
+
 // NewDownload constructs a yt-dlp download. When the id is omitted,
 // a new UUID will be generated. If the id is provided and is not a
 // valid UUID, an error is returned.
@@ -60,7 +62,19 @@ func (y *YtDlp) NewDownload(id string, url string, options ...string) (Download,
 		download.ID = id
 	}
 
-	download.Options = append(options, url, "--progress", "--newline", "--progress-template", "'%(progress)j'", "-q")
+	download.Options = append(
+		options,
+		url,
+		"-P",
+		path.Join(downloadPath, download.ID),
+		"--embed-metadata",
+		"--progress",
+		"--newline",
+		"--progress-template",
+		"'%(progress)j'",
+		"-q",
+	)
+
 	download.executable = y.path
 	return download, nil
 }
@@ -185,7 +199,6 @@ func (dq *Queue) download(download *Download) {
 	select {
 	case <-dq.ctx.Done():
 		cancel()
-		os.RemoveAll(download.ID)
 		dq.addWaiting(download)
 	case err := <-err:
 		if err != nil {
