@@ -42,6 +42,43 @@ export class Download {
     }
 }
 
+export class ProgressFormat {
+    "eta": number;
+    "speed": number;
+    "elapsed": number;
+    "downloaded_bytes": number;
+    "total_bytes": number;
+
+    /** Creates a new ProgressFormat instance. */
+    constructor($$source: Partial<ProgressFormat> = {}) {
+        if (!("eta" in $$source)) {
+            this["eta"] = 0;
+        }
+        if (!("speed" in $$source)) {
+            this["speed"] = 0;
+        }
+        if (!("elapsed" in $$source)) {
+            this["elapsed"] = 0;
+        }
+        if (!("downloaded_bytes" in $$source)) {
+            this["downloaded_bytes"] = 0;
+        }
+        if (!("total_bytes" in $$source)) {
+            this["total_bytes"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ProgressFormat instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ProgressFormat {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ProgressFormat($$parsedSource as Partial<ProgressFormat>);
+    }
+}
+
 export class Thumbnail {
     "url": string;
     "height": json$0.Number;

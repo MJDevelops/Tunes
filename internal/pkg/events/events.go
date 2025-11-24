@@ -1,28 +1,19 @@
-// Global event pool
-
 package events
 
-type Event string
-
-const (
-	DownloadQueueStarted Event = "tunes:dqueue:started"
-	DownloadQueueDone    Event = "tunes:dqueue:done"
-	DownloadStarted      Event = "tunes:dl:downloadStarted"
-	DownloadInterrupt    Event = "tunes:dl:downloadInterrupt"
-	DownloadFinished     Event = "tunes:dl:downloadFinished"
-	DownloadProgress     Event = "tunes:dl:downloadProgress"
-	TrackProgress        Event = "tunes:track:progress"
+import (
+	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-var Events = []struct {
-	Value  Event
-	TSName string
-}{
-	{DownloadQueueStarted, "QUEUE_STARTED"},
-	{DownloadQueueDone, "QUEUE_DONE"},
-	{DownloadStarted, "DOWNLOAD_STARTED"},
-	{DownloadInterrupt, "DOWNLOAD_INTERRUPT"},
-	{DownloadFinished, "DOWNLOAD_FINISHED"},
-	{DownloadProgress, "DOWNLOAD_PROGRESS"},
-	{TrackProgress, "TRACK_PROGRESS"},
+type DownloadProgress struct {
+	ID   string
+	Data ytdlp.ProgressFormat
+}
+
+func RegisterWailsEvents() {
+	application.RegisterEvent[application.Void]("tunes:dqueue:started")
+	application.RegisterEvent[application.Void]("tunes:dqueue:done")
+	application.RegisterEvent[string]("tunes:dl:started")
+	application.RegisterEvent[DownloadProgress]("tunes:dl:progress")
+	application.RegisterEvent[string]("tunes:dl:finished")
 }

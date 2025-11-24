@@ -6,4 +6,17 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
-Object.freeze($Create.Events);
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as events$0 from "../../../../mjdevelops/tunes/internal/pkg/events/models.js";
+
+function configure() {
+    Object.freeze(Object.assign($Create.Events, {
+        "tunes:dl:progress": $$createType0,
+    }));
+}
+
+// Private type creation functions
+const $$createType0 = events$0.DownloadProgress.createFrom;
+
+configure();

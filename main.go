@@ -9,6 +9,7 @@ import (
 
 	"github.com/mjdevelops/tunes/db"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/services"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	_ "modernc.org/sqlite"
@@ -74,6 +75,8 @@ func main() {
 		Workers: 5,
 		Window:  mainWindow,
 	})))
+
+	events.RegisterWailsEvents()
 
 	err = app.Run()
 
