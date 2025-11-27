@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/mjdevelops/tunes/db"
+	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
 	"github.com/wailsapp/wails/v3/pkg/application"
-	"github.com/wailsapp/wails/v3/pkg/events"
+	wailsevents "github.com/wailsapp/wails/v3/pkg/events"
 )
 
 type DownloadService struct {
@@ -18,6 +19,7 @@ type DownloadService struct {
 	queue   *ytdlp.Queue
 	queries *db.Queries
 	ytDlp   *ytdlp.YtDlp
+	app     *application.App
 }
 
 type DownloadServiceOptions struct {
@@ -35,8 +37,10 @@ func NewDownloadService(options DownloadServiceOptions) *DownloadService {
 	}
 
 	if options.Window != nil {
-		options.Window.RegisterHook(events.Common.WindowClosing, service.closeHook)
+		options.Window.RegisterHook(wailsevents.Common.WindowClosing, service.closeHook)
 	}
+
+	service.app = application.Get()
 
 	return service
 }
@@ -75,18 +79,20 @@ func (s *DownloadService) PendingDownloads() []ytdlp.Download {
 func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string) {
 	down, _ := s.ytDlp.NewDownload("", url, opts...)
 
-	// TODO: Implement event emitting
 	down.OnFinished(func() {
 		s.finishDownload(&down)
-		//a.EventsEmit(events.DownloadFinished, down.ID)
+		s.app.Event.Emit("tunes:dl:finished", down.ID)
 	})
 
 	down.OnProgress(func(pf ytdlp.ProgressFormat) {
-		//a.EventsEmit(events.DownloadProgress, down.ID, pf)
+		s.app.Event.Emit("tunes:dl:progress", events.DownloadProgress{
+			ID:   down.ID,
+			Data: pf,
+		})
 	})
 
 	down.OnStart(func() {
-		//a.EventsEmit(events.DownloadStarted, down.ID)
+		s.app.Event.Emit("tunes:dl:started", down.ID)
 	})
 
 	s.queue.Enqueue(&down)
