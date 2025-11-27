@@ -11,14 +11,12 @@ import (
 
 type AudioService struct {
 	ctx     context.Context
-	queue   *audio.Queue
 	queries *db.Queries
 	elems   map[int64]*list.Element
 }
 
 func NewAudioService(queries *db.Queries) *AudioService {
 	ad := &AudioService{}
-	ad.queue = audio.NewQueue(50)
 	ad.queries = queries
 
 	audio.RegisterDecoder(&audio.TagDecoder{}, ".flac", ".ogg", ".mp3")
