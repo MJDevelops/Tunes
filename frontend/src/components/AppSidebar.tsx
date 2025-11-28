@@ -18,7 +18,8 @@ import {
 import { useAnimate } from "motion/react";
 import SidebarItem from "@/components/SidebarItem";
 import { MotionButton } from "@/components/Button";
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 
 type SidebarItem = {
   title: string;
@@ -63,12 +64,12 @@ const items: SidebarItems[] = [
       {
         title: "YouTube",
         icon: <SiYoutube />,
-        url: "/download/youtube",
+        url: "/downloads/youtube",
       },
       {
         title: "Soundcloud",
         icon: <SiSoundcloud />,
-        url: "/download/soundcloud",
+        url: "/downloads/soundcloud",
       },
     ],
   },
@@ -76,6 +77,9 @@ const items: SidebarItems[] = [
 
 export function AppSidebar() {
   const [scope, animate] = useAnimate();
+  const pathname = useLocation({
+    select: (location) => location.pathname,
+  });
 
   return (
     <Sidebar className="flex flex-col justify-between p-1 rounded-md">
@@ -87,7 +91,15 @@ export function AppSidebar() {
               <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton
+                      className={cn(
+                        pathname === item.url
+                          ? "bg-emerald-600 rounded-md"
+                          : null,
+                        "hover:bg-emerald-600 active:bg-emerald-600"
+                      )}
+                      asChild
+                    >
                       <Link to={item.url}>
                         {item.icon}
                         <span>{item.title}</span>
