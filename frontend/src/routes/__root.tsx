@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/app.css";
+import AddButton from "@/components/AddButton";
 
 const RootLayout = () => (
   <ThemeProvider>
@@ -11,6 +12,7 @@ const RootLayout = () => (
       <AppSidebar />
       <SidebarTrigger />
       <Outlet />
+      <AddButton />
       <Toaster />
     </SidebarProvider>
   </ThemeProvider>

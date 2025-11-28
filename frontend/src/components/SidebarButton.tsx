@@ -1,9 +1,9 @@
-import { Button as SButton } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 
-const MotionButton = motion.create(SButton);
+const MotionButton = motion.create(Button);
 
-function Button({
+function SidebarButton({
   children,
   ...props
 }: React.ComponentPropsWithoutRef<typeof MotionButton>) {
@@ -14,4 +14,4 @@ function Button({
   );
 }
 
-export { Button as MotionButton };
+export default SidebarButton;
