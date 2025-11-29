@@ -27,6 +27,7 @@ type Playlist struct {
 }
 
 type PlaylistsTrack struct {
+	ID         int64
 	TrackID    int64
 	PlaylistID int64
 }
