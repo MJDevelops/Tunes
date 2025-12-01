@@ -10,6 +10,55 @@ import (
 	"database/sql"
 )
 
+const getAlbum = `-- name: GetAlbum :one
+SELECT id, title, artwork FROM albums WHERE id = ?
+`
+
+func (q *Queries) GetAlbum(ctx context.Context, id int64) (Album, error) {
+	row := q.db.QueryRowContext(ctx, getAlbum, id)
+	var i Album
+	err := row.Scan(&i.ID, &i.Title, &i.Artwork)
+	return i, err
+}
+
+const getAlbumByTitle = `-- name: GetAlbumByTitle :many
+SELECT id, title, artwork FROM albums WHERE title = ?
+`
+
+func (q *Queries) GetAlbumByTitle(ctx context.Context, title string) ([]Album, error) {
+	rows, err := q.db.QueryContext(ctx, getAlbumByTitle, title)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Album
+	for rows.Next() {
+		var i Album
+		if err := rows.Scan(&i.ID, &i.Title, &i.Artwork); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getArtist = `-- name: GetArtist :one
+SELECT id, name FROM artists WHERE id = ?
+`
+
+func (q *Queries) GetArtist(ctx context.Context, id int64) (Artist, error) {
+	row := q.db.QueryRowContext(ctx, getArtist, id)
+	var i Artist
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const getDownload = `-- name: GetDownload :one
 SELECT id, options, url, finished_at FROM downloads WHERE id = ?
 `

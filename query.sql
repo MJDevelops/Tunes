@@ -24,3 +24,12 @@ WHERE pt.playlist_id = ?;
 
 -- name: GetPlaylist :one
 SELECT * FROM playlists WHERE id = ?;
+
+-- name: GetArtist :one
+SELECT * FROM artists WHERE id = ?;
+
+-- name: GetAlbum :one
+SELECT * FROM albums WHERE id = ?;
+
+-- name: GetAlbumByTitle :many
+SELECT * FROM albums WHERE title = ?;

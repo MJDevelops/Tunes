@@ -14,6 +14,21 @@ type Album struct {
 	Artwork []byte
 }
 
+type Artist struct {
+	ID   int64
+	Name string
+}
+
+type ArtistsAlbum struct {
+	ArtistID int64
+	AlbumID  int64
+}
+
+type ArtistsTrack struct {
+	ArtistID int64
+	TrackID  int64
+}
+
 type Download struct {
 	ID         string
 	Options    string
@@ -27,7 +42,6 @@ type Playlist struct {
 }
 
 type PlaylistsTrack struct {
-	ID         int64
 	TrackID    int64
 	PlaylistID int64
 }
