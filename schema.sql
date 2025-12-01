@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS playlists(
 );
 
 CREATE TABLE IF NOT EXISTS playlists_tracks(
-  id INTEGER PRIMARY KEY,
   track_id INTEGER NOT NULL,
   playlist_id INTEGER NOT NULL,
 
+  PRIMARY KEY (track_id,playlist_id),
   FOREIGN KEY (track_id) REFERENCES tracks(id),
   FOREIGN KEY (playlist_id) REFERENCES playlists(id)
 );
