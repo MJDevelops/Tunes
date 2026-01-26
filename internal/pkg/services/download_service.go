@@ -114,7 +114,7 @@ func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) {
 
 func (s *DownloadService) closeHook(event *application.WindowEvent) {
 	if s.queue.IsRunning() {
-		qDialog := application.QuestionDialog()
+		qDialog := s.app.Dialog.Question()
 		qDialog.SetTitle("Downloads are running")
 		qDialog.SetMessage("Downloads are still running. Are you sure you want to quit?")
 		qDialog.AddButton("Yes")
