@@ -7,6 +7,7 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@icons-pack/react-simple-icons": "^13.8.0",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -22,6 +23,7 @@
     "@wailsio/runtime": "^3.0.0-alpha.73",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gsap": "^3.15.0",
     "isbot": "^5.1.27",
     "lucide-react": "^0.543.0",
     "motion": "^12.23.12",

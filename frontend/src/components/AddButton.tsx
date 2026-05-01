@@ -32,7 +32,12 @@ const menuItems: MenuItem[] = [
 const AddButton = () => (
   <DropdownMenu>
     <DropdownMenuTrigger className="absolute right-0 bottom-0 m-4">
-      <Button className="hover:cursor-pointer" size="icon-sm" variant="outline">
+      <Button
+        className="hover:cursor-pointer p-1"
+        size="icon-sm"
+        variant="outline"
+        asChild
+      >
         <Plus />
       </Button>
     </DropdownMenuTrigger>
