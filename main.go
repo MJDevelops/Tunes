@@ -52,7 +52,6 @@ func main() {
 			Handler: application.AssetFileServerFS(assets),
 		},
 		Services: []application.Service{
-			application.NewService(services.NewFfmpegService(binPath, config)),
 			application.NewService(services.NewYtDlpService(binPath, config)),
 			application.NewService(services.NewAudioService(queries)),
 		},
