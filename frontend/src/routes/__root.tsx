@@ -4,14 +4,15 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AddButton, { type MenuItem } from "@/components/AddButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddDownloads from "@/components/AddDownloads";
-import { Dialogs } from "@wailsio/runtime";
+import { Dialogs, Events } from "@wailsio/runtime";
+import { useDownloadStore } from "@/stores";
 import "@/app.css";
 
 const RootLayout = () => {
   const [addDownloads, setAddDownloads] = useState(false);
-
+  const { enqueueDownloads, removeDownload } = useDownloadStore();
   const menuItems: MenuItem[] = [
     {
       name: "Import Tracks",
@@ -31,6 +32,16 @@ const RootLayout = () => {
     },
   ];
 
+  useEffect(() => {
+    Events.On("tunes:dl:finished", (event) => {
+      removeDownload(event.data);
+    });
+
+    return () => {
+      Events.Off("tunes:dl:finished");
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <SidebarProvider>
@@ -38,7 +49,7 @@ const RootLayout = () => {
         <SidebarTrigger />
         <Outlet />
         <AddDownloads
-          onConfirm={(downloads) => console.log(downloads)}
+          onConfirm={(downloads) => enqueueDownloads(downloads)}
           onClose={() => setAddDownloads(false)}
           open={addDownloads}
         />
