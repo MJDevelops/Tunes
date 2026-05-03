@@ -6,30 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialogs } from "@wailsio/runtime";
 
-type MenuItem = {
+export type MenuItem = {
   name: string;
   action: () => void;
 };
 
-// TODO: Add "New Download" option and implement the actions
-const menuItems: MenuItem[] = [
-  {
-    name: "Import Tracks",
-    action: async () => {
-      const tracks = await Dialogs.OpenFile({
-        Title: "Select tracks",
-        Filters: [
-          { DisplayName: "Audio", Pattern: "*.mp3;*.ogg;*.wav;*.flac" },
-        ],
-        AllowsMultipleSelection: true,
-      });
-    },
-  },
-];
-
-const AddButton = () => (
+const AddButton = ({ menuItems }: { menuItems: MenuItem[] }) => (
   <DropdownMenu>
     <DropdownMenuTrigger className="absolute right-0 bottom-0 m-4">
       <Button
