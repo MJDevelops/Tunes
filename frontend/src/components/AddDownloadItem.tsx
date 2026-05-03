@@ -1,38 +1,53 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError } from "./ui/field";
+import z from "zod";
+
+const urlSchema = z.url();
 
 const AddDownloadItem = ({
   onChange,
-  className,
+  children,
 }: {
   onChange: (val: string) => void;
-  className?: string;
+  children?: React.ReactNode;
 }) => {
   const [isEditing, setIsEditing] = useState(true);
   const [source, setSource] = useState("");
+  const [valid, setValid] = useState(false);
 
   const handleConfirm = () => {
     setIsEditing(false);
     onChange(source);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSource(e.target.value);
+    setValid(urlSchema.safeParse(e.target.value).success);
+  };
+
   return (
-    <div className={className}>
-      <>
+      <Field orientation="horizontal" data-invalid={!valid}>
+        {!valid && <FieldError>Enter a valid URL</FieldError>}
         <Input
-          onChange={(e) => setSource(e.target.value)}
+          onChange={handleChange}
           value={source}
           disabled={!isEditing}
           placeholder="Enter download source"
+          aria-invalid={!valid}
         />
         {isEditing ? (
-          <Button onClick={handleConfirm}>Confirm</Button>
+          <Button disabled={!valid} onClick={handleConfirm}>
+            Confirm
+          </Button>
         ) : (
-          <Button onClick={() => setIsEditing(true)}>Edit</Button>
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            Edit
+          </Button>
         )}
-      </>
-    </div>
+        {children}
+      </Field>
   );
 };
 
