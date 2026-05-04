@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import { routeTree } from "./routeTree.gen";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { createRouter, RouterProvider, createHashHistory } from "@tanstack/react-router";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,7 +9,8 @@ import "@wailsio/runtime";
 
 gsap.registerPlugin(useGSAP);
 
-const router = createRouter({ routeTree });
+const hashHistory = createHashHistory();
+const router = createRouter({ routeTree, history: hashHistory });
 
 declare module "@tanstack/react-router" {
   interface Register {
