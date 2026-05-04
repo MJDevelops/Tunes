@@ -22,7 +22,7 @@
     "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-router": "^1.133.27",
     "@tanstack/react-router-devtools": "^1.133.27",
-    "@wailsio/runtime": "^3.0.0-alpha.73",
+    "@wailsio/runtime": "^3.0.0-alpha.79",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gsap": "^3.15.0",

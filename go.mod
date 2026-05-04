@@ -7,7 +7,7 @@ require (
 	github.com/go-audio/wav v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/gopxl/beep/v2 v2.1.1
-	github.com/wailsapp/wails/v3 v3.0.0-alpha.82
+	github.com/wailsapp/wails/v3 v3.0.0-alpha.84
 	modernc.org/sqlite v1.50.0
 )
 
@@ -68,7 +68,7 @@ require (
 	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	modernc.org/libc v1.72.1 // indirect
+	modernc.org/libc v1.72.2 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 )
