@@ -1,11 +1,31 @@
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
-import react from "@vitejs/plugin-react-swc";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import wails from "@wailsio/runtime/plugins/vite";
+import babel from "@rolldown/plugin-babel";
 
 export default defineConfig({
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: "libs",
+              test: /node_modules/,
+              minSize: 100000,
+              maxSize: 250000,
+              priority: 10,
+            },
+          ],
+        },
+      },
+    },
+  },
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     tanstackRouter({
       target: "react",
@@ -16,31 +36,10 @@ export default defineConfig({
       quoteStyle: "double",
     }),
     react(),
+    babel({
+      presets: [reactCompilerPreset()],
+    }),
     tailwindcss(),
-    tsconfigPaths(),
     wails("./bindings"),
   ],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            const modulePath = id.split("node_modules/")[1];
-            const topLevelFolder = modulePath?.split("/")[0];
-            if (topLevelFolder !== ".pnpm") {
-              return topLevelFolder;
-            }
-
-            const scopedPackageName = modulePath?.split("/")[1];
-            const chunkName =
-              scopedPackageName?.split("@")[
-                scopedPackageName.startsWith("@") ? 1 : 0
-              ];
-
-            return chunkName;
-          }
-        },
-      },
-    },
-  },
 });
