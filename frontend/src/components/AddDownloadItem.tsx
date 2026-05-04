@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode, type ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError } from "./ui/field";
@@ -11,7 +11,7 @@ const AddDownloadItem = ({
   children,
 }: {
   onChange: (val: string) => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) => {
   const [isEditing, setIsEditing] = useState(true);
   const [source, setSource] = useState("");
@@ -22,7 +22,7 @@ const AddDownloadItem = ({
     onChange(source);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSource(e.target.value);
     setValid(urlSchema.safeParse(e.target.value).success);
   };

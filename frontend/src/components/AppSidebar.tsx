@@ -17,10 +17,11 @@ import SidebarItem from "@/components/SidebarItem";
 import SidebarButton from "@/components/SidebarButton";
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { type ReactNode } from "react";
 
 type SidebarItem = {
   title: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   url: string;
 };
 
