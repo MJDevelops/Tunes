@@ -71,16 +71,14 @@ const AddDownloads = ({
         <ScrollArea className="flex w-full h-52 flex-col gap-1">
           {downloads.length > 0 &&
             downloads.map((download) => (
-                <AddDownloadItem
-                  key={download.key}
-                  onChange={(val) => changeDownload(val, download.key)}
-                >
-                <Button
-                  onClick={() => handleRemove(download.key)}
-                >
+              <AddDownloadItem
+                key={download.key}
+                onChange={(val) => changeDownload(val, download.key)}
+              >
+                <Button onClick={() => handleRemove(download.key)}>
                   Remove
                 </Button>
-                </AddDownloadItem>
+              </AddDownloadItem>
             ))}
           <Button onClick={addDownload}>Insert Download</Button>
         </ScrollArea>
@@ -94,7 +92,10 @@ const AddDownloads = ({
             onClick={() =>
               onConfirm(downloads.map((download) => download.source))
             }
-            disabled={downloads.some((download) => download.source === "") || downloads.length === 0}
+            disabled={
+              downloads.some((download) => download.source === "") ||
+              downloads.length === 0
+            }
           >
             Add
           </Button>
