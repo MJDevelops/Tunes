@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/asticode/go-astiav"
+	"github.com/asticode/go-astikit"
 	"github.com/gopxl/beep/v2"
 )
 
@@ -24,6 +25,8 @@ type FFDecoder struct {
 	codecContext   *astiav.CodecContext
 	pos            int
 	err            error
+	buf            []byte
+	decLastPTS     *int64
 }
 
 func Decode(path string) (s beep.StreamSeekCloser, format beep.Format, err error) {
@@ -53,7 +56,7 @@ func NewDecoder(path string) (*FFDecoder, error) {
 	r.finalFrame = astiav.AllocFrame()
 
 	r.resampledFrame.SetChannelLayout(astiav.ChannelLayoutStereo)
-	r.resampledFrame.SetSampleFormat(astiav.SampleFormatDblp)
+	r.resampledFrame.SetSampleFormat(astiav.SampleFormatS16P)
 	r.resampledFrame.SetSampleRate(44100)
 	r.resampledFrame.SetNbSamples(r.resampledFrame.SampleRate() / 25)
 
@@ -70,7 +73,7 @@ func NewDecoder(path string) (*FFDecoder, error) {
 		return nil, fmt.Errorf("allocating final frame buffer failed: %w", err)
 	}
 
-	r.bytesPerFrame = r.finalFrame.ChannelLayout().Channels() * r.finalFrame.NbSamples() * r.finalFrame.SampleFormat().BytesPerSample()
+	r.bytesPerFrame = r.finalFrame.ChannelLayout().Channels() * r.finalFrame.SampleFormat().BytesPerSample()
 
 	r.af = astiav.AllocAudioFifo(r.finalFrame.SampleFormat(), r.finalFrame.ChannelLayout().Channels(), r.finalFrame.NbSamples())
 
@@ -90,6 +93,7 @@ func NewDecoder(path string) (*FFDecoder, error) {
 	r.codec = astiav.FindDecoder(codecParameters.CodecID())
 	r.codecContext = astiav.AllocCodecContext(r.codec)
 	codecParameters.ToCodecContext(r.codecContext)
+	r.codecContext.Open(r.codec, nil)
 
 	return r, nil
 }
@@ -142,6 +146,10 @@ func (r *FFDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 
 	for {
 		if stop := func() bool {
+			if len(r.buf) > 0 {
+				return true
+			}
+
 			if err := r.formatContext.ReadFrame(r.pkt); err != nil {
 				if !errors.Is(err, astiav.ErrEof) {
 					log.Println(fmt.Errorf("reading frame failed: %w", err))
@@ -152,7 +160,7 @@ func (r *FFDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 			defer r.pkt.Unref()
 
 			if r.pkt.StreamIndex() != r.ad.Index() {
-				return true
+				return false
 			}
 
 			if err := r.codecContext.SendPacket(r.pkt); err != nil {
@@ -173,6 +181,11 @@ func (r *FFDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 
 					defer r.frame.Unref()
 
+					if r.decLastPTS != nil && *r.decLastPTS >= r.frame.Pts() {
+						return false
+					}
+					r.decLastPTS = astikit.Int64Ptr(r.frame.Pts())
+
 					if err := r.src.ConvertFrame(r.frame, r.resampledFrame); err != nil {
 						log.Println(fmt.Errorf("resampling frame failed: %w", err))
 						return true
@@ -189,23 +202,13 @@ func (r *FFDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 							return true
 						}
 
-						if sn, err := r.finalFrame.SamplesCopyToBuffer(buf, 0); err != nil || sn != r.bytesPerFrame {
-							log.Println(fmt.Errorf("copying samples to buffer failed: %w", err))
-							return true
-						}
-
-						for i := range samples {
-							samples[i], _ = r.format.DecodeSigned(buf[:])
-							n++
-							ok = true
-						}
+						r.copyFrameDataToBuffer()
 					}
 					return false
 				}(); stop {
 					break
 				}
 			}
-
 			return false
 		}(); stop {
 			break
@@ -216,11 +219,37 @@ func (r *FFDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 		r.err = fmt.Errorf("flushing software resample context failed: %w", err)
 	}
 
+	if r.finalFrame.NbSamples() > 0 {
+		r.copyFrameDataToBuffer()
+	}
+
+	for i := range samples {
+		b := copy(buf, r.buf)
+		r.buf = r.buf[b:]
+		if b == len(buf) {
+			samples[i], _ = r.format.DecodeSigned(buf[:])
+			n++
+			r.pos += b
+			ok = true
+		}
+	}
+
 	return n, ok
 }
 
 // TODO
 func (r *FFDecoder) Seek(p int) error {
+	return nil
+}
+
+func (r *FFDecoder) copyFrameDataToBuffer() error {
+	var err error
+	var fBuf []byte
+	if fBuf, err = r.finalFrame.Data().Bytes(0); err != nil {
+		return fmt.Errorf("copying samples to buffer failed: %w", err)
+	}
+
+	r.buf = append(r.buf, fBuf...)
 	return nil
 }
 
