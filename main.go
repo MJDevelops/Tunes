@@ -15,7 +15,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-//go:embed all:frontend/dist
 var assets embed.FS
 
 //go:embed schema.sql
