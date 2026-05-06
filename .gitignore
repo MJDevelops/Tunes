@@ -9,3 +9,4 @@ tunes.db
 build/linux/appimage/build/
 build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
 .DS_STORE
+.vscode/

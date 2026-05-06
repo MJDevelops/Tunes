@@ -1,15 +1,20 @@
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
 #include "libavutil/avutil.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 static int16_t *decode(const char *filename)
 {
-    int16_t *interleave_buf;
-    AVCodec *codec;
-    AVCodecContext *ctx;
+    int16_t *interleave_buf = NULL;
+    int16_t *buf = NULL;
+    AVCodec *codec = NULL;
+    AVCodecContext *ctx = NULL;
     AVPacket *pkt = av_packet_alloc();
     AVFrame *frame = av_frame_alloc();
     AVFormatContext *fmt_ctx = avformat_alloc_context();
+    int64_t size_buf = 0;
+    int size_ibuf = 0;
     int audio_stream_index;
     int ret;
 
@@ -47,6 +52,7 @@ static int16_t *decode(const char *filename)
 
         if (pkt->stream_index != audio_stream_index)
         {
+            av_packet_unref(pkt);
             continue;
         }
 
@@ -54,7 +60,8 @@ static int16_t *decode(const char *filename)
         if (ret < 0)
         {
             fprintf(stderr, "Error sending packet: %s\n", av_err2str(ret));
-            return NULL;
+            av_packet_unref(pkt);
+            goto free;
         }
 
         while (ret >= 0)
@@ -73,28 +80,44 @@ static int16_t *decode(const char *filename)
             if (frame->ch_layout.nb_channels != 2 || frame->format != AV_SAMPLE_FMT_S16P)
             {
                 fprintf(stderr, "Unsupported audio format\n");
-                return NULL;
+                goto free;
             }
 
-            int data_size = sizeof(*interleave_buf) * 2 * frame->nb_samples;
-            interleave_buf = av_malloc(data_size);
+            interleave_buf = av_malloc_array(frame->nb_samples * 2, sizeof(*interleave_buf));
             if (!interleave_buf)
             {
                 fprintf(stderr, "Could not allocate buffer\n");
-                return NULL;
+                goto free;
             }
+
+            size_ibuf = frame->nb_samples * 2 * sizeof(*interleave_buf);
 
             for (int i = 0; i < frame->nb_samples; i++)
             {
                 interleave_buf[2 * i] = ((int16_t *)frame->data[0])[i];
                 interleave_buf[2 * i + 1] = ((int16_t *)frame->data[1])[i];
             }
-        }
-    }
 
+            buf = av_realloc_array(buf, size_buf + frame->nb_samples * 2, sizeof(*buf));
+            if (!buf)
+            {
+                av_freep(&interleave_buf);
+                goto free;
+            }
+
+            memmove(buf + size_buf, interleave_buf, size_ibuf);
+
+            size_buf += frame->nb_samples * 2;
+
+            av_freep(&interleave_buf);
+            av_frame_unref(frame);
+        }
+        av_packet_unref(pkt);
+    }
+free:
     av_freep(&pkt);
     av_freep(&frame);
     avformat_close_input(&fmt_ctx);
     avcodec_free_context(&ctx);
-    return interleave_buf;
+    return buf;
 }

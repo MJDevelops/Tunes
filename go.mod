@@ -3,6 +3,8 @@ module github.com/mjdevelops/tunes
 go 1.25.0
 
 require (
+	github.com/asticode/go-astiav v0.40.0
+	github.com/asticode/go-astikit v0.59.0
 	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8
 	github.com/go-audio/wav v1.1.0
 	github.com/google/uuid v1.6.0
@@ -19,8 +21,6 @@ require (
 	github.com/STARRY-S/zip v0.2.3 // indirect
 	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/andybalholm/brotli v1.2.1 // indirect
-	github.com/asticode/go-astiav v0.40.0 // indirect
-	github.com/asticode/go-astikit v0.59.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/sevenzip v1.6.2 // indirect
