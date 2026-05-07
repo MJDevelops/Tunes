@@ -111,8 +111,7 @@ int64_t decode(double_t **buf, const char *filename)
                     goto free;
                 }
                 av_frame_unref(frame);
-                av_frame_copy(frame, resampled_frame);
-                av_frame_unref(resampled_frame);
+                av_frame_move_ref(frame, resampled_frame);
             }
 
             for (int i = 0; i < 2; i++)
@@ -125,8 +124,8 @@ int64_t decode(double_t **buf, const char *filename)
                 }
             }
 
-            memcpy(buf[0] + size_buf, (double_t *)frame->data[0], frame->nb_samples * sizeof(*buf[0]));
-            memcpy(buf[1] + size_buf, (double_t *)frame->data[1], frame->nb_samples * sizeof(*buf[1]));
+            memcpy(buf[0] + size_buf + 1, (double_t *)frame->data[0], frame->nb_samples * sizeof(*buf[0]));
+            memcpy(buf[1] + size_buf + 1, (double_t *)frame->data[1], frame->nb_samples * sizeof(*buf[1]));
 
             size_buf += frame->nb_samples;
 
@@ -151,10 +150,9 @@ free:
 int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
 {
     struct SwrContext *swr_ctx = NULL;
-    AVChannelLayout *out_ch = NULL;
+    AVChannelLayout out_ch = AV_CHANNEL_LAYOUT_STEREO;
     int ret = 0;
 
-    ret = av_channel_layout_from_mask(out_ch, AV_CH_LAYOUT_STEREO);
     if (ret == AVERROR(EINVAL))
     {
         return ret;
@@ -162,7 +160,7 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
 
     ret = swr_alloc_set_opts2(
         &swr_ctx,
-        out_ch,
+        &out_ch,
         AV_SAMPLE_FMT_DBLP,
         frame->sample_rate,
         &frame->ch_layout,
@@ -176,13 +174,12 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
     }
 
     resampled_frame->sample_rate = frame->sample_rate;
-    resampled_frame->ch_layout = *out_ch;
+    resampled_frame->ch_layout = out_ch;
     resampled_frame->format = AV_SAMPLE_FMT_DBLP;
 
     swr_init(swr_ctx);
-
     swr_convert_frame(swr_ctx, resampled_frame, frame);
-
     swr_free(&swr_ctx);
+
     return 0;
 }
