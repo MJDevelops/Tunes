@@ -1,19 +1,19 @@
+#include <stdint.h>
+#include <stdlib.h>
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
 #include "libavutil/avutil.h"
 #include "decode.h"
-#include <stdint.h>
-#include <stdlib.h>
 
-static int16_t *decode(const char *filename)
+int16_t *decode(const char *filename)
 {
     int16_t *interleave_buf = NULL;
     int16_t *buf = NULL;
-    AVCodec *codec = NULL;
     AVCodecContext *ctx = NULL;
     AVPacket *pkt = av_packet_alloc();
     AVFrame *frame = av_frame_alloc();
     AVFormatContext *fmt_ctx = avformat_alloc_context();
+    const AVCodec *codec;
     int64_t size_buf = 0;
     int size_ibuf = 0;
     int audio_stream_index;

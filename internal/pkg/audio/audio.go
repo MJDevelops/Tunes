@@ -1,5 +1,8 @@
 package audio
 
+// #cgo CFLAGS: -g -Wall
+// #cgo pkg-config: libavformat libavcodec libavutil libswresample
+import "C"
 import (
 	"errors"
 	"time"

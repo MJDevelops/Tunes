@@ -1,6 +1,5 @@
 package audio
 
-// #cgo CFLAGS: -g -Wall
 // #include <stdlib.h>
 // #include <stdint.h>
 // #include "decode.h"
