@@ -28,8 +28,8 @@ void sb_free(SampleBuffer *buf)
 }
 
 /**
- * Decodes the specified audio file and returns the samples in double planar
- * format and stereo channel layout.
+ * Decodes the specified audio file and returns the samples in signed 16 bit
+ * format with a stereo channel layout.
  * @param buf The buffer to write the data to, must have a size of 2.
  * @param filename The file to decode.
  * @return The number of samples in each channel if successful, < 0 if a error occured or the specified array is not
@@ -122,9 +122,9 @@ int decode(SampleBuffer *buf, const char *filename)
                 break;
             }
 
-            if (frame->ch_layout.nb_channels != 2 || frame->format != AV_SAMPLE_FMT_DBLP)
+            if (frame->ch_layout.nb_channels != 2 || frame->format != AV_SAMPLE_FMT_S16P)
             {
-                ret = resample_frame_double_planar_stereo(resampled_frame, frame);
+                ret = resample_frame_s16_planar_stereo(resampled_frame, frame);
                 if (ret < 0)
                 {
                     fprintf(stderr, "Couldn't resample frame: %s\n", av_err2str(ret));
@@ -150,8 +150,8 @@ int decode(SampleBuffer *buf, const char *filename)
                 }
             }
 
-            memcpy(buf->data[0] + buf->channel_size + 1, (double_t *)frame->data[0], frame->nb_samples * sizeof(*buf->data[0]));
-            memcpy(buf->data[1] + buf->channel_size + 1, (double_t *)frame->data[1], frame->nb_samples * sizeof(*buf->data[1]));
+            memcpy(buf->data[0] + buf->channel_size + 1, (int16_t *)frame->data[0], frame->nb_samples * sizeof(*buf->data[0]));
+            memcpy(buf->data[1] + buf->channel_size + 1, (int16_t *)frame->data[1], frame->nb_samples * sizeof(*buf->data[1]));
 
             buf->channel_size += frame->nb_samples;
 
@@ -169,12 +169,12 @@ free:
 }
 
 /**
- * Resamples an AVFrame to double planar with a stereo channel layout.
+ * Resamples an AVFrame to signed 16 bit format with a stereo channel layout.
  * @param resampled_frame The frame to resample to. Must be unreferenced.
  * @param frame The frame to resample.
  * @return >= 0 if successful, a negative AVERROR otherwise.
  **/
-int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
+int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
 {
     struct SwrContext *swr_ctx = NULL;
     AVChannelLayout out_ch = AV_CHANNEL_LAYOUT_STEREO;
@@ -188,7 +188,7 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
     ret = swr_alloc_set_opts2(
         &swr_ctx,
         &out_ch,
-        AV_SAMPLE_FMT_DBLP,
+        AV_SAMPLE_FMT_S16P,
         frame->sample_rate,
         &frame->ch_layout,
         frame->format,
@@ -202,7 +202,7 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
 
     resampled_frame->sample_rate = frame->sample_rate;
     resampled_frame->ch_layout = out_ch;
-    resampled_frame->format = AV_SAMPLE_FMT_DBLP;
+    resampled_frame->format = AV_SAMPLE_FMT_S16P;
 
     swr_init(swr_ctx);
     swr_convert_frame(swr_ctx, resampled_frame, frame);

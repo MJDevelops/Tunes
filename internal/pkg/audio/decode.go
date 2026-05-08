@@ -12,7 +12,7 @@ import (
 
 type AVDecoder struct {
 	buf     *C.SampleBuffer
-	samples [2][]float64
+	samples [2][]int16
 }
 
 var ErrDecoding = errors.New("error during decoding")
@@ -28,18 +28,18 @@ func (d *AVDecoder) DecodeAudio(filename string) error {
 	}
 
 	for i := range 2 {
-		channelPtr := *(**C.double_t)(unsafe.Add(unsafe.Pointer(d.buf.data), uintptr(i)*unsafe.Sizeof(*d.buf.data)))
-		d.samples[i] = make([]float64, d.buf.channel_size)
+		channelPtr := *(**C.int16_t)(unsafe.Add(unsafe.Pointer(d.buf.data), uintptr(i)*unsafe.Sizeof(*d.buf.data)))
+		d.samples[i] = make([]int16, d.buf.channel_size)
 		for j := range d.buf.channel_size {
-			d.samples[i][j] = float64(*(*C.double_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_double_t)))
+			d.samples[i][j] = int16(*(*C.int16_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_int16_t)))
 		}
 	}
 
 	return nil
 }
 
-func (d *AVDecoder) Samples() [2][]float64 {
-	return d.samples
+func (d *AVDecoder) Samples() *[2][]int16 {
+	return &d.samples
 }
 
 func (d *AVDecoder) SampleRate() int {
@@ -60,4 +60,8 @@ func (d *AVDecoder) Free() {
 	if d.buf != nil {
 		C.sb_free(d.buf)
 	}
+}
+
+func (d *AVDecoder) Stream(samples [][2]float64) (n int, ok bool) {
+	return 0, false
 }
