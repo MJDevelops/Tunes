@@ -9,7 +9,7 @@
 SampleBuffer *sb_alloc()
 {
     SampleBuffer *buf = calloc(1, sizeof(*buf));
-    buf->data = av_malloc(2 * sizeof(*buf->data));
+    buf->data = av_mallocz(2 * sizeof(*buf->data));
     return buf;
 }
 
@@ -153,8 +153,8 @@ int decode(SampleBuffer *buf, const char *filename)
                 }
             }
 
-            memcpy(buf->data[0] + buf->channel_size + 1, (int16_t *)frame->data[0], frame->nb_samples * sizeof(*buf->data[0]));
-            memcpy(buf->data[1] + buf->channel_size + 1, (int16_t *)frame->data[1], frame->nb_samples * sizeof(*buf->data[1]));
+            memcpy(buf->data[0] + buf->channel_size, (int16_t *)frame->data[0], frame->nb_samples * sizeof(*buf->data[0]));
+            memcpy(buf->data[1] + buf->channel_size, (int16_t *)frame->data[1], frame->nb_samples * sizeof(*buf->data[1]));
 
             buf->channel_size += frame->nb_samples;
 
