@@ -3,8 +3,16 @@
 #include <stdint.h>
 #include "libavformat/avformat.h"
 
-int64_t decode(double_t **, const char *);
+typedef struct
+{
+    int sample_rate;
+    int64_t channel_size;
+    double_t **data;
+} SampleBuffer;
+
+SampleBuffer *sb_alloc();
+void sb_free(SampleBuffer *);
+int decode(SampleBuffer *, const char *);
 int resample_frame_double_planar_stereo(AVFrame *, AVFrame *);
-void free_sample_buffer(void **, int, int64_t);
 
 #endif

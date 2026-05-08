@@ -8,6 +8,7 @@ import (
 	"path"
 
 	"github.com/mjdevelops/tunes/db"
+	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/services"
@@ -23,8 +24,13 @@ var ddl string
 func main() {
 	var (
 		err     error
+		d       *audio.AVDecoder
 		binPath = path.Join(".", "bin")
 	)
+
+	d = &audio.AVDecoder{}
+	d.DecodeAudio(path.Join(".", "sample-6s.mp3"))
+	defer d.Free()
 
 	// Initialize db connection
 	conn, err := sql.Open("sqlite", "file:tunes.db")

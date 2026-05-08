@@ -6,33 +6,58 @@ package audio
 // #include "libavutil/avutil.h"
 import "C"
 import (
+	"errors"
 	"unsafe"
 )
 
 type AVDecoder struct {
-	buf         **C.double_t
-	bufArr      [2][]float64
-	channelSize int64
+	buf     *C.SampleBuffer
+	samples [2][]float64
 }
 
-// TODO: simplify?
-func (d *AVDecoder) DecodeAudio(filename string) [2][]float64 {
+var ErrDecoding = errors.New("error during decoding")
+
+func (d *AVDecoder) DecodeAudio(filename string) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
-	d.buf = (**C.double_t)(C.av_malloc(2 * (C.size_t)(unsafe.Sizeof(*(*d.buf)))))
-	defer d.freeBuffer()
-	d.channelSize = int64(C.decode(d.buf, file))
+	d.buf = C.sb_alloc()
+	ret := int(C.decode(d.buf, file))
+
+	if ret < 0 {
+		return ErrDecoding
+	}
 
 	for i := range 2 {
-		channelPtr := *(**C.double_t)(unsafe.Add(unsafe.Pointer(d.buf), uintptr(i)*unsafe.Sizeof(*d.buf)))
-		d.bufArr[i] = make([]float64, d.channelSize)
-		for j := range d.channelSize {
-			d.bufArr[i][j] = float64(*(*C.double_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_double_t)))
+		channelPtr := *(**C.double_t)(unsafe.Add(unsafe.Pointer(d.buf.data), uintptr(i)*unsafe.Sizeof(*d.buf.data)))
+		d.samples[i] = make([]float64, d.buf.channel_size)
+		for j := range d.buf.channel_size {
+			d.samples[i][j] = float64(*(*C.double_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_double_t)))
 		}
 	}
-	return d.bufArr
+
+	return nil
 }
 
-func (d *AVDecoder) freeBuffer() {
-	C.free_sample_buffer((*unsafe.Pointer)(unsafe.Pointer(d.buf)), 2, C.int64_t(d.channelSize))
+func (d *AVDecoder) Samples() [2][]float64 {
+	return d.samples
+}
+
+func (d *AVDecoder) SampleRate() int {
+	if d.buf != nil {
+		return int(d.buf.sample_rate)
+	}
+	return 0
+}
+
+func (d *AVDecoder) NbSamples() int64 {
+	if d.buf != nil {
+		return int64(d.buf.channel_size)
+	}
+	return 0
+}
+
+func (d *AVDecoder) Free() {
+	if d.buf != nil {
+		C.sb_free(d.buf)
+	}
 }

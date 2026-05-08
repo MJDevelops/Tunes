@@ -6,6 +6,27 @@
 #include "libswresample/swresample.h"
 #include "decode.h"
 
+SampleBuffer *sb_alloc()
+{
+    SampleBuffer *buf = calloc(1, sizeof(*buf));
+    buf->data = av_malloc(2 * sizeof(*buf->data));
+    return buf;
+}
+
+void sb_free(SampleBuffer *buf)
+{
+    if (buf)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            av_freep(buf->data[i]);
+        }
+        av_freep(buf->data);
+        free(buf);
+        buf = NULL;
+    }
+}
+
 /**
  * Decodes the specified audio file and returns the samples in double planar
  * format and stereo channel layout.
@@ -14,9 +35,9 @@
  * @return The number of samples in each channel if successful, < 0 if a error occured or the specified array is not
  * of size 2.
  * **/
-int64_t decode(double_t **buf, const char *filename)
+int decode(SampleBuffer *buf, const char *filename)
 {
-    if (!buf)
+    if (!buf->data)
     {
         fprintf(stderr, "Supplied buffer is invalid.\n");
         return -1;
@@ -28,7 +49,6 @@ int64_t decode(double_t **buf, const char *filename)
     AVFrame *resampled_frame = av_frame_alloc();
     AVFormatContext *fmt_ctx = avformat_alloc_context();
     const AVCodec *codec;
-    int64_t size_buf = 0;
     int audio_stream_index;
     int ret;
 
@@ -114,20 +134,26 @@ int64_t decode(double_t **buf, const char *filename)
                 av_frame_move_ref(frame, resampled_frame);
             }
 
+            if (buf->sample_rate == 0)
+            {
+                buf->sample_rate = frame->sample_rate;
+            }
+
             for (int i = 0; i < 2; i++)
             {
-                buf[i] = av_realloc(buf[i], (size_buf + frame->nb_samples) * sizeof(*buf[i]));
-                if (!buf[i])
+                buf->data[i] = av_realloc(buf->data[i], (buf->channel_size + frame->nb_samples) * sizeof(*buf->data[i]));
+                if (!buf->data[i])
                 {
                     fprintf(stderr, "Couldn't allocate channel buffer.\n");
+                    ret = -1;
                     goto free;
                 }
             }
 
-            memcpy(buf[0] + size_buf + 1, (double_t *)frame->data[0], frame->nb_samples * sizeof(*buf[0]));
-            memcpy(buf[1] + size_buf + 1, (double_t *)frame->data[1], frame->nb_samples * sizeof(*buf[1]));
+            memcpy(buf->data[0] + buf->channel_size + 1, (double_t *)frame->data[0], frame->nb_samples * sizeof(*buf->data[0]));
+            memcpy(buf->data[1] + buf->channel_size + 1, (double_t *)frame->data[1], frame->nb_samples * sizeof(*buf->data[1]));
 
-            size_buf += frame->nb_samples;
+            buf->channel_size += frame->nb_samples;
 
             av_frame_unref(frame);
         }
@@ -136,9 +162,10 @@ int64_t decode(double_t **buf, const char *filename)
 free:
     av_freep(&pkt);
     av_freep(&frame);
+    av_freep(&resampled_frame);
     avformat_close_input(&fmt_ctx);
     avcodec_free_context(&ctx);
-    return size_buf;
+    return ret;
 }
 
 /**
@@ -182,12 +209,4 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
     swr_free(&swr_ctx);
 
     return 0;
-}
-
-void free_sample_buffer(void **buf, int channels, int64_t channel_size)
-{
-    for (int i = 0; i < channels; i++) {
-        av_freep(buf[i]);
-    }
-    av_freep(buf);
 }
