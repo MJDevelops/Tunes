@@ -183,3 +183,11 @@ int resample_frame_double_planar_stereo(AVFrame *resampled_frame, AVFrame *frame
 
     return 0;
 }
+
+void free_sample_buffer(void **buf, int channels, int64_t channel_size)
+{
+    for (int i = 0; i < channels; i++) {
+        av_freep(buf[i]);
+    }
+    av_freep(buf);
+}
