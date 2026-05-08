@@ -58,7 +58,7 @@ func (d *AVDecoder) NbSamples() int64 {
 
 func (d *AVDecoder) Free() {
 	if d.buf != nil {
-		C.sb_free(d.buf)
+		C.sb_free(&d.buf)
 	}
 }
 

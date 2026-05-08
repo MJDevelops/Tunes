@@ -13,17 +13,20 @@ SampleBuffer *sb_alloc()
     return buf;
 }
 
-void sb_free(SampleBuffer *buf)
+/** Frees the buffer and sets the underlying pointer to NULL. 
+ * @param buf The buffer to free.
+ * **/
+void sb_free(SampleBuffer **buf)
 {
-    if (buf)
+    if (buf && *buf)
     {
         for (int i = 0; i < 2; i++)
         {
-            av_freep(buf->data[i]);
+            av_freep((*buf)->data[i]);
         }
-        av_freep(buf->data);
-        free(buf);
-        buf = NULL;
+        av_freep((*buf)->data);
+        free(*buf);
+        *buf = NULL;
     }
 }
 
@@ -56,14 +59,14 @@ int decode(SampleBuffer *buf, const char *filename)
     if (ret < 0)
     {
         fprintf(stderr, "Couldn't open specified file.\n");
-        return ret;
+        goto free;
     }
 
     ret = avformat_find_stream_info(fmt_ctx, NULL);
     if (ret < 0)
     {
         fprintf(stderr, "Couldn't read stream info.\n");
-        return ret;
+        goto free;
     }
 
     for (int i = 0; i < fmt_ctx->nb_streams; i++)
@@ -76,7 +79,8 @@ int decode(SampleBuffer *buf, const char *filename)
             if (!codec)
             {
                 fprintf(stderr, "Codec not found\n");
-                return -1;
+                ret = -1;
+                goto free;
             }
 
             ctx = avcodec_alloc_context3(codec);
@@ -105,7 +109,6 @@ int decode(SampleBuffer *buf, const char *filename)
         if (ret < 0)
         {
             fprintf(stderr, "Error sending packet: %s\n", av_err2str(ret));
-            av_packet_unref(pkt);
             goto free;
         }
 
@@ -164,7 +167,12 @@ free:
     av_freep(&frame);
     av_freep(&resampled_frame);
     avformat_close_input(&fmt_ctx);
-    avcodec_free_context(&ctx);
+    
+    if (ctx)
+    {
+        avcodec_free_context(&ctx);
+    }
+
     return ret;
 }
 

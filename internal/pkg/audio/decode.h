@@ -11,7 +11,7 @@ typedef struct
 } SampleBuffer;
 
 SampleBuffer *sb_alloc();
-void sb_free(SampleBuffer *);
+void sb_free(SampleBuffer **);
 int decode(SampleBuffer *, const char *);
 int resample_frame_s16_planar_stereo(AVFrame *, AVFrame *);
 
