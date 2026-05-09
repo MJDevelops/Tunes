@@ -21,6 +21,7 @@ const (
 
 type AVDecoder struct {
 	buf     *C.SampleBuffer
+	dec     *C.Decoder
 	f       beep.Format
 	pos     int
 	file    string
@@ -36,13 +37,9 @@ func NewDecoder(filename string) (s beep.StreamSeekCloser, format beep.Format, e
 	d := &AVDecoder{}
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
+	d.dec = C.decoder_alloc(file)
 	d.buf = C.sb_alloc()
 	if d.buf == nil {
-		return nil, beep.Format{}, ErrDecoding
-	}
-
-	ret := C.decode(d.buf, file)
-	if ret < 0 {
 		return nil, beep.Format{}, ErrDecoding
 	}
 
@@ -93,6 +90,10 @@ func (d *AVDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 	b := make([]byte, avBytesPerFrame)
 	for i := range samples {
 		pos := d.Position()
+		ret := C.decode(d.buf, file)
+		if ret < 0 {
+			return nil, beep.Format{}, ErrDecoding
+		}
 		if pos >= len(d.samples[0]) {
 			break
 		}
