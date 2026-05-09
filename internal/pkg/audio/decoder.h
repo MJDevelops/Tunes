@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #include "sample_buffer.h"
 
 typedef struct
@@ -13,6 +14,7 @@ typedef struct
     const char *filename;
     const AVCodec *codec;
     int audio_stream_index;
+    int sample_rate;
 } Decoder;
 
 Decoder *decoder_alloc(const char *file);

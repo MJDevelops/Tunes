@@ -2,8 +2,9 @@ package audio
 
 // #include <stdlib.h>
 // #include <stdint.h>
-// #include "decode.h"
-// #include "libavutil/avutil.h"
+// #include <libavutil/avutil.h>
+// #include "decoder.h"
+// #include "sample_buffer.h"
 import "C"
 import (
 	"encoding/binary"
@@ -13,53 +14,48 @@ import (
 	"github.com/gopxl/beep/v2"
 )
 
+type AVDecoder struct {
+	buf        *C.SampleBuffer
+	dec        *C.Decoder
+	f          beep.Format
+	pos        int
+	err        error
+	samples    [2][]int16
+	file       *C.char
+	sampleRate int
+}
+
 const (
 	avPrecision     = 2
 	avChannels      = 2
 	avBytesPerFrame = avChannels * avPrecision
 )
 
-type AVDecoder struct {
-	buf     *C.SampleBuffer
-	dec     *C.Decoder
-	f       beep.Format
-	pos     int
-	file    string
-	err     error
-	samples [2][]int16
-}
-
-var ErrDecoding = errors.New("error during decoding")
+var (
+	ErrAlloc    = errors.New("error during allocation")
+	ErrDecoding = errors.New("error during decoding")
+)
 
 // TODO: Implement proper streaming of audio files and
 // don't decode the file in one go as its slow
 func NewDecoder(filename string) (s beep.StreamSeekCloser, format beep.Format, err error) {
 	d := &AVDecoder{}
-	file := C.CString(filename)
-	defer C.free(unsafe.Pointer(file))
-	d.dec = C.decoder_alloc(file)
+	d.file = C.CString(filename)
+	d.dec = C.decoder_alloc(d.file)
 	d.buf = C.sb_alloc()
-	if d.buf == nil {
-		return nil, beep.Format{}, ErrDecoding
+	d.f = beep.Format{}
+
+	if d.buf == nil || d.dec == nil {
+		return nil, d.f, ErrAlloc
 	}
 
-	for i := range 2 {
-		channelPtr := *(**C.int16_t)(unsafe.Add(unsafe.Pointer(d.buf.data), uintptr(i)*unsafe.Sizeof(*d.buf.data)))
-		d.samples[i] = make([]int16, d.buf.channel_size)
-		for j := range d.buf.channel_size {
-			d.samples[i][j] = int16(*(*C.int16_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_int16_t)))
-		}
-	}
+	d.sampleRate = int(d.dec.sample_rate)
 
-	format = beep.Format{
-		Precision:   avPrecision,
-		NumChannels: avChannels,
-		SampleRate:  beep.SampleRate(d.SampleRate()),
-	}
+	d.f.Precision = avPrecision
+	d.f.NumChannels = avChannels
+	d.f.SampleRate = beep.SampleRate(d.sampleRate)
 
-	d.f = format
-
-	return d, format, nil
+	return d, d.f, nil
 }
 
 func (d *AVDecoder) Samples() *[2][]int16 {
@@ -67,10 +63,7 @@ func (d *AVDecoder) Samples() *[2][]int16 {
 }
 
 func (d *AVDecoder) SampleRate() int {
-	if d.buf != nil {
-		return int(d.buf.sample_rate)
-	}
-	return 0
+	return d.sampleRate
 }
 
 func (d *AVDecoder) NbSamples() int64 {
@@ -84,23 +77,32 @@ func (d *AVDecoder) free() {
 	if d.buf != nil {
 		C.sb_free(&d.buf)
 	}
+
+	if d.dec != nil {
+		C.decoder_free(&d.dec)
+	}
+
+	C.free(unsafe.Pointer(d.file))
 }
 
 func (d *AVDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 	b := make([]byte, avBytesPerFrame)
 	for i := range samples {
-		pos := d.Position()
-		ret := C.decode(d.buf, file)
-		if ret < 0 {
-			return nil, beep.Format{}, ErrDecoding
-		}
-		if pos >= len(d.samples[0]) {
-			break
+		if len(d.samples[0]) == 0 {
+			ret := C.decode(d.dec, d.buf, 1)
+			if ret < 0 {
+				return n, false
+			}
+			d.readBufToSamples(int(d.buf.channel_size))
 		}
 
 		// ffmpeg uses native endianness for audio samples
-		binary.NativeEndian.PutUint16(b, uint16(d.samples[0][pos]))
-		binary.NativeEndian.PutUint16(b[2:], uint16(d.samples[1][pos]))
+		binary.NativeEndian.PutUint16(b, uint16(d.samples[0][0]))
+		binary.NativeEndian.PutUint16(b[2:], uint16(d.samples[1][0]))
+
+		for i := range 2 {
+			d.samples[i] = d.samples[i][1:]
+		}
 
 		samples[i], _ = d.f.DecodeSigned(b)
 		d.pos += avBytesPerFrame
@@ -108,6 +110,18 @@ func (d *AVDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 		ok = true
 	}
 	return n, ok
+}
+
+func (d *AVDecoder) readBufToSamples(numSamples int) {
+	b := C.sb_flush(d.buf)
+	for i := range 2 {
+		channelPtr := *(**C.int16_t)(unsafe.Add(unsafe.Pointer(b), uintptr(i)*unsafe.Sizeof(*b)))
+		for j := range numSamples {
+			d.samples[i] = append(d.samples[i], int16(*(*C.int16_t)(unsafe.Add(unsafe.Pointer(channelPtr), uintptr(j)*C.sizeof_int16_t))))
+		}
+		C.av_freep(unsafe.Pointer(&channelPtr))
+	}
+	C.av_freep(unsafe.Pointer(&b))
 }
 
 func (d *AVDecoder) Position() int {

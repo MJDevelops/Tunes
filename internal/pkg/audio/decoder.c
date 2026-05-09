@@ -13,10 +13,12 @@ Decoder *decoder_alloc(const char *filename)
     int ret = 0;
     Decoder *dec = calloc(1, sizeof(*dec));
 
-    ret = avformat_open_input(dec->fmt_ctx, dec->filename, NULL, NULL);
+    dec->filename = filename;
+
+    ret = avformat_open_input(&dec->fmt_ctx, dec->filename, NULL, NULL);
     if (ret < 0)
     {
-        fprintf(stderr, "Couldn't open specified file.\n");
+        fprintf(stderr, "Couldn't open specified file: %s.\n", av_err2str(ret));
         free(dec);
         return NULL;
     }
@@ -24,7 +26,7 @@ Decoder *decoder_alloc(const char *filename)
     ret = avformat_find_stream_info(dec->fmt_ctx, NULL);
     if (ret < 0)
     {
-        fprintf(stderr, "Couldn't read stream info.\n");
+        fprintf(stderr, "Couldn't read stream info: %s.\n", av_err2str(ret));
         free(dec);
         return NULL;
     }
@@ -42,12 +44,13 @@ Decoder *decoder_alloc(const char *filename)
                 return NULL;
             }
 
+            dec->sample_rate = dec->fmt_ctx->streams[i]->codecpar->sample_rate;
+
             dec->ctx = avcodec_alloc_context3(dec->codec);
             avcodec_parameters_to_context(dec->ctx, dec->fmt_ctx->streams[i]->codecpar);
+            avcodec_open2(dec->ctx, dec->codec, NULL);
             break;
         }
-
-        avcodec_open2(dec->ctx, dec->codec, NULL);
     }
 
     dec->frame = av_frame_alloc();
@@ -74,16 +77,14 @@ void decoder_free(Decoder **dec)
     *dec = NULL;
 }
 
-// TODO: refactor this
 /**
- * Decodes the specified audio file and returns the samples in signed 16 bit
- * format with a stereo channel layout.
+ * Decodes the specified audio file in signed 16 bit format with a stereo channel layout.
  * @param dec The decoder which will be decoded with
  * @param buf The buffer to write the data to, must have a size of 2.
  * @param frames The number of frames to read into the sample buffer. If set to -1,
  * the file will be read until EOF
  * @return The number of frames read if successful, < 0 if an error occured.
- * **/
+ */
 int decode(Decoder *dec, SampleBuffer *buf, int frames)
 {
     int read = 0;
@@ -102,7 +103,10 @@ int decode(Decoder *dec, SampleBuffer *buf, int frames)
 
         ret = av_read_frame(dec->fmt_ctx, dec->pkt);
         if (ret == AVERROR_EOF)
+        {
+            read = -1;
             break;
+        }
 
         if (dec->pkt->stream_index != dec->audio_stream_index)
         {
@@ -141,9 +145,6 @@ int decode(Decoder *dec, SampleBuffer *buf, int frames)
                 av_frame_move_ref(dec->frame, dec->resampled_frame);
             }
 
-            if (buf->sample_rate == 0)
-                buf->sample_rate = dec->frame->sample_rate;
-
             for (int i = 0; i < 2; i++)
             {
                 buf->data[i] = av_realloc(buf->data[i], (buf->channel_size + dec->frame->nb_samples) * sizeof(*buf->data[i]));
@@ -151,13 +152,10 @@ int decode(Decoder *dec, SampleBuffer *buf, int frames)
                 {
                     fprintf(stderr, "Couldn't allocate channel buffer.\n");
                     av_frame_unref(dec->frame);
-                    av_frame_unref(dec->resampled_frame);
                     return -1;
                 }
+                memcpy(buf->data[i] + buf->channel_size, (int16_t *)dec->frame->data[i], dec->frame->nb_samples * sizeof(*buf->data[i]));
             }
-
-            memcpy(buf->data[0] + buf->channel_size, (int16_t *)dec->frame->data[0], dec->frame->nb_samples * sizeof(*buf->data[0]));
-            memcpy(buf->data[1] + buf->channel_size, (int16_t *)dec->frame->data[1], dec->frame->nb_samples * sizeof(*buf->data[1]));
 
             buf->channel_size += dec->frame->nb_samples;
 
@@ -166,10 +164,7 @@ int decode(Decoder *dec, SampleBuffer *buf, int frames)
             read += 1;
 
             if (frames > 0 && read == frames)
-            {
-                av_frame_unref(dec->resampled_frame);
                 goto quit;
-            }
         }
         av_packet_unref(dec->pkt);
     }
@@ -182,17 +177,12 @@ quit:
  * @param resampled_frame The frame to resample to. Must be unreferenced.
  * @param frame The frame to resample.
  * @return >= 0 if successful, a negative AVERROR otherwise.
- **/
+ */
 int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
 {
     struct SwrContext *swr_ctx = NULL;
     AVChannelLayout out_ch = AV_CHANNEL_LAYOUT_STEREO;
     int ret = 0;
-
-    if (ret == AVERROR(EINVAL))
-    {
-        return ret;
-    }
 
     ret = swr_alloc_set_opts2(
         &swr_ctx,
