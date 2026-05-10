@@ -209,3 +209,56 @@ int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
 
     return 0;
 }
+
+int decoder_seek(Decoder *dec, int seconds)
+{
+    if (!dec->fmt_ctx)
+        return -1;
+
+    int ret = 0;
+    int64_t pts = av_rescale_q((int64_t)seconds * AV_TIME_BASE, AV_TIME_BASE_Q, dec->fmt_ctx->streams[dec->audio_stream_index]->time_base);
+
+    ret = avformat_seek_file(dec->fmt_ctx, dec->audio_stream_index, INT64_MIN, pts, pts, 0);
+    if (ret < 0)
+        return ret;
+
+    avcodec_flush_buffers(dec->ctx);
+
+    while (true)
+    {
+        ret = av_read_frame(dec->fmt_ctx, dec->pkt);
+        if (ret < 0)
+        {
+            av_packet_unref(dec->pkt);
+            return ret;
+        }
+
+        if (dec->pkt->stream_index != dec->audio_stream_index)
+        {
+            av_packet_unref(dec->pkt);
+            continue;
+        }
+
+        ret = avcodec_send_packet(dec->ctx, dec->pkt);
+        if (ret < 0)
+            return ret;
+
+        while (true)
+        {
+            ret = avcodec_receive_frame(dec->ctx, dec->frame);
+            if (ret < 0)
+                break;
+
+            if (dec->frame->pts >= pts)
+                goto quit;
+
+            av_frame_unref(dec->frame);
+        }
+        av_packet_unref(dec->pkt);
+    }
+
+quit:
+    av_frame_unref(dec->frame);
+    av_packet_unref(dec->pkt);
+    return 0;
+}
