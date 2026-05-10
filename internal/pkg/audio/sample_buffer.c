@@ -29,7 +29,7 @@ void sb_free(SampleBuffer **buf)
 
 int16_t **sb_flush(SampleBuffer *buf)
 {
-    int16_t **tmp = av_mallocz(2 * sizeof(*buf));
+    int16_t **tmp = av_mallocz(2 * sizeof(*tmp));
     for (int i = 0; i < 2; i++)
     {
         tmp[i] = av_malloc(buf->channel_size * sizeof(*tmp[i]));
