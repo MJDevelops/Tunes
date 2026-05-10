@@ -210,15 +210,15 @@ int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
     return 0;
 }
 
-int decoder_seek(Decoder *dec, int seconds)
+int decoder_seek(Decoder *dec, int64_t offset)
 {
     if (!dec->fmt_ctx)
         return -1;
 
     int ret = 0;
-    int64_t pts = av_rescale_q((int64_t)seconds * AV_TIME_BASE, AV_TIME_BASE_Q, dec->fmt_ctx->streams[dec->audio_stream_index]->time_base);
+    int64_t pts = av_rescale_q(offset, (AVRational){1, dec->sample_rate}, dec->fmt_ctx->streams[dec->audio_stream_index]->time_base);
 
-    ret = avformat_seek_file(dec->fmt_ctx, dec->audio_stream_index, INT64_MIN, pts, pts, 0);
+    ret = av_seek_frame(dec->fmt_ctx, dec->audio_stream_index, pts, AVSEEK_FLAG_BACKWARD);
     if (ret < 0)
         return ret;
 

@@ -21,4 +21,4 @@ Decoder *decoder_alloc(const char *file);
 void decoder_free(Decoder **);
 int decode(Decoder *, SampleBuffer *, int frames);
 int resample_frame_s16_planar_stereo(AVFrame *, AVFrame *);
-void decoder_seek(Decoder *);
+int decoder_seek(Decoder *, int64_t offset);

@@ -9,6 +9,7 @@ import "C"
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"unsafe"
 
 	"github.com/gopxl/beep/v2"
@@ -34,10 +35,9 @@ const (
 var (
 	ErrAlloc    = errors.New("error during allocation")
 	ErrDecoding = errors.New("error during decoding")
+	ErrSeek     = errors.New("error during seeking")
 )
 
-// TODO: Implement proper streaming of audio files and
-// don't decode the file in one go as its slow
 func NewDecoder(filename string) (s beep.StreamSeekCloser, format beep.Format, err error) {
 	d := &AVDecoder{}
 	d.file = C.CString(filename)
@@ -144,6 +144,13 @@ func (d *AVDecoder) Err() error {
 }
 
 func (d *AVDecoder) Seek(p int) error {
-	// TODO
+	if p < 0 || d.Len() < p {
+		return fmt.Errorf("seek position %v out of range: [%v, %v]", p, 0, d.Len())
+	}
+	ret := C.decoder_seek(d.dec, C.int64_t(p))
+	if ret < 0 {
+		return ErrSeek
+	}
+	d.pos = p * avBytesPerFrame
 	return nil
 }
