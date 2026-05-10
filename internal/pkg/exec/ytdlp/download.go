@@ -42,7 +42,7 @@ type Queue struct {
 	started    atomic.Uint32
 	waiting    []*Download
 	waitingMu  sync.Mutex
-	onShutdown func([]*Download)
+	onShutdown func([]*Download) error
 }
 
 var downloadPath = path.Join(".", "downloads")
@@ -130,7 +130,7 @@ func (d *Download) Start() (err <-chan error, cancel func()) {
 	}
 }
 
-func (dq *Queue) OnShutdown(f func([]*Download)) *Queue {
+func (dq *Queue) OnShutdown(f func([]*Download) error) *Queue {
 	dq.onShutdown = f
 	return dq
 }

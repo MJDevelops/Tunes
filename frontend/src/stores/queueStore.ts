@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { GetPlaylistTracks } from "@bindings/internal/pkg/services/audioservice";
-import { Track } from "@bindings/db";
+import { Track } from "@bindings/internal/pkg/db/models";
 
 const initialState = { tracks: [] };
 

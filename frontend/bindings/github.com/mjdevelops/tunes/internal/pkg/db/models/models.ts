@@ -5,21 +5,36 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as gorm$0 from "../../../../../../../gorm.io/gorm/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as time$0 from "../../../../../../../time/models.js";
+
 export class Track {
     "ID": number;
+    "CreatedAt": time$0.Time;
+    "UpdatedAt": time$0.Time;
+    "DeletedAt": gorm$0.DeletedAt;
     "Path": string;
-    "AlbumID": number;
 
     /** Creates a new Track instance. */
     constructor($$source: Partial<Track> = {}) {
         if (!("ID" in $$source)) {
             this["ID"] = 0;
         }
+        if (!("CreatedAt" in $$source)) {
+            this["CreatedAt"] = null;
+        }
+        if (!("UpdatedAt" in $$source)) {
+            this["UpdatedAt"] = null;
+        }
+        if (!("DeletedAt" in $$source)) {
+            this["DeletedAt"] = null;
+        }
         if (!("Path" in $$source)) {
             this["Path"] = "";
-        }
-        if (!("AlbumID" in $$source)) {
-            this["AlbumID"] = 0;
         }
 
         Object.assign(this, $$source);

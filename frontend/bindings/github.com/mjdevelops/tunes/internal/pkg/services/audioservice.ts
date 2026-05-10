@@ -7,18 +7,18 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
-import * as db$0 from "../../../db/models.js";
+import * as models$0 from "../db/models/models.js";
 
 export function AddToQueue(trackId: number): $CancellablePromise<void> {
     return $Call.ByID(510539471, trackId);
 }
 
-export function GetPlaylistTracks(playlistId: number): $CancellablePromise<db$0.Track[]> {
+export function GetPlaylistTracks(playlistId: number): $CancellablePromise<models$0.Track[]> {
     return $Call.ByID(3124403020, playlistId).then(($result: any) => {
         return $$createType1($result);
     });
 }
 
 // Private type creation functions
-const $$createType0 = db$0.Track.createFrom;
+const $$createType0 = models$0.Track.createFrom;
 const $$createType1 = $Create.Array($$createType0);

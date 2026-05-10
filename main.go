@@ -1,24 +1,21 @@
 package main
 
 import (
-	"context"
-	"database/sql"
 	"embed"
 	"log"
 	"path"
 
-	"github.com/mjdevelops/tunes/db"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
+	tunesdb "github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/services"
 	"github.com/wailsapp/wails/v3/pkg/application"
-	_ "modernc.org/sqlite"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
+//go:embed all:frontend/dist
 var assets embed.FS
-
-//go:embed schema.sql
-var ddl string
 
 func main() {
 	var (
@@ -26,19 +23,8 @@ func main() {
 		binPath = path.Join(".", "bin")
 	)
 
-	// Initialize db connection
-	conn, err := sql.Open("sqlite", "file:tunes.db")
-	if err != nil {
-		log.Fatalf("Error initializing database: %v\n", err)
-	}
-
-	// Create db tables
-	bCtx := context.Background()
-	if _, err := conn.ExecContext(bCtx, ddl); err != nil {
-		log.Fatalf("Error creating db tables: %v\n", err)
-	}
-
-	queries := db.New(conn)
+	db, err := gorm.Open(sqlite.Open("tunes.db"), &gorm.Config{})
+	tunesdb.Migrate(db)
 
 	config, err := config.LoadApplicationConfig(path.Join(".", "tunes.config.json"))
 	if err != nil {
@@ -52,7 +38,7 @@ func main() {
 		},
 		Services: []application.Service{
 			application.NewService(services.NewYtDlpService(binPath, config)),
-			application.NewService(services.NewAudioService(queries)),
+			application.NewService(services.NewAudioService(db)),
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: false,
@@ -69,7 +55,7 @@ func main() {
 	})
 
 	app.RegisterService(application.NewService(services.NewDownloadService(services.DownloadServiceOptions{
-		Queries: queries,
+		Db:      db,
 		Workers: 5,
 		Window:  mainWindow,
 	})))

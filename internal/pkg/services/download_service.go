@@ -7,33 +7,34 @@ import (
 	"log"
 	"time"
 
-	"github.com/mjdevelops/tunes/db"
+	"github.com/mjdevelops/tunes/internal/pkg/db/models"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
 	"github.com/mjdevelops/tunes/internal/pkg/exec/ytdlp"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	wailsevents "github.com/wailsapp/wails/v3/pkg/events"
+	"gorm.io/gorm"
 )
 
 type DownloadService struct {
-	ctx     context.Context
-	queue   *ytdlp.Queue
-	queries *db.Queries
-	ytDlp   *ytdlp.YtDlp
-	app     *application.App
+	ctx   context.Context
+	queue *ytdlp.Queue
+	db    *gorm.DB
+	ytDlp *ytdlp.YtDlp
+	app   *application.App
 }
 
 type DownloadServiceOptions struct {
 	Workers   uint
-	Queries   *db.Queries
+	Db        *gorm.DB
 	Downloads []ytdlp.Download
 	Window    *application.WebviewWindow
 }
 
 func NewDownloadService(options DownloadServiceOptions) *DownloadService {
 	service := &DownloadService{
-		ctx:     nil,
-		queue:   ytdlp.NewQueue(options.Workers, options.Downloads...),
-		queries: options.Queries,
+		ctx:   nil,
+		queue: ytdlp.NewQueue(options.Workers, options.Downloads...),
+		db:    options.Db,
 	}
 
 	if options.Window != nil {
@@ -57,15 +58,18 @@ func (s *DownloadService) ServiceShutdown() error {
 	return nil
 }
 
-func (s *DownloadService) PendingDownloads() []ytdlp.Download {
+func (s *DownloadService) PendingDownloads() ([]ytdlp.Download, error) {
 	var qDownloads []ytdlp.Download
 	ctx := context.Background()
-	downloads, _ := s.queries.GetPendingDownloads(ctx)
+	downloads, err := gorm.G[models.Download](s.db).Where("finished_at IS NULL").Find(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	for i := range downloads {
 		var opts []string
 		json.Unmarshal([]byte(downloads[i].Options), &opts)
-		download, err := s.ytDlp.NewDownload(downloads[i].ID, downloads[i].Url, opts...)
+		download, err := s.ytDlp.NewDownload(downloads[i].ID, downloads[i].Source, opts...)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -73,7 +77,7 @@ func (s *DownloadService) PendingDownloads() []ytdlp.Download {
 		qDownloads = append(qDownloads, download)
 	}
 
-	return qDownloads
+	return qDownloads, nil
 }
 
 func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string) {
@@ -100,16 +104,26 @@ func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string
 	return down.ID
 }
 
-func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) {
+func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) error {
 	ctx := context.Background()
 
 	for _, d := range downloads {
-		_, err := s.queries.GetDownload(ctx, d.ID)
+		_, err := gorm.G[models.Download](s.db).Where("id = ?", d.ID).First(ctx)
 		if err != nil {
 			options, _ := json.Marshal(d.Options)
-			s.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: d.ID, Options: string(options), FinishedAt: sql.NullTime{}})
+			download := &models.Download{
+				ID:         d.ID,
+				Options:    string(options),
+				FinishedAt: sql.NullTime{Valid: false},
+			}
+			err := gorm.G[models.Download](s.db).Create(ctx, download)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
 
 func (s *DownloadService) closeHook(event *application.WindowEvent) {
@@ -132,14 +146,11 @@ func (s *DownloadService) finishDownload(download *ytdlp.Download) {
 	ctx := context.Background()
 	t := sql.NullTime{Time: time.Now(), Valid: true}
 
-	err := s.queries.UpdateDownloadFinishedAt(ctx, db.UpdateDownloadFinishedAtParams{
-		ID:         download.ID,
-		FinishedAt: t,
-	})
+	_, err := gorm.G[models.Download](s.db).Where("id = ?", download.ID).Update(ctx, "finished_at", t)
 
 	if err != nil {
 		// The download wasn't created before, create it now
 		options, _ := json.Marshal(download.Options)
-		s.queries.InsertDownload(ctx, db.InsertDownloadParams{ID: download.ID, FinishedAt: t, Options: string(options)})
+		gorm.G[models.Download](s.db).Create(ctx, &models.Download{ID: download.ID, FinishedAt: t, Options: string(options)})
 	}
 }
