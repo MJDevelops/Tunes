@@ -18,8 +18,8 @@ typedef void *swig_voidp;
 #include <stdint.h>
 
 
-typedef long long intgo;
-typedef unsigned long long uintgo;
+typedef ptrdiff_t intgo;
+typedef size_t uintgo;
 
 
 
@@ -29,11 +29,12 @@ typedef struct { void* array; intgo len; intgo cap; } _goslice_;
 
 typedef _gostring_ swig_type_1;
 typedef _gostring_ swig_type_2;
+typedef _gostring_ swig_type_3;
 extern void _wrap_Swig_free_meta_cd840580a47d41c6(uintptr_t arg1);
 extern uintptr_t _wrap_Swig_malloc_meta_cd840580a47d41c6(swig_intgo arg1);
-extern void _wrap_TagFile_setAlbum_meta_cd840580a47d41c6(uintptr_t arg1, swig_type_1 arg2);
-extern swig_type_2 _wrap_TagFile_getAlbum_meta_cd840580a47d41c6(uintptr_t arg1);
-extern uintptr_t _wrap_new_TagFile_meta_cd840580a47d41c6(void);
+extern uintptr_t _wrap_new_TagFile_meta_cd840580a47d41c6(swig_type_1 arg1);
+extern void _wrap_TagFile_setAlbum_meta_cd840580a47d41c6(uintptr_t arg1, swig_type_2 arg2);
+extern swig_type_3 _wrap_TagFile_getAlbum_meta_cd840580a47d41c6(uintptr_t arg1);
 extern void _wrap_delete_TagFile_meta_cd840580a47d41c6(uintptr_t arg1);
 #undef intgo
 */
@@ -96,10 +97,20 @@ func (p SwigcptrTagFile) Swigcptr() uintptr {
 func (p SwigcptrTagFile) SwigIsTagFile() {
 }
 
+func NewTagFile(arg1 string) (_swig_ret TagFile) {
+	var swig_r TagFile
+	_swig_i_0 := arg1
+	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_cd840580a47d41c6(*(*C.swig_type_1)(unsafe.Pointer(&_swig_i_0)))))
+	if Swig_escape_always_false {
+		Swig_escape_val = arg1
+	}
+	return swig_r
+}
+
 func (arg1 SwigcptrTagFile) SetAlbum(arg2 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_TagFile_setAlbum_meta_cd840580a47d41c6(C.uintptr_t(_swig_i_0), *(*C.swig_type_1)(unsafe.Pointer(&_swig_i_1)))
+	C._wrap_TagFile_setAlbum_meta_cd840580a47d41c6(C.uintptr_t(_swig_i_0), *(*C.swig_type_2)(unsafe.Pointer(&_swig_i_1)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -113,12 +124,6 @@ func (arg1 SwigcptrTagFile) GetAlbum() (_swig_ret string) {
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
 	return swig_r_1
-}
-
-func NewTagFile() (_swig_ret TagFile) {
-	var swig_r TagFile
-	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_cd840580a47d41c6()))
-	return swig_r
 }
 
 func DeleteTagFile(arg1 TagFile) {

@@ -2,6 +2,11 @@
 #include <taglib/tag.h>
 #include "meta.h"
 
+TagFile::TagFile(std::string path)
+{
+    f = TagLib::FileRef(path.c_str());
+}
+
 void TagFile::setAlbum(std::string name)
 {
     f.tag()->setAlbum(name);

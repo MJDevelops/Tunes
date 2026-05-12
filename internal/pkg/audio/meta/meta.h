@@ -7,6 +7,7 @@
 class TagFile
 {
 public:
+    TagFile(std::string path);
     void setAlbum(std::string name);
     std::string getAlbum();
 

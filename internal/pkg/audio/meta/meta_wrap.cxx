@@ -180,8 +180,8 @@
 
 
 
-typedef long long intgo;
-typedef unsigned long long uintgo;
+typedef ptrdiff_t intgo;
+typedef size_t uintgo;
 
 
 # if !defined(__clang__) && (defined(__i386__) || defined(__x86_64__))
@@ -302,6 +302,19 @@ void *_wrap_Swig_malloc_meta_cd840580a47d41c6(intgo _swig_go_0) {
 }
 
 
+TagFile *_wrap_new_TagFile_meta_cd840580a47d41c6(_gostring_ _swig_go_0) {
+  std::string arg1 ;
+  TagFile *result = 0 ;
+  TagFile *_swig_go_result;
+  
+  (&arg1)->assign(_swig_go_0.p, _swig_go_0.n); 
+  
+  result = (TagFile *)new TagFile(SWIG_STD_MOVE(arg1));
+  *(TagFile **)&_swig_go_result = (TagFile *)result; 
+  return _swig_go_result;
+}
+
+
 void _wrap_TagFile_setAlbum_meta_cd840580a47d41c6(TagFile *_swig_go_0, _gostring_ _swig_go_1) {
   TagFile *arg1 = 0 ;
   std::string arg2 ;
@@ -323,17 +336,6 @@ _gostring_ _wrap_TagFile_getAlbum_meta_cd840580a47d41c6(TagFile *_swig_go_0) {
   
   result = (arg1)->getAlbum();
   _swig_go_result = Swig_AllocateString((&result)->data(), (&result)->length()); 
-  return _swig_go_result;
-}
-
-
-TagFile *_wrap_new_TagFile_meta_cd840580a47d41c6() {
-  TagFile *result = 0 ;
-  TagFile *_swig_go_result;
-  
-  
-  result = (TagFile *)new TagFile();
-  *(TagFile **)&_swig_go_result = (TagFile *)result; 
   return _swig_go_result;
 }
 
