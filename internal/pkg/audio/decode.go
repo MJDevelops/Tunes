@@ -91,7 +91,8 @@ func (d *AVDecoder) Stream(samples [][2]float64) (n int, ok bool) {
 		if len(d.samples[0]) == 0 {
 			ret := C.decode(d.dec, d.buf, 1)
 			if ret < 0 {
-				return n, false
+				ok = false
+				break
 			}
 			d.readBufToSamples(int(d.buf.channel_size))
 		}
