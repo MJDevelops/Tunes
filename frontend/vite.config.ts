@@ -42,4 +42,7 @@ export default defineConfig({
     tailwindcss(),
     wails("./bindings"),
   ],
+  server: {
+    host: "127.0.0.1",
+  },
 });
