@@ -14,6 +14,7 @@ void tf_free(TagFile **tf)
 {
     taglib_tag_free_strings();
     taglib_file_free((*tf)->f);
+    free(*tf);
     *tf = NULL;
 }
 
