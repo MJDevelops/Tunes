@@ -12,12 +12,120 @@ import * as gorm$0 from "../../../../../../../gorm.io/gorm/models.js";
 // @ts-ignore: Unused imports
 import * as time$0 from "../../../../../../../time/models.js";
 
+export class Album {
+    "ID": number;
+    "CreatedAt": time$0.Time;
+    "UpdatedAt": time$0.Time;
+    "DeletedAt": gorm$0.DeletedAt;
+    "Title": string;
+    "Artists": (Artist | null)[];
+    "Tracks": Track[];
+
+    /** Creates a new Album instance. */
+    constructor($$source: Partial<Album> = {}) {
+        if (!("ID" in $$source)) {
+            this["ID"] = 0;
+        }
+        if (!("CreatedAt" in $$source)) {
+            this["CreatedAt"] = null;
+        }
+        if (!("UpdatedAt" in $$source)) {
+            this["UpdatedAt"] = null;
+        }
+        if (!("DeletedAt" in $$source)) {
+            this["DeletedAt"] = null;
+        }
+        if (!("Title" in $$source)) {
+            this["Title"] = "";
+        }
+        if (!("Artists" in $$source)) {
+            this["Artists"] = [];
+        }
+        if (!("Tracks" in $$source)) {
+            this["Tracks"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Album instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Album {
+        const $$createField5_0 = $$createType2;
+        const $$createField6_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("Artists" in $$parsedSource) {
+            $$parsedSource["Artists"] = $$createField5_0($$parsedSource["Artists"]);
+        }
+        if ("Tracks" in $$parsedSource) {
+            $$parsedSource["Tracks"] = $$createField6_0($$parsedSource["Tracks"]);
+        }
+        return new Album($$parsedSource as Partial<Album>);
+    }
+}
+
+export class Artist {
+    "ID": number;
+    "CreatedAt": time$0.Time;
+    "UpdatedAt": time$0.Time;
+    "DeletedAt": gorm$0.DeletedAt;
+    "Name": string;
+    "Albums": (Album | null)[];
+    "Tracks": Track[];
+
+    /** Creates a new Artist instance. */
+    constructor($$source: Partial<Artist> = {}) {
+        if (!("ID" in $$source)) {
+            this["ID"] = 0;
+        }
+        if (!("CreatedAt" in $$source)) {
+            this["CreatedAt"] = null;
+        }
+        if (!("UpdatedAt" in $$source)) {
+            this["UpdatedAt"] = null;
+        }
+        if (!("DeletedAt" in $$source)) {
+            this["DeletedAt"] = null;
+        }
+        if (!("Name" in $$source)) {
+            this["Name"] = "";
+        }
+        if (!("Albums" in $$source)) {
+            this["Albums"] = [];
+        }
+        if (!("Tracks" in $$source)) {
+            this["Tracks"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Artist instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Artist {
+        const $$createField5_0 = $$createType7;
+        const $$createField6_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("Albums" in $$parsedSource) {
+            $$parsedSource["Albums"] = $$createField5_0($$parsedSource["Albums"]);
+        }
+        if ("Tracks" in $$parsedSource) {
+            $$parsedSource["Tracks"] = $$createField6_0($$parsedSource["Tracks"]);
+        }
+        return new Artist($$parsedSource as Partial<Artist>);
+    }
+}
+
 export class Track {
     "ID": number;
     "CreatedAt": time$0.Time;
     "UpdatedAt": time$0.Time;
     "DeletedAt": gorm$0.DeletedAt;
     "Path": string;
+    "Artists": (Artist | null)[];
+    "AlbumID": number;
 
     /** Creates a new Track instance. */
     constructor($$source: Partial<Track> = {}) {
@@ -36,6 +144,12 @@ export class Track {
         if (!("Path" in $$source)) {
             this["Path"] = "";
         }
+        if (!("Artists" in $$source)) {
+            this["Artists"] = [];
+        }
+        if (!("AlbumID" in $$source)) {
+            this["AlbumID"] = 0;
+        }
 
         Object.assign(this, $$source);
     }
@@ -44,7 +158,21 @@ export class Track {
      * Creates a new Track instance from a string or object.
      */
     static createFrom($$source: any = {}): Track {
+        const $$createField5_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("Artists" in $$parsedSource) {
+            $$parsedSource["Artists"] = $$createField5_0($$parsedSource["Artists"]);
+        }
         return new Track($$parsedSource as Partial<Track>);
     }
 }
+
+// Private type creation functions
+const $$createType0 = Artist.createFrom;
+const $$createType1 = $Create.Nullable($$createType0);
+const $$createType2 = $Create.Array($$createType1);
+const $$createType3 = Track.createFrom;
+const $$createType4 = $Create.Array($$createType3);
+const $$createType5 = Album.createFrom;
+const $$createType6 = $Create.Nullable($$createType5);
+const $$createType7 = $Create.Array($$createType6);
