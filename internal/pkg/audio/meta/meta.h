@@ -1,16 +1,14 @@
 #pragma once
 
-#include <string>
-#include <taglib/tag.h>
-#include <taglib/fileref.h>
+#include <taglib/tag_c.h>
 
-class TagFile
+typedef struct
 {
-public:
-    TagFile(std::string path);
-    void setAlbum(std::string name);
-    std::string getAlbum();
+    TagLib_Tag *tag;
+    TagLib_File *f;
+} TagFile;
 
-private:
-    TagLib::FileRef f;
-};
+TagFile *tf_alloc(const char *path);
+const char *tf_get_album(TagFile *);
+int tf_get_artists(TagFile *, char **);
+void tf_free(TagFile **);
