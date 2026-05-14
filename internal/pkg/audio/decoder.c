@@ -1,45 +1,41 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <libavformat/avformat.h>
+#include "decoder.h"
+
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libswresample/swresample.h>
-#include "decoder.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+
 #include "sample_buffer.h"
 
-Decoder *decoder_alloc(const char *filename)
-{
+Decoder* decoder_alloc(const char* filename) {
     int ret = 0;
-    Decoder *dec = calloc(1, sizeof(*dec));
+    Decoder* dec = calloc(1, sizeof(*dec));
 
     dec->filename = filename;
 
     ret = avformat_open_input(&dec->fmt_ctx, dec->filename, NULL, NULL);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         fprintf(stderr, "Couldn't open specified file: %s.\n", av_err2str(ret));
         free(dec);
         return NULL;
     }
 
     ret = avformat_find_stream_info(dec->fmt_ctx, NULL);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         fprintf(stderr, "Couldn't read stream info: %s.\n", av_err2str(ret));
         free(dec);
         return NULL;
     }
 
-    for (int i = 0; i < dec->fmt_ctx->nb_streams; i++)
-    {
-        if (dec->fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
-        {
+    for (int i = 0; i < dec->fmt_ctx->nb_streams; i++) {
+        if (dec->fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             dec->audio_stream_index = i;
 
             dec->codec = avcodec_find_decoder(dec->fmt_ctx->streams[i]->codecpar->codec_id);
-            if (!dec->codec)
-            {
+            if (!dec->codec) {
                 fprintf(stderr, "Codec not found\n");
                 return NULL;
             }
@@ -61,8 +57,7 @@ Decoder *decoder_alloc(const char *filename)
     return dec;
 }
 
-void decoder_free(Decoder **dec)
-{
+void decoder_free(Decoder** dec) {
     av_freep(&(*dec)->frame);
     av_freep(&(*dec)->pkt);
     av_freep(&(*dec)->resampled_frame);
@@ -85,58 +80,48 @@ void decoder_free(Decoder **dec)
  * the file will be read until EOF
  * @return The number of frames read if successful, < 0 if an error occured.
  */
-int decode(Decoder *dec, SampleBuffer *buf, int frames)
-{
+int decode(Decoder* dec, SampleBuffer* buf, int frames) {
     int read = 0;
     int ret = 0;
 
-    if (!buf->data)
-    {
+    if (!buf->data) {
         fprintf(stderr, "Supplied buffer is invalid.\n");
         return -1;
     }
 
-    while (true)
-    {
+    while (true) {
         if (dec->pkt->data != NULL && dec->pkt->size > 0)
             goto receive;
 
         ret = av_read_frame(dec->fmt_ctx, dec->pkt);
-        if (ret == AVERROR_EOF)
-        {
+        if (ret == AVERROR_EOF) {
             read = -1;
             break;
         }
 
-        if (dec->pkt->stream_index != dec->audio_stream_index)
-        {
+        if (dec->pkt->stream_index != dec->audio_stream_index) {
             av_packet_unref(dec->pkt);
             continue;
         }
 
         ret = avcodec_send_packet(dec->ctx, dec->pkt);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             fprintf(stderr, "Error sending packet: %s\n", av_err2str(ret));
             return ret;
         }
     receive:
-        while (true)
-        {
+        while (true) {
             ret = avcodec_receive_frame(dec->ctx, dec->frame);
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 break;
-            else if (ret < 0)
-            {
+            else if (ret < 0) {
                 fprintf(stderr, "Error receiving frame: %s\n", av_err2str(ret));
                 break;
             }
 
-            if (dec->frame->ch_layout.nb_channels != 2 || dec->frame->format != AV_SAMPLE_FMT_S16P)
-            {
+            if (dec->frame->ch_layout.nb_channels != 2 || dec->frame->format != AV_SAMPLE_FMT_S16P) {
                 ret = resample_frame_s16_planar_stereo(dec->resampled_frame, dec->frame);
-                if (ret < 0)
-                {
+                if (ret < 0) {
                     fprintf(stderr, "Couldn't resample frame: %s\n", av_err2str(ret));
                     av_frame_unref(dec->frame);
                     return ret;
@@ -145,16 +130,14 @@ int decode(Decoder *dec, SampleBuffer *buf, int frames)
                 av_frame_move_ref(dec->frame, dec->resampled_frame);
             }
 
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 buf->data[i] = av_realloc(buf->data[i], (buf->channel_size + dec->frame->nb_samples) * sizeof(*buf->data[i]));
-                if (!buf->data[i])
-                {
+                if (!buf->data[i]) {
                     fprintf(stderr, "Couldn't allocate channel buffer.\n");
                     av_frame_unref(dec->frame);
                     return -1;
                 }
-                memcpy(buf->data[i] + buf->channel_size, (int16_t *)dec->frame->data[i], dec->frame->nb_samples * sizeof(*buf->data[i]));
+                memcpy(buf->data[i] + buf->channel_size, (int16_t*)dec->frame->data[i], dec->frame->nb_samples * sizeof(*buf->data[i]));
             }
 
             buf->channel_size += dec->frame->nb_samples;
@@ -178,9 +161,8 @@ quit:
  * @param frame The frame to resample.
  * @return >= 0 if successful, a negative AVERROR otherwise.
  */
-int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
-{
-    struct SwrContext *swr_ctx = NULL;
+int resample_frame_s16_planar_stereo(AVFrame* resampled_frame, AVFrame* frame) {
+    struct SwrContext* swr_ctx = NULL;
     AVChannelLayout out_ch = AV_CHANNEL_LAYOUT_STEREO;
     int ret = 0;
 
@@ -194,8 +176,7 @@ int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
         frame->sample_rate,
         0,
         NULL);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         return ret;
     }
 
@@ -210,8 +191,7 @@ int resample_frame_s16_planar_stereo(AVFrame *resampled_frame, AVFrame *frame)
     return 0;
 }
 
-int decoder_seek(Decoder *dec, int64_t offset)
-{
+int decoder_seek(Decoder* dec, int64_t offset) {
     if (!dec->fmt_ctx)
         return -1;
 
@@ -224,17 +204,14 @@ int decoder_seek(Decoder *dec, int64_t offset)
 
     avcodec_flush_buffers(dec->ctx);
 
-    while (true)
-    {
+    while (true) {
         ret = av_read_frame(dec->fmt_ctx, dec->pkt);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             av_packet_unref(dec->pkt);
             return ret;
         }
 
-        if (dec->pkt->stream_index != dec->audio_stream_index)
-        {
+        if (dec->pkt->stream_index != dec->audio_stream_index) {
             av_packet_unref(dec->pkt);
             continue;
         }
@@ -243,8 +220,7 @@ int decoder_seek(Decoder *dec, int64_t offset)
         if (ret < 0)
             return ret;
 
-        while (true)
-        {
+        while (true) {
             ret = avcodec_receive_frame(dec->ctx, dec->frame);
             if (ret < 0)
                 break;

@@ -37,25 +37,27 @@ typedef _gostring_ swig_type_7;
 typedef _gostring_ swig_type_8;
 typedef _gostring_ swig_type_9;
 typedef _gostring_ swig_type_10;
-extern void _wrap_Swig_free_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern uintptr_t _wrap_Swig_malloc_meta_ec7bf65014baffd0(swig_intgo arg1);
-extern uintptr_t _wrap_new_StringVector__SWIG_0_meta_ec7bf65014baffd0(void);
-extern uintptr_t _wrap_new_StringVector__SWIG_1_meta_ec7bf65014baffd0(swig_type_1 arg1);
-extern uintptr_t _wrap_new_StringVector__SWIG_2_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern swig_type_2 _wrap_StringVector_size_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern swig_type_3 _wrap_StringVector_capacity_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern void _wrap_StringVector_reserve_meta_ec7bf65014baffd0(uintptr_t arg1, swig_type_4 arg2);
-extern _Bool _wrap_StringVector_isEmpty_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern void _wrap_StringVector_clear_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern void _wrap_StringVector_add_meta_ec7bf65014baffd0(uintptr_t arg1, swig_type_5 arg2);
-extern swig_type_6 _wrap_StringVector_get_meta_ec7bf65014baffd0(uintptr_t arg1, swig_intgo arg2);
-extern void _wrap_StringVector_set_meta_ec7bf65014baffd0(uintptr_t arg1, swig_intgo arg2, swig_type_7 arg3);
-extern void _wrap_delete_StringVector_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern uintptr_t _wrap_new_TagFile_meta_ec7bf65014baffd0(swig_type_8 arg1);
-extern swig_type_9 _wrap_TagFile_getTitle_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern swig_type_10 _wrap_TagFile_getAlbum_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern uintptr_t _wrap_TagFile_getArtists_meta_ec7bf65014baffd0(uintptr_t arg1);
-extern void _wrap_delete_TagFile_meta_ec7bf65014baffd0(uintptr_t arg1);
+typedef _gostring_ swig_type_11;
+extern void _wrap_Swig_free_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern uintptr_t _wrap_Swig_malloc_meta_616346e4f32b2a4f(swig_intgo arg1);
+extern uintptr_t _wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f(void);
+extern uintptr_t _wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f(swig_type_1 arg1);
+extern uintptr_t _wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern swig_type_2 _wrap_StringVector_size_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern swig_type_3 _wrap_StringVector_capacity_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern void _wrap_StringVector_reserve_meta_616346e4f32b2a4f(uintptr_t arg1, swig_type_4 arg2);
+extern _Bool _wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern void _wrap_StringVector_clear_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern void _wrap_StringVector_add_meta_616346e4f32b2a4f(uintptr_t arg1, swig_type_5 arg2);
+extern swig_type_6 _wrap_StringVector_get_meta_616346e4f32b2a4f(uintptr_t arg1, swig_intgo arg2);
+extern void _wrap_StringVector_set_meta_616346e4f32b2a4f(uintptr_t arg1, swig_intgo arg2, swig_type_7 arg3);
+extern void _wrap_delete_StringVector_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern uintptr_t _wrap_new_TagFile_meta_616346e4f32b2a4f(swig_type_8 arg1);
+extern void _wrap_delete_TagFile_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern swig_type_9 _wrap_TagFile_getTitle_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern swig_type_10 _wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern uintptr_t _wrap_TagFile_getArtists_meta_616346e4f32b2a4f(uintptr_t arg1);
+extern swig_type_11 _wrap_TagFile_getArtwork_meta_616346e4f32b2a4f(uintptr_t arg1);
 #undef intgo
 */
 import "C"
@@ -87,8 +89,8 @@ func getSwigcptr(v interface { Swigcptr() uintptr }) uintptr {
 
 type _ sync.Mutex
 
-//export cgo_panic__meta_ec7bf65014baffd0
-func cgo_panic__meta_ec7bf65014baffd0(p *byte) {
+//export cgo_panic__meta_616346e4f32b2a4f
+func cgo_panic__meta_616346e4f32b2a4f(p *byte) {
 	s := (*[1024]byte)(unsafe.Pointer(p))[:]
 	for i, b := range s {
 		if b == 0 {
@@ -109,13 +111,13 @@ func swigCopyString(s string) string {
 
 func Swig_free(arg1 uintptr) {
 	_swig_i_0 := arg1
-	C._wrap_Swig_free_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+	C._wrap_Swig_free_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
 }
 
 func Swig_malloc(arg1 int) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := arg1
-	swig_r = (uintptr)(C._wrap_Swig_malloc_meta_ec7bf65014baffd0(C.swig_intgo(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_Swig_malloc_meta_616346e4f32b2a4f(C.swig_intgo(_swig_i_0)))
 	return swig_r
 }
 
@@ -130,21 +132,21 @@ func (p SwigcptrStringVector) SwigIsStringVector() {
 
 func NewStringVector__SWIG_0() (_swig_ret StringVector) {
 	var swig_r StringVector
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_0_meta_ec7bf65014baffd0()))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f()))
 	return swig_r
 }
 
 func NewStringVector__SWIG_1(arg1 int64) (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := arg1
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_1_meta_ec7bf65014baffd0(C.swig_type_1(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f(C.swig_type_1(_swig_i_0))))
 	return swig_r
 }
 
 func NewStringVector__SWIG_2(arg1 StringVector) (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_2_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
@@ -169,39 +171,39 @@ check_2:
 func (arg1 SwigcptrStringVector) Size() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_StringVector_size_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_StringVector_size_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Capacity() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_StringVector_capacity_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_StringVector_capacity_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Reserve(arg2 int64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_StringVector_reserve_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0), C.swig_type_4(_swig_i_1))
+	C._wrap_StringVector_reserve_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_type_4(_swig_i_1))
 }
 
 func (arg1 SwigcptrStringVector) IsEmpty() (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
-	swig_r = (bool)(C._wrap_StringVector_isEmpty_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0)))
+	swig_r = (bool)(C._wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Clear() {
 	_swig_i_0 := arg1
-	C._wrap_StringVector_clear_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+	C._wrap_StringVector_clear_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrStringVector) Add(arg2 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_StringVector_add_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1)))
+	C._wrap_StringVector_add_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -211,7 +213,7 @@ func (arg1 SwigcptrStringVector) Get(arg2 int) (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r_p := C._wrap_StringVector_get_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
+	swig_r_p := C._wrap_StringVector_get_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -222,7 +224,7 @@ func (arg1 SwigcptrStringVector) Set(arg2 int, arg3 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_StringVector_set_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_2)))
+	C._wrap_StringVector_set_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg3
 	}
@@ -230,7 +232,7 @@ func (arg1 SwigcptrStringVector) Set(arg2 int, arg3 string) {
 
 func DeleteStringVector(arg1 StringVector) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_StringVector_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_StringVector_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
 }
 
 type StringVector interface {
@@ -258,17 +260,22 @@ func (p SwigcptrTagFile) SwigIsTagFile() {
 func NewTagFile(arg1 string) (_swig_ret TagFile) {
 	var swig_r TagFile
 	_swig_i_0 := arg1
-	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_ec7bf65014baffd0(*(*C.swig_type_8)(unsafe.Pointer(&_swig_i_0)))))
+	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_616346e4f32b2a4f(*(*C.swig_type_8)(unsafe.Pointer(&_swig_i_0)))))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg1
 	}
 	return swig_r
 }
 
+func DeleteTagFile(arg1 TagFile) {
+	_swig_i_0 := getSwigcptr(arg1)
+	C._wrap_delete_TagFile_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+}
+
 func (arg1 SwigcptrTagFile) GetTitle() (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
-	swig_r_p := C._wrap_TagFile_getTitle_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+	swig_r_p := C._wrap_TagFile_getTitle_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -278,7 +285,7 @@ func (arg1 SwigcptrTagFile) GetTitle() (_swig_ret string) {
 func (arg1 SwigcptrTagFile) GetAlbum() (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
-	swig_r_p := C._wrap_TagFile_getAlbum_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+	swig_r_p := C._wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -288,13 +295,18 @@ func (arg1 SwigcptrTagFile) GetAlbum() (_swig_ret string) {
 func (arg1 SwigcptrTagFile) GetArtists() (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := arg1
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_TagFile_getArtists_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_TagFile_getArtists_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
-func DeleteTagFile(arg1 TagFile) {
-	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_TagFile_meta_ec7bf65014baffd0(C.uintptr_t(_swig_i_0))
+func (arg1 SwigcptrTagFile) GetArtwork() (_swig_ret string) {
+	var swig_r string
+	_swig_i_0 := arg1
+	swig_r_p := C._wrap_TagFile_getArtwork_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
+	var swig_r_1 string
+ swig_r_1 = swigCopyString(swig_r) 
+	return swig_r_1
 }
 
 type TagFile interface {
@@ -303,6 +315,7 @@ type TagFile interface {
 	GetTitle() (_swig_ret string)
 	GetAlbum() (_swig_ret string)
 	GetArtists() (_swig_ret StringVector)
+	GetArtwork() (_swig_ret string)
 }
 
 

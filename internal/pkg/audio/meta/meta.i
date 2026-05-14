@@ -8,7 +8,7 @@ namespace std {
 };
 
 %{
-#include "meta.hpp"
+#include "tagfile.hpp"
 %}
 
-%include "meta.hpp"
+%include "tagfile.hpp"
