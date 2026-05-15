@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 zmq = "0.10.0"
 symphonia = { version = "0.6.0", features = ["all"] }
+anyhow = "1.0.102"
