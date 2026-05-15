@@ -4,7 +4,9 @@
 #include <taglib/tpropertymap.h>
 #include <taglib/tstringlist.h>
 
+#include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace TagLib;
@@ -31,6 +33,21 @@ const std::vector<std::string>& TagFile::getArtists() {
     return artists;
 }
 
-std::string TagFile::getArtwork() {
-    return "";
+/**
+ * Returns the artwork and the mime type of the artwork.
+ * @return A pair with the artwork data and the mime type.
+ */
+std::pair<std::vector<char>, std::string> TagFile::getArtwork() {
+    std::pair<std::vector<char>, std::string> vals;
+
+    auto pics = complexProperties("PICTURE");
+    if (pics.isEmpty()) return vals;
+
+    VariantMap& map = pics.front();
+    ByteVector picData = map["data"].value<ByteVector>();
+
+    std::copy(picData.begin(), picData.end(), std::back_inserter(vals.first));
+    vals.second = map["mimeType"].value<String>().to8Bit(true);
+
+    return vals;
 }

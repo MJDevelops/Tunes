@@ -4,6 +4,7 @@
 #include <taglib/tpropertymap.h>
 
 #include <string>
+#include <utility>
 #include <vector>
 
 class TagFile : private TagLib::FileRef {
@@ -13,7 +14,7 @@ class TagFile : private TagLib::FileRef {
     std::string getTitle();
     std::string getAlbum();
     const std::vector<std::string>& getArtists();
-    std::string getArtwork();
+    std::pair<std::vector<char>, std::string> getArtwork();
 
    private:
     std::vector<std::string> artists;

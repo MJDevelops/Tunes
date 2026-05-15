@@ -13,9 +13,9 @@ extern
 #ifdef __cplusplus
   "C"
 #endif
-  void cgo_panic__meta_616346e4f32b2a4f(const char*);
+  void cgo_panic__meta_8f12316039e5a9d9(const char*);
 static void _swig_gopanic(const char *p) {
-  cgo_panic__meta_616346e4f32b2a4f(p);
+  cgo_panic__meta_8f12316039e5a9d9(p);
 }
 
 
@@ -207,6 +207,9 @@ typedef struct { void* array; intgo len; intgo cap; } _goslice_;
 
 
 
+#define SWIG_exception(code, msg) _swig_gopanic(msg)
+
+
 static _gostring_ Swig_AllocateString(const char *p, size_t l) {
   _gostring_ ret;
   ret.p = (char*)malloc(l);
@@ -286,6 +289,13 @@ static void* Swig_malloc(int c) {
 
 #include <string>
 
+
+#include <typeinfo>
+#include <stdexcept>
+
+
+#include <utility>
+
 SWIGINTERN std::vector< std::string >::const_reference std_vector_Sl_std_string_Sg__get(std::vector< std::string > *self,int i){
                 int size = int(self->size());
                 if (i>=0 && i<size)
@@ -300,6 +310,20 @@ SWIGINTERN void std_vector_Sl_std_string_Sg__set(std::vector< std::string > *sel
                 else
                     throw std::out_of_range("vector index out of range");
             }
+SWIGINTERN std::vector< char >::const_reference std_vector_Sl_char_Sg__get(std::vector< char > *self,int i){
+                int size = int(self->size());
+                if (i>=0 && i<size)
+                    return (*self)[i];
+                else
+                    throw std::out_of_range("vector index out of range");
+            }
+SWIGINTERN void std_vector_Sl_char_Sg__set(std::vector< char > *self,int i,std::vector< char >::value_type const &val){
+                int size = int(self->size());
+                if (i>=0 && i<size)
+                    (*self)[i] = val;
+                else
+                    throw std::out_of_range("vector index out of range");
+            }
 
 #include "tagfile.hpp"
 
@@ -307,7 +331,7 @@ SWIGINTERN void std_vector_Sl_std_string_Sg__set(std::vector< std::string > *sel
 extern "C" {
 #endif
 
-void _wrap_Swig_free_meta_616346e4f32b2a4f(void *_swig_go_0) {
+void _wrap_Swig_free_meta_8f12316039e5a9d9(void *_swig_go_0) {
   void *arg1 = 0 ;
   
   arg1 = *(void **)&_swig_go_0; 
@@ -317,7 +341,7 @@ void _wrap_Swig_free_meta_616346e4f32b2a4f(void *_swig_go_0) {
 }
 
 
-void *_wrap_Swig_malloc_meta_616346e4f32b2a4f(intgo _swig_go_0) {
+void *_wrap_Swig_malloc_meta_8f12316039e5a9d9(intgo _swig_go_0) {
   int arg1 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -330,7 +354,7 @@ void *_wrap_Swig_malloc_meta_616346e4f32b2a4f(intgo _swig_go_0) {
 }
 
 
-std::vector< std::string > *_wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f() {
+std::vector< std::string > *_wrap_new_StringVector__SWIG_0_meta_8f12316039e5a9d9() {
   std::vector< std::string > *result = 0 ;
   std::vector< std::string > *_swig_go_result;
   
@@ -341,7 +365,7 @@ std::vector< std::string > *_wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f
 }
 
 
-std::vector< std::string > *_wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f(long long _swig_go_0) {
+std::vector< std::string > *_wrap_new_StringVector__SWIG_1_meta_8f12316039e5a9d9(long long _swig_go_0) {
   std::vector< std::string >::size_type arg1 ;
   std::vector< std::string > *result = 0 ;
   std::vector< std::string > *_swig_go_result;
@@ -354,7 +378,7 @@ std::vector< std::string > *_wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f
 }
 
 
-std::vector< std::string > *_wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+std::vector< std::string > *_wrap_new_StringVector__SWIG_2_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   std::vector< std::string > *result = 0 ;
   std::vector< std::string > *_swig_go_result;
@@ -367,7 +391,7 @@ std::vector< std::string > *_wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f
 }
 
 
-long long _wrap_StringVector_size_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+long long _wrap_StringVector_size_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   std::vector< std::string >::size_type result;
   long long _swig_go_result;
@@ -380,7 +404,7 @@ long long _wrap_StringVector_size_meta_616346e4f32b2a4f(std::vector< std::string
 }
 
 
-long long _wrap_StringVector_capacity_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+long long _wrap_StringVector_capacity_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   std::vector< std::string >::size_type result;
   long long _swig_go_result;
@@ -393,7 +417,7 @@ long long _wrap_StringVector_capacity_meta_616346e4f32b2a4f(std::vector< std::st
 }
 
 
-void _wrap_StringVector_reserve_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0, long long _swig_go_1) {
+void _wrap_StringVector_reserve_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0, long long _swig_go_1) {
   std::vector< std::string > *arg1 = 0 ;
   std::vector< std::string >::size_type arg2 ;
   
@@ -405,7 +429,7 @@ void _wrap_StringVector_reserve_meta_616346e4f32b2a4f(std::vector< std::string >
 }
 
 
-bool _wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+bool _wrap_StringVector_isEmpty_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   bool result;
   bool _swig_go_result;
@@ -418,7 +442,7 @@ bool _wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(std::vector< std::string >
 }
 
 
-void _wrap_StringVector_clear_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+void _wrap_StringVector_clear_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   
   arg1 = *(std::vector< std::string > **)&_swig_go_0; 
@@ -428,7 +452,7 @@ void _wrap_StringVector_clear_meta_616346e4f32b2a4f(std::vector< std::string > *
 }
 
 
-void _wrap_StringVector_add_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0, _gostring_ _swig_go_1) {
+void _wrap_StringVector_add_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0, _gostring_ _swig_go_1) {
   std::vector< std::string > *arg1 = 0 ;
   std::vector< std::string >::value_type *arg2 = 0 ;
   
@@ -443,7 +467,7 @@ void _wrap_StringVector_add_meta_616346e4f32b2a4f(std::vector< std::string > *_s
 }
 
 
-_gostring_ _wrap_StringVector_get_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0, intgo _swig_go_1) {
+_gostring_ _wrap_StringVector_get_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0, intgo _swig_go_1) {
   std::vector< std::string > *arg1 = 0 ;
   int arg2 ;
   std::vector< std::string >::value_type *result = 0 ;
@@ -455,16 +479,14 @@ _gostring_ _wrap_StringVector_get_meta_616346e4f32b2a4f(std::vector< std::string
   try {
     result = (std::vector< std::string >::value_type *) &std_vector_Sl_std_string_Sg__get(arg1,arg2);
   } catch(std::out_of_range &_e) {
-    (void)_e;
-    _swig_gopanic("C++ std::out_of_range exception thrown");
-    
+    _swig_gopanic((&_e)->what());
   }
   _swig_go_result = Swig_AllocateString((*result).data(), (*result).length()); 
   return _swig_go_result;
 }
 
 
-void _wrap_StringVector_set_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0, intgo _swig_go_1, _gostring_ _swig_go_2) {
+void _wrap_StringVector_set_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0, intgo _swig_go_1, _gostring_ _swig_go_2) {
   std::vector< std::string > *arg1 = 0 ;
   int arg2 ;
   std::vector< std::string >::value_type *arg3 = 0 ;
@@ -479,15 +501,13 @@ void _wrap_StringVector_set_meta_616346e4f32b2a4f(std::vector< std::string > *_s
   try {
     std_vector_Sl_std_string_Sg__set(arg1,arg2,(std::string const &)*arg3);
   } catch(std::out_of_range &_e) {
-    (void)_e;
-    _swig_gopanic("C++ std::out_of_range exception thrown");
-    
+    _swig_gopanic((&_e)->what());
   }
   
 }
 
 
-void _wrap_delete_StringVector_meta_616346e4f32b2a4f(std::vector< std::string > *_swig_go_0) {
+void _wrap_delete_StringVector_meta_8f12316039e5a9d9(std::vector< std::string > *_swig_go_0) {
   std::vector< std::string > *arg1 = 0 ;
   
   arg1 = *(std::vector< std::string > **)&_swig_go_0; 
@@ -497,7 +517,273 @@ void _wrap_delete_StringVector_meta_616346e4f32b2a4f(std::vector< std::string > 
 }
 
 
-TagFile *_wrap_new_TagFile_meta_616346e4f32b2a4f(_gostring_ _swig_go_0) {
+std::vector< char > *_wrap_new_ByteVector__SWIG_0_meta_8f12316039e5a9d9() {
+  std::vector< char > *result = 0 ;
+  std::vector< char > *_swig_go_result;
+  
+  
+  result = (std::vector< char > *)new std::vector< char >();
+  *(std::vector< char > **)&_swig_go_result = (std::vector< char > *)result; 
+  return _swig_go_result;
+}
+
+
+std::vector< char > *_wrap_new_ByteVector__SWIG_1_meta_8f12316039e5a9d9(long long _swig_go_0) {
+  std::vector< char >::size_type arg1 ;
+  std::vector< char > *result = 0 ;
+  std::vector< char > *_swig_go_result;
+  
+  arg1 = (size_t)_swig_go_0; 
+  
+  result = (std::vector< char > *)new std::vector< char >(SWIG_STD_MOVE(arg1));
+  *(std::vector< char > **)&_swig_go_result = (std::vector< char > *)result; 
+  return _swig_go_result;
+}
+
+
+std::vector< char > *_wrap_new_ByteVector__SWIG_2_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  std::vector< char > *result = 0 ;
+  std::vector< char > *_swig_go_result;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  result = (std::vector< char > *)new std::vector< char >((std::vector< char > const &)*arg1);
+  *(std::vector< char > **)&_swig_go_result = (std::vector< char > *)result; 
+  return _swig_go_result;
+}
+
+
+long long _wrap_ByteVector_size_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  std::vector< char >::size_type result;
+  long long _swig_go_result;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  result = ((std::vector< char > const *)arg1)->size();
+  _swig_go_result = result; 
+  return _swig_go_result;
+}
+
+
+long long _wrap_ByteVector_capacity_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  std::vector< char >::size_type result;
+  long long _swig_go_result;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  result = ((std::vector< char > const *)arg1)->capacity();
+  _swig_go_result = result; 
+  return _swig_go_result;
+}
+
+
+void _wrap_ByteVector_reserve_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0, long long _swig_go_1) {
+  std::vector< char > *arg1 = 0 ;
+  std::vector< char >::size_type arg2 ;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  arg2 = (size_t)_swig_go_1; 
+  
+  (arg1)->reserve(SWIG_STD_MOVE(arg2));
+  
+}
+
+
+bool _wrap_ByteVector_isEmpty_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  bool result;
+  bool _swig_go_result;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  result = (bool)((std::vector< char > const *)arg1)->empty();
+  _swig_go_result = result; 
+  return _swig_go_result;
+}
+
+
+void _wrap_ByteVector_clear_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  (arg1)->clear();
+  
+}
+
+
+void _wrap_ByteVector_add_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0, char _swig_go_1) {
+  std::vector< char > *arg1 = 0 ;
+  std::vector< char >::value_type *arg2 = 0 ;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  arg2 = (std::vector< char >::value_type *)&_swig_go_1; 
+  
+  (arg1)->push_back((std::vector< char >::value_type const &)*arg2);
+  
+}
+
+
+char _wrap_ByteVector_get_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0, intgo _swig_go_1) {
+  std::vector< char > *arg1 = 0 ;
+  int arg2 ;
+  std::vector< char >::value_type *result = 0 ;
+  char _swig_go_result;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  arg2 = (int)_swig_go_1; 
+  
+  try {
+    result = (std::vector< char >::value_type *) &std_vector_Sl_char_Sg__get(arg1,arg2);
+  } catch(std::out_of_range &_e) {
+    _swig_gopanic((&_e)->what());
+  }
+  _swig_go_result = (char)*result; 
+  return _swig_go_result;
+}
+
+
+void _wrap_ByteVector_set_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0, intgo _swig_go_1, char _swig_go_2) {
+  std::vector< char > *arg1 = 0 ;
+  int arg2 ;
+  std::vector< char >::value_type *arg3 = 0 ;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  arg2 = (int)_swig_go_1; 
+  arg3 = (std::vector< char >::value_type *)&_swig_go_2; 
+  
+  try {
+    std_vector_Sl_char_Sg__set(arg1,arg2,(char const &)*arg3);
+  } catch(std::out_of_range &_e) {
+    _swig_gopanic((&_e)->what());
+  }
+  
+}
+
+
+void _wrap_delete_ByteVector_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0) {
+  std::vector< char > *arg1 = 0 ;
+  
+  arg1 = *(std::vector< char > **)&_swig_go_0; 
+  
+  delete arg1;
+  
+}
+
+
+std::pair< std::vector< char >,std::string > *_wrap_new_ByteStringPair__SWIG_0_meta_8f12316039e5a9d9() {
+  std::pair< std::vector< char >,std::string > *result = 0 ;
+  std::pair< std::vector< char >,std::string > *_swig_go_result;
+  
+  
+  result = (std::pair< std::vector< char >,std::string > *)new std::pair< std::vector< char >,std::string >();
+  *(std::pair< std::vector< char >,std::string > **)&_swig_go_result = (std::pair< std::vector< char >,std::string > *)result; 
+  return _swig_go_result;
+}
+
+
+std::pair< std::vector< char >,std::string > *_wrap_new_ByteStringPair__SWIG_1_meta_8f12316039e5a9d9(std::vector< char > *_swig_go_0, _gostring_ _swig_go_1) {
+  std::vector< char > arg1 ;
+  std::string arg2 ;
+  std::vector< char > *argp1 ;
+  std::pair< std::vector< char >,std::string > *result = 0 ;
+  std::pair< std::vector< char >,std::string > *_swig_go_result;
+  
+  
+  argp1 = (std::vector< char > *)_swig_go_0;
+  if (argp1 == NULL) {
+    _swig_gopanic("Attempt to dereference null std::vector< char >");
+  }
+  arg1 = (std::vector< char >)*argp1;
+  
+  (&arg2)->assign(_swig_go_1.p, _swig_go_1.n); 
+  
+  result = (std::pair< std::vector< char >,std::string > *)new std::pair< std::vector< char >,std::string >(SWIG_STD_MOVE(arg1),SWIG_STD_MOVE(arg2));
+  *(std::pair< std::vector< char >,std::string > **)&_swig_go_result = (std::pair< std::vector< char >,std::string > *)result; 
+  return _swig_go_result;
+}
+
+
+std::pair< std::vector< char >,std::string > *_wrap_new_ByteStringPair__SWIG_2_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  std::pair< std::vector< char >,std::string > *result = 0 ;
+  std::pair< std::vector< char >,std::string > *_swig_go_result;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  
+  result = (std::pair< std::vector< char >,std::string > *)new std::pair< std::vector< char >,std::string >((std::pair< std::vector< char >,std::string > const &)*arg1);
+  *(std::pair< std::vector< char >,std::string > **)&_swig_go_result = (std::pair< std::vector< char >,std::string > *)result; 
+  return _swig_go_result;
+}
+
+
+void _wrap_ByteStringPair_first_set_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0, std::vector< char > *_swig_go_1) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  std::vector< char > *arg2 = 0 ;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  arg2 = *(std::vector< char > **)&_swig_go_1; 
+  
+  if (arg1) (arg1)->first = *arg2;
+  
+}
+
+
+std::vector< char > *_wrap_ByteStringPair_first_get_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  std::vector< char > *result = 0 ;
+  std::vector< char > *_swig_go_result;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  
+  result = (std::vector< char > *)& ((arg1)->first);
+  *(std::vector< char > **)&_swig_go_result = (std::vector< char > *)result; 
+  return _swig_go_result;
+}
+
+
+void _wrap_ByteStringPair_second_set_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0, _gostring_ _swig_go_1) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  std::string *arg2 = 0 ;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  
+  std::string arg2_str(_swig_go_1.p, _swig_go_1.n);
+  arg2 = &arg2_str;
+  
+  
+  if (arg1) (arg1)->second = *arg2;
+  
+}
+
+
+_gostring_ _wrap_ByteStringPair_second_get_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  std::string *result = 0 ;
+  _gostring_ _swig_go_result;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  
+  result = (std::string *) & ((arg1)->second);
+  _swig_go_result = Swig_AllocateString((*result).data(), (*result).length()); 
+  return _swig_go_result;
+}
+
+
+void _wrap_delete_ByteStringPair_meta_8f12316039e5a9d9(std::pair< std::vector< char >,std::string > *_swig_go_0) {
+  std::pair< std::vector< char >,std::string > *arg1 = 0 ;
+  
+  arg1 = *(std::pair< std::vector< char >,std::string > **)&_swig_go_0; 
+  
+  delete arg1;
+  
+}
+
+
+TagFile *_wrap_new_TagFile_meta_8f12316039e5a9d9(_gostring_ _swig_go_0) {
   std::string *arg1 = 0 ;
   TagFile *result = 0 ;
   TagFile *_swig_go_result;
@@ -513,7 +799,7 @@ TagFile *_wrap_new_TagFile_meta_616346e4f32b2a4f(_gostring_ _swig_go_0) {
 }
 
 
-void _wrap_delete_TagFile_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
+void _wrap_delete_TagFile_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
   
   arg1 = *(TagFile **)&_swig_go_0; 
@@ -523,7 +809,7 @@ void _wrap_delete_TagFile_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
 }
 
 
-_gostring_ _wrap_TagFile_getTitle_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
+_gostring_ _wrap_TagFile_getTitle_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
   std::string result;
   _gostring_ _swig_go_result;
@@ -536,7 +822,7 @@ _gostring_ _wrap_TagFile_getTitle_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
 }
 
 
-_gostring_ _wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
+_gostring_ _wrap_TagFile_getAlbum_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
   std::string result;
   _gostring_ _swig_go_result;
@@ -549,7 +835,7 @@ _gostring_ _wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
 }
 
 
-std::vector< std::string > *_wrap_TagFile_getArtists_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
+std::vector< std::string > *_wrap_TagFile_getArtists_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
   std::vector< std::string > *result = 0 ;
   std::vector< std::string > *_swig_go_result;
@@ -562,15 +848,15 @@ std::vector< std::string > *_wrap_TagFile_getArtists_meta_616346e4f32b2a4f(TagFi
 }
 
 
-_gostring_ _wrap_TagFile_getArtwork_meta_616346e4f32b2a4f(TagFile *_swig_go_0) {
+std::pair< std::vector< char >,std::string > *_wrap_TagFile_getArtwork_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
-  std::string result;
-  _gostring_ _swig_go_result;
+  std::pair< std::vector< char >,std::string > result;
+  std::pair< std::vector< char >,std::string > *_swig_go_result;
   
   arg1 = *(TagFile **)&_swig_go_0; 
   
   result = (arg1)->getArtwork();
-  _swig_go_result = Swig_AllocateString((&result)->data(), (&result)->length()); 
+  *(std::pair< std::vector< char >,std::string > **)&_swig_go_result = new std::pair< std::vector< char >,std::string >(result); 
   return _swig_go_result;
 }
 

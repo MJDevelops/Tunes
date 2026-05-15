@@ -34,30 +34,56 @@ typedef long long swig_type_4;
 typedef _gostring_ swig_type_5;
 typedef _gostring_ swig_type_6;
 typedef _gostring_ swig_type_7;
-typedef _gostring_ swig_type_8;
-typedef _gostring_ swig_type_9;
-typedef _gostring_ swig_type_10;
-typedef _gostring_ swig_type_11;
-extern void _wrap_Swig_free_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern uintptr_t _wrap_Swig_malloc_meta_616346e4f32b2a4f(swig_intgo arg1);
-extern uintptr_t _wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f(void);
-extern uintptr_t _wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f(swig_type_1 arg1);
-extern uintptr_t _wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern swig_type_2 _wrap_StringVector_size_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern swig_type_3 _wrap_StringVector_capacity_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern void _wrap_StringVector_reserve_meta_616346e4f32b2a4f(uintptr_t arg1, swig_type_4 arg2);
-extern _Bool _wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern void _wrap_StringVector_clear_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern void _wrap_StringVector_add_meta_616346e4f32b2a4f(uintptr_t arg1, swig_type_5 arg2);
-extern swig_type_6 _wrap_StringVector_get_meta_616346e4f32b2a4f(uintptr_t arg1, swig_intgo arg2);
-extern void _wrap_StringVector_set_meta_616346e4f32b2a4f(uintptr_t arg1, swig_intgo arg2, swig_type_7 arg3);
-extern void _wrap_delete_StringVector_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern uintptr_t _wrap_new_TagFile_meta_616346e4f32b2a4f(swig_type_8 arg1);
-extern void _wrap_delete_TagFile_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern swig_type_9 _wrap_TagFile_getTitle_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern swig_type_10 _wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern uintptr_t _wrap_TagFile_getArtists_meta_616346e4f32b2a4f(uintptr_t arg1);
-extern swig_type_11 _wrap_TagFile_getArtwork_meta_616346e4f32b2a4f(uintptr_t arg1);
+typedef long long swig_type_8;
+typedef long long swig_type_9;
+typedef long long swig_type_10;
+typedef long long swig_type_11;
+typedef _gostring_ swig_type_12;
+typedef _gostring_ swig_type_13;
+typedef _gostring_ swig_type_14;
+typedef _gostring_ swig_type_15;
+typedef _gostring_ swig_type_16;
+typedef _gostring_ swig_type_17;
+extern void _wrap_Swig_free_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_Swig_malloc_meta_8f12316039e5a9d9(swig_intgo arg1);
+extern uintptr_t _wrap_new_StringVector__SWIG_0_meta_8f12316039e5a9d9(void);
+extern uintptr_t _wrap_new_StringVector__SWIG_1_meta_8f12316039e5a9d9(swig_type_1 arg1);
+extern uintptr_t _wrap_new_StringVector__SWIG_2_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_2 _wrap_StringVector_size_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_3 _wrap_StringVector_capacity_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_StringVector_reserve_meta_8f12316039e5a9d9(uintptr_t arg1, swig_type_4 arg2);
+extern _Bool _wrap_StringVector_isEmpty_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_StringVector_clear_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_StringVector_add_meta_8f12316039e5a9d9(uintptr_t arg1, swig_type_5 arg2);
+extern swig_type_6 _wrap_StringVector_get_meta_8f12316039e5a9d9(uintptr_t arg1, swig_intgo arg2);
+extern void _wrap_StringVector_set_meta_8f12316039e5a9d9(uintptr_t arg1, swig_intgo arg2, swig_type_7 arg3);
+extern void _wrap_delete_StringVector_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_new_ByteVector__SWIG_0_meta_8f12316039e5a9d9(void);
+extern uintptr_t _wrap_new_ByteVector__SWIG_1_meta_8f12316039e5a9d9(swig_type_8 arg1);
+extern uintptr_t _wrap_new_ByteVector__SWIG_2_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_9 _wrap_ByteVector_size_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_10 _wrap_ByteVector_capacity_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_ByteVector_reserve_meta_8f12316039e5a9d9(uintptr_t arg1, swig_type_11 arg2);
+extern _Bool _wrap_ByteVector_isEmpty_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_ByteVector_clear_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_ByteVector_add_meta_8f12316039e5a9d9(uintptr_t arg1, char arg2);
+extern char _wrap_ByteVector_get_meta_8f12316039e5a9d9(uintptr_t arg1, swig_intgo arg2);
+extern void _wrap_ByteVector_set_meta_8f12316039e5a9d9(uintptr_t arg1, swig_intgo arg2, char arg3);
+extern void _wrap_delete_ByteVector_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_new_ByteStringPair__SWIG_0_meta_8f12316039e5a9d9(void);
+extern uintptr_t _wrap_new_ByteStringPair__SWIG_1_meta_8f12316039e5a9d9(uintptr_t arg1, swig_type_12 arg2);
+extern uintptr_t _wrap_new_ByteStringPair__SWIG_2_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_ByteStringPair_first_set_meta_8f12316039e5a9d9(uintptr_t arg1, uintptr_t arg2);
+extern uintptr_t _wrap_ByteStringPair_first_get_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_ByteStringPair_second_set_meta_8f12316039e5a9d9(uintptr_t arg1, swig_type_13 arg2);
+extern swig_type_14 _wrap_ByteStringPair_second_get_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern void _wrap_delete_ByteStringPair_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_new_TagFile_meta_8f12316039e5a9d9(swig_type_15 arg1);
+extern void _wrap_delete_TagFile_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_16 _wrap_TagFile_getTitle_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern swig_type_17 _wrap_TagFile_getAlbum_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_TagFile_getArtists_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_TagFile_getArtwork_meta_8f12316039e5a9d9(uintptr_t arg1);
 #undef intgo
 */
 import "C"
@@ -89,8 +115,8 @@ func getSwigcptr(v interface { Swigcptr() uintptr }) uintptr {
 
 type _ sync.Mutex
 
-//export cgo_panic__meta_616346e4f32b2a4f
-func cgo_panic__meta_616346e4f32b2a4f(p *byte) {
+//export cgo_panic__meta_8f12316039e5a9d9
+func cgo_panic__meta_8f12316039e5a9d9(p *byte) {
 	s := (*[1024]byte)(unsafe.Pointer(p))[:]
 	for i, b := range s {
 		if b == 0 {
@@ -111,13 +137,13 @@ func swigCopyString(s string) string {
 
 func Swig_free(arg1 uintptr) {
 	_swig_i_0 := arg1
-	C._wrap_Swig_free_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	C._wrap_Swig_free_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 }
 
 func Swig_malloc(arg1 int) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := arg1
-	swig_r = (uintptr)(C._wrap_Swig_malloc_meta_616346e4f32b2a4f(C.swig_intgo(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_Swig_malloc_meta_8f12316039e5a9d9(C.swig_intgo(_swig_i_0)))
 	return swig_r
 }
 
@@ -132,21 +158,21 @@ func (p SwigcptrStringVector) SwigIsStringVector() {
 
 func NewStringVector__SWIG_0() (_swig_ret StringVector) {
 	var swig_r StringVector
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_0_meta_616346e4f32b2a4f()))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_0_meta_8f12316039e5a9d9()))
 	return swig_r
 }
 
 func NewStringVector__SWIG_1(arg1 int64) (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := arg1
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_1_meta_616346e4f32b2a4f(C.swig_type_1(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_1_meta_8f12316039e5a9d9(C.swig_type_1(_swig_i_0))))
 	return swig_r
 }
 
 func NewStringVector__SWIG_2(arg1 StringVector) (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := getSwigcptr(arg1)
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_2_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_new_StringVector__SWIG_2_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
@@ -171,39 +197,39 @@ check_2:
 func (arg1 SwigcptrStringVector) Size() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_StringVector_size_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_StringVector_size_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Capacity() (_swig_ret int64) {
 	var swig_r int64
 	_swig_i_0 := arg1
-	swig_r = (int64)(C._wrap_StringVector_capacity_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
+	swig_r = (int64)(C._wrap_StringVector_capacity_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Reserve(arg2 int64) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_StringVector_reserve_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_type_4(_swig_i_1))
+	C._wrap_StringVector_reserve_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_type_4(_swig_i_1))
 }
 
 func (arg1 SwigcptrStringVector) IsEmpty() (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
-	swig_r = (bool)(C._wrap_StringVector_isEmpty_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0)))
+	swig_r = (bool)(C._wrap_StringVector_isEmpty_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
 	return swig_r
 }
 
 func (arg1 SwigcptrStringVector) Clear() {
 	_swig_i_0 := arg1
-	C._wrap_StringVector_clear_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	C._wrap_StringVector_clear_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrStringVector) Add(arg2 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_StringVector_add_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1)))
+	C._wrap_StringVector_add_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -213,7 +239,7 @@ func (arg1 SwigcptrStringVector) Get(arg2 int) (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r_p := C._wrap_StringVector_get_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
+	swig_r_p := C._wrap_StringVector_get_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -224,7 +250,7 @@ func (arg1 SwigcptrStringVector) Set(arg2 int, arg3 string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	C._wrap_StringVector_set_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_2)))
+	C._wrap_StringVector_set_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg3
 	}
@@ -232,7 +258,7 @@ func (arg1 SwigcptrStringVector) Set(arg2 int, arg3 string) {
 
 func DeleteStringVector(arg1 StringVector) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_StringVector_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_StringVector_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 }
 
 type StringVector interface {
@@ -248,6 +274,217 @@ type StringVector interface {
 	Set(arg2 int, arg3 string)
 }
 
+type SwigcptrByteVector uintptr
+
+func (p SwigcptrByteVector) Swigcptr() uintptr {
+	return (uintptr)(p)
+}
+
+func (p SwigcptrByteVector) SwigIsByteVector() {
+}
+
+func NewByteVector__SWIG_0() (_swig_ret ByteVector) {
+	var swig_r ByteVector
+	swig_r = (ByteVector)(SwigcptrByteVector(C._wrap_new_ByteVector__SWIG_0_meta_8f12316039e5a9d9()))
+	return swig_r
+}
+
+func NewByteVector__SWIG_1(arg1 int64) (_swig_ret ByteVector) {
+	var swig_r ByteVector
+	_swig_i_0 := arg1
+	swig_r = (ByteVector)(SwigcptrByteVector(C._wrap_new_ByteVector__SWIG_1_meta_8f12316039e5a9d9(C.swig_type_8(_swig_i_0))))
+	return swig_r
+}
+
+func NewByteVector__SWIG_2(arg1 ByteVector) (_swig_ret ByteVector) {
+	var swig_r ByteVector
+	_swig_i_0 := getSwigcptr(arg1)
+	swig_r = (ByteVector)(SwigcptrByteVector(C._wrap_new_ByteVector__SWIG_2_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
+	return swig_r
+}
+
+func NewByteVector(a ...interface{}) ByteVector {
+	argc := len(a)
+	if argc == 0 {
+		return NewByteVector__SWIG_0()
+	}
+	if argc == 1 {
+		if _, ok := a[0].(int64); !ok {
+			goto check_2
+		}
+		return NewByteVector__SWIG_1(a[0].(int64))
+	}
+check_2:
+	if argc == 1 {
+		return NewByteVector__SWIG_2(a[0].(ByteVector))
+	}
+	panic("No match for overloaded function call")
+}
+
+func (arg1 SwigcptrByteVector) Size() (_swig_ret int64) {
+	var swig_r int64
+	_swig_i_0 := arg1
+	swig_r = (int64)(C._wrap_ByteVector_size_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
+	return swig_r
+}
+
+func (arg1 SwigcptrByteVector) Capacity() (_swig_ret int64) {
+	var swig_r int64
+	_swig_i_0 := arg1
+	swig_r = (int64)(C._wrap_ByteVector_capacity_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
+	return swig_r
+}
+
+func (arg1 SwigcptrByteVector) Reserve(arg2 int64) {
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	C._wrap_ByteVector_reserve_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_type_11(_swig_i_1))
+}
+
+func (arg1 SwigcptrByteVector) IsEmpty() (_swig_ret bool) {
+	var swig_r bool
+	_swig_i_0 := arg1
+	swig_r = (bool)(C._wrap_ByteVector_isEmpty_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0)))
+	return swig_r
+}
+
+func (arg1 SwigcptrByteVector) Clear() {
+	_swig_i_0 := arg1
+	C._wrap_ByteVector_clear_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
+}
+
+func (arg1 SwigcptrByteVector) Add(arg2 byte) {
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	C._wrap_ByteVector_add_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.char(_swig_i_1))
+}
+
+func (arg1 SwigcptrByteVector) Get(arg2 int) (_swig_ret byte) {
+	var swig_r byte
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	swig_r = (byte)(C._wrap_ByteVector_get_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1)))
+	return swig_r
+}
+
+func (arg1 SwigcptrByteVector) Set(arg2 int, arg3 byte) {
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	_swig_i_2 := arg3
+	C._wrap_ByteVector_set_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.char(_swig_i_2))
+}
+
+func DeleteByteVector(arg1 ByteVector) {
+	_swig_i_0 := getSwigcptr(arg1)
+	C._wrap_delete_ByteVector_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
+}
+
+type ByteVector interface {
+	Swigcptr() uintptr
+	SwigIsByteVector()
+	Size() (_swig_ret int64)
+	Capacity() (_swig_ret int64)
+	Reserve(arg2 int64)
+	IsEmpty() (_swig_ret bool)
+	Clear()
+	Add(arg2 byte)
+	Get(arg2 int) (_swig_ret byte)
+	Set(arg2 int, arg3 byte)
+}
+
+type SwigcptrByteStringPair uintptr
+
+func (p SwigcptrByteStringPair) Swigcptr() uintptr {
+	return (uintptr)(p)
+}
+
+func (p SwigcptrByteStringPair) SwigIsByteStringPair() {
+}
+
+func NewByteStringPair__SWIG_0() (_swig_ret ByteStringPair) {
+	var swig_r ByteStringPair
+	swig_r = (ByteStringPair)(SwigcptrByteStringPair(C._wrap_new_ByteStringPair__SWIG_0_meta_8f12316039e5a9d9()))
+	return swig_r
+}
+
+func NewByteStringPair__SWIG_1(arg1 ByteVector, arg2 string) (_swig_ret ByteStringPair) {
+	var swig_r ByteStringPair
+	_swig_i_0 := getSwigcptr(arg1)
+	_swig_i_1 := arg2
+	swig_r = (ByteStringPair)(SwigcptrByteStringPair(C._wrap_new_ByteStringPair__SWIG_1_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), *(*C.swig_type_12)(unsafe.Pointer(&_swig_i_1)))))
+	if Swig_escape_always_false {
+		Swig_escape_val = arg2
+	}
+	return swig_r
+}
+
+func NewByteStringPair__SWIG_2(arg1 ByteStringPair) (_swig_ret ByteStringPair) {
+	var swig_r ByteStringPair
+	_swig_i_0 := getSwigcptr(arg1)
+	swig_r = (ByteStringPair)(SwigcptrByteStringPair(C._wrap_new_ByteStringPair__SWIG_2_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
+	return swig_r
+}
+
+func NewByteStringPair(a ...interface{}) ByteStringPair {
+	argc := len(a)
+	if argc == 0 {
+		return NewByteStringPair__SWIG_0()
+	}
+	if argc == 1 {
+		return NewByteStringPair__SWIG_2(a[0].(ByteStringPair))
+	}
+	if argc == 2 {
+		return NewByteStringPair__SWIG_1(a[0].(ByteVector), a[1].(string))
+	}
+	panic("No match for overloaded function call")
+}
+
+func (arg1 SwigcptrByteStringPair) SetFirst(arg2 ByteVector) {
+	_swig_i_0 := arg1
+	_swig_i_1 := getSwigcptr(arg2)
+	C._wrap_ByteStringPair_first_set_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), C.uintptr_t(_swig_i_1))
+}
+
+func (arg1 SwigcptrByteStringPair) GetFirst() (_swig_ret ByteVector) {
+	var swig_r ByteVector
+	_swig_i_0 := arg1
+	swig_r = (ByteVector)(SwigcptrByteVector(C._wrap_ByteStringPair_first_get_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
+	return swig_r
+}
+
+func (arg1 SwigcptrByteStringPair) SetSecond(arg2 string) {
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	C._wrap_ByteStringPair_second_set_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0), *(*C.swig_type_13)(unsafe.Pointer(&_swig_i_1)))
+	if Swig_escape_always_false {
+		Swig_escape_val = arg2
+	}
+}
+
+func (arg1 SwigcptrByteStringPair) GetSecond() (_swig_ret string) {
+	var swig_r string
+	_swig_i_0 := arg1
+	swig_r_p := C._wrap_ByteStringPair_second_get_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
+	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
+	var swig_r_1 string
+ swig_r_1 = swigCopyString(swig_r) 
+	return swig_r_1
+}
+
+func DeleteByteStringPair(arg1 ByteStringPair) {
+	_swig_i_0 := getSwigcptr(arg1)
+	C._wrap_delete_ByteStringPair_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
+}
+
+type ByteStringPair interface {
+	Swigcptr() uintptr
+	SwigIsByteStringPair()
+	SetFirst(arg2 ByteVector)
+	GetFirst() (_swig_ret ByteVector)
+	SetSecond(arg2 string)
+	GetSecond() (_swig_ret string)
+}
+
 type SwigcptrTagFile uintptr
 
 func (p SwigcptrTagFile) Swigcptr() uintptr {
@@ -260,7 +497,7 @@ func (p SwigcptrTagFile) SwigIsTagFile() {
 func NewTagFile(arg1 string) (_swig_ret TagFile) {
 	var swig_r TagFile
 	_swig_i_0 := arg1
-	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_616346e4f32b2a4f(*(*C.swig_type_8)(unsafe.Pointer(&_swig_i_0)))))
+	swig_r = (TagFile)(SwigcptrTagFile(C._wrap_new_TagFile_meta_8f12316039e5a9d9(*(*C.swig_type_15)(unsafe.Pointer(&_swig_i_0)))))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg1
 	}
@@ -269,13 +506,13 @@ func NewTagFile(arg1 string) (_swig_ret TagFile) {
 
 func DeleteTagFile(arg1 TagFile) {
 	_swig_i_0 := getSwigcptr(arg1)
-	C._wrap_delete_TagFile_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_TagFile_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrTagFile) GetTitle() (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
-	swig_r_p := C._wrap_TagFile_getTitle_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	swig_r_p := C._wrap_TagFile_getTitle_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -285,7 +522,7 @@ func (arg1 SwigcptrTagFile) GetTitle() (_swig_ret string) {
 func (arg1 SwigcptrTagFile) GetAlbum() (_swig_ret string) {
 	var swig_r string
 	_swig_i_0 := arg1
-	swig_r_p := C._wrap_TagFile_getAlbum_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
+	swig_r_p := C._wrap_TagFile_getAlbum_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))
 	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
 	var swig_r_1 string
  swig_r_1 = swigCopyString(swig_r) 
@@ -295,18 +532,15 @@ func (arg1 SwigcptrTagFile) GetAlbum() (_swig_ret string) {
 func (arg1 SwigcptrTagFile) GetArtists() (_swig_ret StringVector) {
 	var swig_r StringVector
 	_swig_i_0 := arg1
-	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_TagFile_getArtists_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))))
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_TagFile_getArtists_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
 	return swig_r
 }
 
-func (arg1 SwigcptrTagFile) GetArtwork() (_swig_ret string) {
-	var swig_r string
+func (arg1 SwigcptrTagFile) GetArtwork() (_swig_ret ByteStringPair) {
+	var swig_r ByteStringPair
 	_swig_i_0 := arg1
-	swig_r_p := C._wrap_TagFile_getArtwork_meta_616346e4f32b2a4f(C.uintptr_t(_swig_i_0))
-	swig_r = *(*string)(unsafe.Pointer(&swig_r_p))
-	var swig_r_1 string
- swig_r_1 = swigCopyString(swig_r) 
-	return swig_r_1
+	swig_r = (ByteStringPair)(SwigcptrByteStringPair(C._wrap_TagFile_getArtwork_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
+	return swig_r
 }
 
 type TagFile interface {
@@ -315,7 +549,7 @@ type TagFile interface {
 	GetTitle() (_swig_ret string)
 	GetAlbum() (_swig_ret string)
 	GetArtists() (_swig_ret StringVector)
-	GetArtwork() (_swig_ret string)
+	GetArtwork() (_swig_ret ByteStringPair)
 }
 
 
