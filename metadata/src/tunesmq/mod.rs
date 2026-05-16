@@ -1,5 +1,7 @@
 use anyhow::Result;
 
+mod metadata;
+
 pub trait MqService {
     fn start(&mut self) -> Result<()>;
     fn stop(&mut self) -> Result<()>;
