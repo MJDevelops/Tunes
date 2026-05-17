@@ -1,5 +1,3 @@
-use std::net::TcpListener;
-
 use crate::tunesmq::MqService;
 use anyhow::{Ok, Result};
 use zmq::{Context, Socket, SocketType};
@@ -34,14 +32,10 @@ impl MqService for MetadataService {
 }
 
 impl MetadataService {
-    fn new(workers: u8) -> Result<Self> {
-        // Find available port
-        let listener = TcpListener::bind("127.0.0.1:0")?;
-        let port = listener.local_addr()?.port();
-        drop(listener);
-
+    fn new(port: u16, workers: Option<u8>) -> Result<Self> {
         let tcp_addr = format!("tcp://127.0.0.1:{}", port);
         let ctx = Context::new();
+        let workers = workers.unwrap_or(5);
 
         let router_sock = ctx.socket(SocketType::ROUTER)?;
         router_sock.bind(&tcp_addr)?;

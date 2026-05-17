@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+pub(crate) mod cli;
 mod metadata;
 
 pub trait MqService {
