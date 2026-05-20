@@ -69,7 +69,11 @@ func (s *DownloadService) PendingDownloads() ([]ytdlp.Download, error) {
 	for i := range downloads {
 		var opts []string
 		json.Unmarshal([]byte(downloads[i].Options), &opts)
-		download, err := s.ytDlp.NewDownload(downloads[i].ID, downloads[i].Source, opts...)
+		download, err := s.ytDlp.NewDownload(&ytdlp.DownloadOptions{
+			ID:      downloads[i].ID,
+			URL:     downloads[i].Source,
+			Options: opts,
+		})
 		if err != nil {
 			log.Println(err)
 			continue
@@ -81,7 +85,10 @@ func (s *DownloadService) PendingDownloads() ([]ytdlp.Download, error) {
 }
 
 func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string) {
-	down, _ := s.ytDlp.NewDownload("", url, opts...)
+	down, _ := s.ytDlp.NewDownload(&ytdlp.DownloadOptions{
+		URL:     url,
+		Options: opts,
+	})
 
 	down.OnFinished(func() {
 		s.finishDownload(&down)

@@ -45,28 +45,36 @@ type Queue struct {
 	onShutdown func([]*Download) error
 }
 
+type DownloadOptions struct {
+	ID      string
+	URL     string
+	Options []string
+}
+
 var downloadPath = path.Join(".", "downloads")
 
 // NewDownload constructs a yt-dlp download. When the id is omitted,
 // a new UUID will be generated. If the id is provided and is not a
 // valid UUID, an error is returned.
-func (y *YtDlp) NewDownload(id string, url string, options ...string) (Download, error) {
+func (y *YtDlp) NewDownload(opts *DownloadOptions) (Download, error) {
 	download := Download{}
 
-	if id == "" {
+	if opts.ID == "" {
 		download.ID = uuid.NewString()
 	} else {
-		if err := uuid.Validate(id); err != nil {
+		if err := uuid.Validate(opts.ID); err != nil {
 			return download, err
 		}
-		download.ID = id
+		download.ID = opts.ID
 	}
 
 	download.Options = append(
-		options,
-		url,
+		opts.Options,
+		opts.URL,
 		"-P",
 		path.Join(downloadPath, download.ID),
+		"-f",
+		"bestaudio",
 		"--embed-metadata",
 		"--progress",
 		"--newline",
@@ -152,12 +160,14 @@ func (dq *Queue) removeWaiting(id string) {
 	}
 }
 
-func (dq *Queue) Enqueue(download *Download) {
-	dq.addWaiting(download)
-	go func() {
-		dq.queue <- download
-		dq.removeWaiting(download.ID)
-	}()
+func (dq *Queue) Enqueue(download ...*Download) {
+	for _, d := range download {
+		dq.addWaiting(d)
+		go func() {
+			dq.queue <- d
+			dq.removeWaiting(d.ID)
+		}()
+	}
 }
 
 func (dq *Queue) IsRunning() bool {

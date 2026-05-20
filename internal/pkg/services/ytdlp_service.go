@@ -19,7 +19,7 @@ type YtDlpService struct {
 func NewYtDlpService(binPath string, config *config.Application) *YtDlpService {
 	return &YtDlpService{
 		ctx:    nil,
-		ytdlp:  ytdlp.NewYtDlp(binPath),
+		ytdlp:  ytdlp.New(binPath),
 		config: config,
 	}
 }
