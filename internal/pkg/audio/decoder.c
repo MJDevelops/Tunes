@@ -41,8 +41,9 @@ Decoder* decoder_alloc(const char* filename) {
             }
 
             dec->sample_rate = dec->fmt_ctx->streams[i]->codecpar->sample_rate;
-
+            dec->duration = av_rescale_q(dec->fmt_ctx->streams[i]->duration, dec->fmt_ctx->streams[i]->time_base, (AVRational){1, dec->sample_rate});
             dec->ctx = avcodec_alloc_context3(dec->codec);
+
             avcodec_parameters_to_context(dec->ctx, dec->fmt_ctx->streams[i]->codecpar);
             avcodec_open2(dec->ctx, dec->codec, NULL);
             break;

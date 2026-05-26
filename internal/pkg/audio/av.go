@@ -10,6 +10,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"time"
 	"unsafe"
 
 	"github.com/gopxl/beep/v2"
@@ -38,12 +39,17 @@ var (
 	ErrSeek     = errors.New("error during seeking")
 )
 
-func NewDecoder(filename string) (s beep.StreamSeekCloser, format beep.Format, err error) {
-	d := &AVDecoder{}
-	d.file = C.CString(filename)
+func (d *AVDecoder) New(path string) (Decoder, error) {
+	avDec := &AVDecoder{}
+	d.f = beep.Format{}
+	d.file = C.CString(path)
+
+	return avDec, nil
+}
+
+func (d *AVDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {
 	d.dec = C.decoder_alloc(d.file)
 	d.buf = C.sb_alloc()
-	d.f = beep.Format{}
 
 	if d.buf == nil || d.dec == nil {
 		return nil, d.f, ErrAlloc
@@ -66,9 +72,9 @@ func (d *AVDecoder) SampleRate() int {
 	return d.sampleRate
 }
 
-func (d *AVDecoder) NbSamples() int64 {
+func (d *AVDecoder) nbSamples() int64 {
 	if d.buf != nil {
-		return int64(d.buf.channel_size)
+		return int64(d.dec.duration)
 	}
 	return 0
 }
@@ -130,7 +136,7 @@ func (d *AVDecoder) Position() int {
 }
 
 func (d *AVDecoder) Len() int {
-	return int(d.NbSamples())
+	return int(d.nbSamples())
 }
 
 func (d *AVDecoder) Close() error {
@@ -154,4 +160,12 @@ func (d *AVDecoder) Seek(p int) error {
 	}
 	d.pos = p * avBytesPerFrame
 	return nil
+}
+
+func (d *AVDecoder) Duration() time.Duration {
+	return d.f.SampleRate.D(d.Len())
+}
+
+func (d *AVDecoder) ParseMeta() (TrackMeta, error) {
+	return TrackMeta{}, nil
 }

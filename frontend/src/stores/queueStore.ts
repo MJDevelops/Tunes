@@ -9,6 +9,7 @@ type QueueState = {
   enqueue: (track: Track) => Promise<void>;
   enqueuePlaylist: (playlistId: number) => Promise<void>;
   shuffle: () => void;
+  next: () => Track | undefined;
 };
 
 const useQueueStore = create<QueueState>()((set) => ({
@@ -24,6 +25,14 @@ const useQueueStore = create<QueueState>()((set) => ({
       }
       return s;
     });
+  },
+  next: () => {
+    let track: Track | undefined;
+    set((s) => {
+      track = s.tracks.shift();
+      return { ...s, tracks: s.tracks };
+    });
+    return track;
   },
 }));
 

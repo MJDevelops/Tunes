@@ -2,6 +2,7 @@ package audio
 
 import (
 	"os"
+	"time"
 
 	"github.com/go-audio/wav"
 	"github.com/gopxl/beep/v2"
@@ -10,7 +11,8 @@ import (
 )
 
 type WavDecoder struct {
-	path string
+	path     string
+	duration time.Duration
 }
 
 func (wd *WavDecoder) New(path string) (Decoder, error) {
@@ -23,37 +25,31 @@ func (wd *WavDecoder) New(path string) (Decoder, error) {
 	}, nil
 }
 
-func (wd *WavDecoder) DecodeAudio() (*AudioFile, error) {
+func (wd *WavDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {
 	var (
 		streamer beep.StreamSeekCloser
 		format   beep.Format
-		buffer   *beep.Buffer
 		err      error
 	)
 
 	if tunesos.GetFileExtension(wd.path) != ".wav" {
-		return nil, ErrUnsupported
+		return nil, format, ErrUnsupported
 	}
 
 	file, err := os.Open(wd.path)
 	if err != nil {
-		return nil, err
+		return nil, format, err
 	}
 	defer file.Close()
 
 	streamer, format, err = beepwav.Decode(file)
 	if err != nil {
-		return nil, err
+		return nil, format, err
 	}
 
-	buffer = beep.NewBuffer(format)
-	buffer.Append(streamer)
-	streamer.Close()
+	wd.duration = format.SampleRate.D(streamer.Len())
 
-	return &AudioFile{
-		buffer: buffer,
-		format: format,
-	}, nil
+	return streamer, format, nil
 }
 
 func (wd *WavDecoder) ParseMeta() (TrackMeta, error) {
@@ -76,4 +72,8 @@ func (wd *WavDecoder) ParseMeta() (TrackMeta, error) {
 		Genre:  dec.Metadata.Genre,
 		Artist: dec.Metadata.Artist,
 	}, nil
+}
+
+func (wd *WavDecoder) Duration() time.Duration {
+	return wd.duration
 }

@@ -16,4 +16,5 @@ func RegisterWailsEvents() {
 	application.RegisterEvent[string]("tunes:dl:started")
 	application.RegisterEvent[DownloadProgress]("tunes:dl:progress")
 	application.RegisterEvent[string]("tunes:dl:finished")
+	application.RegisterEvent[int]("tunes:track:progress")
 }

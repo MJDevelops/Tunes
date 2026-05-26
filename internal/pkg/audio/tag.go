@@ -3,6 +3,7 @@ package audio
 import (
 	"os"
 	"slices"
+	"time"
 
 	"github.com/dhowden/tag"
 	"github.com/gopxl/beep/v2"
@@ -14,7 +15,8 @@ import (
 
 // TagDecoder represents an audio file decoder for formats supported by github.com/dhowden/tag
 type TagDecoder struct {
-	path string
+	path     string
+	duration time.Duration
 }
 
 var tagFormats = []string{".flac", ".ogg", ".mp3"}
@@ -31,22 +33,21 @@ func (td *TagDecoder) New(path string) (Decoder, error) {
 	}, nil
 }
 
-func (td *TagDecoder) DecodeAudio() (*AudioFile, error) {
+func (td *TagDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {
 	var (
 		streamer beep.StreamSeekCloser
 		format   beep.Format
-		buffer   *beep.Buffer
 		err      error
 	)
 	fileExt := tunesos.GetFileExtension(td.path)
 
 	if !slices.Contains(tagFormats, fileExt) {
-		return nil, ErrUnsupported
+		return nil, format, ErrUnsupported
 	}
 
 	file, err := os.Open(td.path)
 	if err != nil {
-		return nil, err
+		return nil, format, err
 	}
 	defer file.Close()
 
@@ -60,17 +61,12 @@ func (td *TagDecoder) DecodeAudio() (*AudioFile, error) {
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, format, err
 	}
 
-	buffer = beep.NewBuffer(format)
-	buffer.Append(streamer)
-	streamer.Close()
+	td.duration = format.SampleRate.D(streamer.Len())
 
-	return &AudioFile{
-		format: format,
-		buffer: buffer,
-	}, nil
+	return streamer, format, nil
 }
 
 func (td *TagDecoder) ParseMeta() (TrackMeta, error) {
@@ -93,4 +89,8 @@ func (td *TagDecoder) ParseMeta() (TrackMeta, error) {
 	trackMeta.Genre = meta.Genre()
 
 	return trackMeta, nil
+}
+
+func (td *TagDecoder) Duration() time.Duration {
+	return td.duration
 }

@@ -12,10 +12,21 @@ typedef struct
     AVPacket* pkt;
     AVFrame* frame;
     AVFrame* resampled_frame;
+
+    /** Filename of the audio file */
     const char* filename;
+
+    /** Codec of the audio stream */
     const AVCodec* codec;
+
+    /** Index of the audio stream in the format context */
     int audio_stream_index;
+
+    /** Sample rate of the audio stream */
     int sample_rate;
+
+    /** Duration in samples */
+    int64_t duration;
 } Decoder;
 
 Decoder* decoder_alloc(const char* file);

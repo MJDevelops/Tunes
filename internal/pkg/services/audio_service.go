@@ -1,7 +1,6 @@
 package services
 
 import (
-	"container/list"
 	"context"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
@@ -11,9 +10,8 @@ import (
 )
 
 type AudioService struct {
-	ctx   context.Context
-	db    *gorm.DB
-	elems map[int64]*list.Element
+	ctx context.Context
+	db  *gorm.DB
 }
 
 func NewAudioService(db *gorm.DB) *AudioService {
@@ -28,10 +26,6 @@ func NewAudioService(db *gorm.DB) *AudioService {
 
 func (s *AudioService) ServiceStartup(ctx context.Context, option application.ServiceOptions) error {
 	s.ctx = ctx
-	return nil
-}
-
-func (s *AudioService) AddToQueue(trackId int64) error {
 	return nil
 }
 
