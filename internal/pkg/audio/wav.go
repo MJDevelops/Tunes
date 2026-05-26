@@ -15,14 +15,13 @@ type WavDecoder struct {
 	duration time.Duration
 }
 
-func (wd *WavDecoder) New(path string) (Decoder, error) {
+func (wd *WavDecoder) Init(path string) error {
 	if tunesos.GetFileExtension(path) != ".wav" {
-		return nil, ErrUnsupported
+		return ErrUnsupported
 	}
 
-	return &WavDecoder{
-		path: path,
-	}, nil
+	wd.path = path
+	return nil
 }
 
 func (wd *WavDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {

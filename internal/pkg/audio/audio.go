@@ -15,7 +15,7 @@ import (
 )
 
 type Decoder interface {
-	New(path string) (Decoder, error)
+	Init(path string) error
 	Decode() (beep.StreamSeekCloser, beep.Format, error)
 	ParseMeta() (TrackMeta, error)
 	Duration() time.Duration
@@ -44,12 +44,13 @@ func RegisterDecoder(decoder Decoder, formats ...string) {
 	}
 }
 
-func GetDecoder(format string) (Decoder, error) {
+func GetDecoder(file string) (Decoder, error) {
+	format := os.GetFileExtension(file)
 	if dec, ok := supportedFormats[format]; ok {
 		return dec, nil
 	}
 
-	return nil, ErrUnsupported
+	return &AVDecoder{}, nil
 }
 
 func NewAudioSink() *AudioSink {
@@ -68,10 +69,16 @@ func (a *AudioSink) Init(trackPath string) error {
 		return ErrPlaying
 	}
 
-	decoder, err := GetDecoder(os.GetFileExtension(trackPath))
+	var err error
+
+	decoder, err := GetDecoder(trackPath)
 	if err != nil {
-		// Use libav as fallback
-		decoder = &AVDecoder{}
+		return err
+	}
+
+	err = decoder.Init(trackPath)
+	if err != nil {
+		return err
 	}
 
 	a.streamer, a.format, err = decoder.Decode()
@@ -119,6 +126,7 @@ func (a *AudioSink) Play(volume float64) (pos <-chan int) {
 				position <- int(a.format.SampleRate.D(a.streamer.Position()).Seconds())
 				speaker.Unlock()
 			case <-a.stop:
+				close(position)
 				speaker.Lock()
 				speaker.Clear()
 				speaker.Suspend()
@@ -164,4 +172,16 @@ func (a *AudioSink) Volume(vol float64) {
 	if a.vol != nil {
 		a.vol.Volume = vol
 	}
+}
+
+func (a *AudioSink) IsPlaying() bool {
+	return !a.done
+}
+
+func (a *AudioSink) GetVolume() float64 {
+	if a.vol != nil {
+		return a.vol.Volume
+	}
+
+	return 0
 }

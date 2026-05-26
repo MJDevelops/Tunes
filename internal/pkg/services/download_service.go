@@ -60,8 +60,7 @@ func (s *DownloadService) ServiceShutdown() error {
 
 func (s *DownloadService) PendingDownloads() ([]ytdlp.Download, error) {
 	var qDownloads []ytdlp.Download
-	ctx := context.Background()
-	downloads, err := gorm.G[models.Download](s.db).Where("finished_at IS NULL").Find(ctx)
+	downloads, err := gorm.G[models.Download](s.db).Where("finished_at IS NULL").Find(s.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -92,18 +91,18 @@ func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string
 
 	down.OnFinished(func() {
 		s.finishDownload(&down)
-		s.app.Event.Emit("tunes:dl:finished", down.ID)
+		s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:dl:finished", Data: down.ID})
 	})
 
 	down.OnProgress(func(pf ytdlp.ProgressFormat) {
-		s.app.Event.Emit("tunes:dl:progress", events.DownloadProgress{
+		s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:dl:progress", Data: events.DownloadProgress{
 			ID:   down.ID,
 			Data: pf,
-		})
+		}})
 	})
 
 	down.OnStart(func() {
-		s.app.Event.Emit("tunes:dl:started", down.ID)
+		s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:dl:started", Data: down.ID})
 	})
 
 	s.queue.Enqueue(&down)
@@ -112,10 +111,8 @@ func (s *DownloadService) EnqueueDownload(url string, opts ...string) (id string
 }
 
 func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) error {
-	ctx := context.Background()
-
 	for _, d := range downloads {
-		_, err := gorm.G[models.Download](s.db).Where("id = ?", d.ID).First(ctx)
+		_, err := gorm.G[models.Download](s.db).Where("id = ?", d.ID).First(s.ctx)
 		if err != nil {
 			options, _ := json.Marshal(d.Options)
 			download := &models.Download{
@@ -123,7 +120,7 @@ func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) error {
 				Options:    string(options),
 				FinishedAt: sql.NullTime{Valid: false},
 			}
-			err := gorm.G[models.Download](s.db).Create(ctx, download)
+			err := gorm.G[models.Download](s.db).Create(s.ctx, download)
 			if err != nil {
 				return err
 			}
@@ -150,14 +147,13 @@ func (s *DownloadService) closeHook(event *application.WindowEvent) {
 
 func (s *DownloadService) finishDownload(download *ytdlp.Download) {
 	// Try to update existing
-	ctx := context.Background()
 	t := sql.NullTime{Time: time.Now(), Valid: true}
 
-	_, err := gorm.G[models.Download](s.db).Where("id = ?", download.ID).Update(ctx, "finished_at", t)
+	_, err := gorm.G[models.Download](s.db).Where("id = ?", download.ID).Update(s.ctx, "finished_at", t)
 
 	if err != nil {
 		// The download wasn't created before, create it now
 		options, _ := json.Marshal(download.Options)
-		gorm.G[models.Download](s.db).Create(ctx, &models.Download{ID: download.ID, FinishedAt: t, Options: string(options)})
+		gorm.G[models.Download](s.db).Create(s.ctx, &models.Download{ID: download.ID, FinishedAt: t, Options: string(options)})
 	}
 }

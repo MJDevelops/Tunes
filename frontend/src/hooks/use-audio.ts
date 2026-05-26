@@ -12,7 +12,15 @@ export function useAudio() {
     setPlaying(false);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    Events.On("tunes:track:progress", (event) => {
+      setPos(event.data);
+    });
+
+    return () => {
+      Events.Off("tunes:track:progress");
+    };
+  }, []);
 
   return {
     pos,

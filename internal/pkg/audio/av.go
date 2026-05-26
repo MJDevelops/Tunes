@@ -39,12 +39,11 @@ var (
 	ErrSeek     = errors.New("error during seeking")
 )
 
-func (d *AVDecoder) New(path string) (Decoder, error) {
-	avDec := &AVDecoder{}
+func (d *AVDecoder) Init(path string) error {
 	d.f = beep.Format{}
 	d.file = C.CString(path)
 
-	return avDec, nil
+	return nil
 }
 
 func (d *AVDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {

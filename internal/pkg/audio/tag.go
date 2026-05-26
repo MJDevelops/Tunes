@@ -21,16 +21,15 @@ type TagDecoder struct {
 
 var tagFormats = []string{".flac", ".ogg", ".mp3"}
 
-func (td *TagDecoder) New(path string) (Decoder, error) {
+func (td *TagDecoder) Init(path string) error {
 	fileExt := tunesos.GetFileExtension(path)
 
 	if !slices.Contains(tagFormats, fileExt) {
-		return nil, ErrUnsupported
+		return ErrUnsupported
 	}
 
-	return &TagDecoder{
-		path: path,
-	}, nil
+	td.path = path
+	return nil
 }
 
 func (td *TagDecoder) Decode() (beep.StreamSeekCloser, beep.Format, error) {

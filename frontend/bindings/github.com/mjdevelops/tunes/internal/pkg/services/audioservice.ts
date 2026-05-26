@@ -9,14 +9,20 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as models$0 from "../db/models/models.js";
 
-export function AddToQueue(trackId: number): $CancellablePromise<void> {
-    return $Call.ByID(510539471, trackId);
+export function GetAlbumTracks(albumId: number): $CancellablePromise<models$0.Track[]> {
+    return $Call.ByID(1171505149, albumId).then(($result: any) => {
+        return $$createType1($result);
+    });
 }
 
 export function GetPlaylistTracks(playlistId: number): $CancellablePromise<models$0.Track[]> {
     return $Call.ByID(3124403020, playlistId).then(($result: any) => {
         return $$createType1($result);
     });
+}
+
+export function Play(trackId: number, vol: number): $CancellablePromise<void> {
+    return $Call.ByID(3491172388, trackId, vol);
 }
 
 // Private type creation functions
