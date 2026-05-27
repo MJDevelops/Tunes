@@ -16,6 +16,17 @@ type AudioService struct {
 	app *application.App
 }
 
+type AlbumWithoutTracks struct {
+	ID      uint
+	Title   string
+	Artists []*models.Artist
+}
+
+type PlaylistWithoutTracks struct {
+	ID    uint
+	Title string
+}
+
 func NewAudioService(db *gorm.DB) *AudioService {
 	ad := &AudioService{}
 	ad.db = db
@@ -33,6 +44,14 @@ func (s *AudioService) ServiceStartup(ctx context.Context, option application.Se
 	return nil
 }
 
+func (s *AudioService) GetTrack(trackId int64) (models.Track, error) {
+	track, err := gorm.G[models.Track](s.db).Where("id = ?", trackId).First(s.ctx)
+	if err != nil {
+		return models.Track{}, err
+	}
+	return track, nil
+}
+
 func (s *AudioService) GetAlbumTracks(albumId int64) ([]models.Track, error) {
 	album, err := gorm.G[models.Album](s.db).Where("id = ?", albumId).First(s.ctx)
 	if err != nil {
@@ -47,6 +66,24 @@ func (s *AudioService) GetPlaylistTracks(playlistId int64) ([]models.Track, erro
 		return nil, err
 	}
 	return playlist.Tracks, nil
+}
+
+func (s *AudioService) GetPlaylists() ([]PlaylistWithoutTracks, error) {
+	playlists := []PlaylistWithoutTracks{}
+	err := s.db.Model(&models.Playlist{}).Find(&playlists).Error
+	if err != nil {
+		return nil, err
+	}
+	return playlists, nil
+}
+
+func (s *AudioService) GetAlbums() ([]AlbumWithoutTracks, error) {
+	albums := []AlbumWithoutTracks{}
+	err := s.db.Model(&models.Album{}).Find(&albums).Error
+	if err != nil {
+		return nil, err
+	}
+	return albums, nil
 }
 
 func (s *AudioService) Play(trackId int64, vol float64) error {

@@ -1,28 +1,32 @@
 import { create } from "zustand";
-import { GetPlaylistTracks } from "@bindings/internal/pkg/services/audioservice";
+import {
+  GetAlbumTracks,
+  GetPlaylistTracks,
+} from "@bindings/internal/pkg/services/audioservice";
 import { Track } from "@bindings/internal/pkg/db/models";
+import { shuffleArray } from "@/lib/utils";
 
 const initialState = { tracks: [] };
 
 type QueueState = {
   tracks: Track[];
-  enqueue: (track: Track) => Promise<void>;
+  enqueue: (track: Track) => void;
   enqueuePlaylist: (playlistId: number) => Promise<void>;
+  enqueueAlbum: (albumId: number) => Promise<void>;
   shuffle: () => void;
   next: () => Track | undefined;
 };
 
 const useQueueStore = create<QueueState>()((set) => ({
   ...initialState,
-  enqueue: async (track) => {},
+  enqueue: (track) => set((s) => ({ tracks: [...s.tracks, track] })),
   enqueuePlaylist: async (playlistId) =>
     set({ tracks: await GetPlaylistTracks(playlistId) }),
+  enqueueAlbum: async (albumId) =>
+    set({ tracks: await GetAlbumTracks(albumId) }),
   shuffle: () => {
     set((s) => {
-      for (let i = s.tracks.length - 1; i >= 1; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [s.tracks[i], s.tracks[j]] = [s.tracks[j], s.tracks[i]];
-      }
+      s.tracks = shuffleArray(s.tracks);
       return s;
     });
   },

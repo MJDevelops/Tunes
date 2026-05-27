@@ -9,3 +9,8 @@ export {
     DownloadService,
     YtDlpService
 };
+
+export {
+    AlbumWithoutTracks,
+    PlaylistWithoutTracks
+} from "./models.js";
