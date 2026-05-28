@@ -60,12 +60,12 @@ func (s *AudioService) GetAlbumTracks(albumId int64) ([]models.Track, error) {
 	return album.Tracks, nil
 }
 
-func (s *AudioService) GetPlaylistTracks(playlistId int64) ([]models.Track, error) {
+func (s *AudioService) GetPlaylist(playlistId int64) (models.Playlist, error) {
 	playlist, err := gorm.G[models.Playlist](s.db).Where("id = ?", playlistId).First(s.ctx)
 	if err != nil {
-		return nil, err
+		return models.Playlist{}, err
 	}
-	return playlist.Tracks, nil
+	return playlist, nil
 }
 
 func (s *AudioService) GetPlaylists() ([]PlaylistWithoutTracks, error) {

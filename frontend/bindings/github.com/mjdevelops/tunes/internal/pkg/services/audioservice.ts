@@ -25,15 +25,15 @@ export function GetAlbums(): $CancellablePromise<$models.AlbumWithoutTracks[]> {
     });
 }
 
-export function GetPlaylistTracks(playlistId: number): $CancellablePromise<models$0.Track[]> {
-    return $Call.ByID(3124403020, playlistId).then(($result: any) => {
-        return $$createType1($result);
+export function GetPlaylist(playlistId: number): $CancellablePromise<models$0.Playlist> {
+    return $Call.ByID(2130548176, playlistId).then(($result: any) => {
+        return $$createType4($result);
     });
 }
 
 export function GetPlaylists(): $CancellablePromise<$models.PlaylistWithoutTracks[]> {
     return $Call.ByID(2352123801).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType6($result);
     });
 }
 
@@ -52,5 +52,6 @@ const $$createType0 = models$0.Track.createFrom;
 const $$createType1 = $Create.Array($$createType0);
 const $$createType2 = $models.AlbumWithoutTracks.createFrom;
 const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = $models.PlaylistWithoutTracks.createFrom;
-const $$createType5 = $Create.Array($$createType4);
+const $$createType4 = models$0.Playlist.createFrom;
+const $$createType5 = $models.PlaylistWithoutTracks.createFrom;
+const $$createType6 = $Create.Array($$createType5);

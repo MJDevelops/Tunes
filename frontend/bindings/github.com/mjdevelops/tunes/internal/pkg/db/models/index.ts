@@ -4,5 +4,6 @@
 export {
     Album,
     Artist,
+    Playlist,
     Track
 } from "./models.js";

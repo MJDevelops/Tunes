@@ -7,6 +7,7 @@ const Playlists = () => {
     queryKey: ["playlists"],
     queryFn: async () => await GetPlaylists(),
   });
+
   return isPending ? (
     <div>Loading...</div>
   ) : (

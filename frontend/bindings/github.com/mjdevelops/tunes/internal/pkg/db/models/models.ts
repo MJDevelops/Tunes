@@ -118,13 +118,59 @@ export class Artist {
     }
 }
 
+export class Playlist {
+    "ID": number;
+    "CreatedAt": time$0.Time;
+    "UpdatedAt": time$0.Time;
+    "DeletedAt": gorm$0.DeletedAt;
+    "Title": string;
+    "Tracks": Track[];
+
+    /** Creates a new Playlist instance. */
+    constructor($$source: Partial<Playlist> = {}) {
+        if (!("ID" in $$source)) {
+            this["ID"] = 0;
+        }
+        if (!("CreatedAt" in $$source)) {
+            this["CreatedAt"] = null;
+        }
+        if (!("UpdatedAt" in $$source)) {
+            this["UpdatedAt"] = null;
+        }
+        if (!("DeletedAt" in $$source)) {
+            this["DeletedAt"] = null;
+        }
+        if (!("Title" in $$source)) {
+            this["Title"] = "";
+        }
+        if (!("Tracks" in $$source)) {
+            this["Tracks"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Playlist instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Playlist {
+        const $$createField5_0 = $$createType4;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("Tracks" in $$parsedSource) {
+            $$parsedSource["Tracks"] = $$createField5_0($$parsedSource["Tracks"]);
+        }
+        return new Playlist($$parsedSource as Partial<Playlist>);
+    }
+}
+
 export class Track {
     "ID": number;
     "CreatedAt": time$0.Time;
     "UpdatedAt": time$0.Time;
     "DeletedAt": gorm$0.DeletedAt;
-    "Path": string;
+    "Title": string;
     "Artists": (Artist | null)[];
+    "Path": string;
     "AlbumID": number;
 
     /** Creates a new Track instance. */
@@ -141,11 +187,14 @@ export class Track {
         if (!("DeletedAt" in $$source)) {
             this["DeletedAt"] = null;
         }
-        if (!("Path" in $$source)) {
-            this["Path"] = "";
+        if (!("Title" in $$source)) {
+            this["Title"] = "";
         }
         if (!("Artists" in $$source)) {
             this["Artists"] = [];
+        }
+        if (!("Path" in $$source)) {
+            this["Path"] = "";
         }
         if (!("AlbumID" in $$source)) {
             this["AlbumID"] = 0;
