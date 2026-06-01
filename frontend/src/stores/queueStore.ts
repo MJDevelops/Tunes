@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import {
   GetAlbumTracks,
-  GetPlaylistTracks,
-} from "@bindings/internal/pkg/services/audioservice";
+  GetPlaylist,
+} from "@bindings/internal/pkg/services/dbservice";
 import { Track } from "@bindings/internal/pkg/db/models";
 import { shuffleArray } from "@/lib/utils";
 
@@ -21,7 +21,7 @@ const useQueueStore = create<QueueState>()((set) => ({
   ...initialState,
   enqueue: (track) => set((s) => ({ tracks: [...s.tracks, track] })),
   enqueuePlaylist: async (playlistId) =>
-    set({ tracks: await GetPlaylistTracks(playlistId) }),
+    set({ tracks: (await GetPlaylist(playlistId)).Tracks }),
   enqueueAlbum: async (albumId) =>
     set({ tracks: await GetAlbumTracks(albumId) }),
   shuffle: () => {
