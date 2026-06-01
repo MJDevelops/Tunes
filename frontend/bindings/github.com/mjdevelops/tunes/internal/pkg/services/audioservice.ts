@@ -5,6 +5,34 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
-export function Play(trackId: number, vol: number): $CancellablePromise<void> {
-    return $Call.ByID(3491172388, trackId, vol);
+export function Mute(): $CancellablePromise<void> {
+    return $Call.ByID(2242267675);
+}
+
+export function Pause(): $CancellablePromise<void> {
+    return $Call.ByID(2318849100);
+}
+
+export function Play(trackId: number, volume: number): $CancellablePromise<void> {
+    return $Call.ByID(3491172388, trackId, volume);
+}
+
+export function Resume(): $CancellablePromise<void> {
+    return $Call.ByID(2476567093);
+}
+
+export function Seek(seconds: number): $CancellablePromise<void> {
+    return $Call.ByID(2327187202, seconds);
+}
+
+export function SetVolume(volume: number): $CancellablePromise<void> {
+    return $Call.ByID(3161749964, volume);
+}
+
+export function Stop(): $CancellablePromise<void> {
+    return $Call.ByID(2913182946);
+}
+
+export function Unmute(): $CancellablePromise<void> {
+    return $Call.ByID(3980643624);
 }

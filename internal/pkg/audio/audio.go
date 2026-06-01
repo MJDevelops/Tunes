@@ -28,7 +28,7 @@ type AudioSink struct {
 	streamer beep.StreamSeeker
 	decoder  Decoder
 	stop     chan struct{}
-	done     bool
+	stopped  bool
 }
 
 var supportedFormats = make(map[string]Decoder)
@@ -55,8 +55,8 @@ func GetDecoder(file string) (Decoder, error) {
 
 func NewAudioSink() *AudioSink {
 	return &AudioSink{
-		done: true,
-		stop: make(chan struct{}),
+		stopped: true,
+		stop:    make(chan struct{}),
 	}
 }
 
@@ -65,11 +65,11 @@ func (a *AudioSink) Duration() time.Duration {
 }
 
 func (a *AudioSink) Init(trackPath string) error {
-	if !a.done {
-		return ErrPlaying
-	}
-
 	var err error
+
+	if a.IsPlaying() {
+		a.Stop()
+	}
 
 	decoder, err := GetDecoder(trackPath)
 	if err != nil {
@@ -93,7 +93,7 @@ func (a *AudioSink) Init(trackPath string) error {
 		Streamer: a.ctrl,
 		Base:     2,
 		Volume:   0,
-		Silent:   true,
+		Silent:   false,
 	}
 
 	speaker.Init(a.format.SampleRate, a.format.SampleRate.N(time.Second/10))
@@ -101,55 +101,43 @@ func (a *AudioSink) Init(trackPath string) error {
 	return nil
 }
 
-func (a *AudioSink) Play(volume float64) (pos <-chan int) {
-	if !a.done {
-		return nil
+func (a *AudioSink) Play(volume float64) error {
+	if a.IsPlaying() {
+		return ErrPlaying
 	}
 
-	position := make(chan int)
-	done := make(chan struct{})
-
 	a.vol.Volume = volume
-	a.vol.Silent = false
-	a.done = false
+	a.stopped = false
 
 	speaker.Play(beep.Seq(a.vol, beep.Callback(func() {
-		a.done = true
-		done <- struct{}{}
+		a.stop <- struct{}{}
 	})))
 
 	go func() {
-		for {
-			select {
-			case <-time.After(time.Second):
-				speaker.Lock()
-				position <- int(a.format.SampleRate.D(a.streamer.Position()).Seconds())
-				speaker.Unlock()
-			case <-a.stop:
-				close(position)
-				speaker.Lock()
-				speaker.Clear()
-				speaker.Suspend()
-				speaker.Unlock()
-				return
-			case <-done:
-				a.TogglePlayback()
-				speaker.Lock()
-				a.streamer.Seek(0)
-				speaker.Unlock()
-			}
-		}
+		<-a.stop
+		a.stopPlayback()
+		a.Seek(0)
 	}()
 
-	return position
+	return nil
 }
 
-func (a *AudioSink) TogglePlayback() {
+func (a *AudioSink) SetPlayback(playing bool) {
 	speaker.Lock()
 	defer speaker.Unlock()
 	if a.ctrl != nil {
-		a.ctrl.Paused = !a.ctrl.Paused
+		a.ctrl.Paused = !playing
 	}
+}
+
+func (a *AudioSink) IsPaused() bool {
+	speaker.Lock()
+	defer speaker.Unlock()
+	if a.ctrl != nil {
+		return a.ctrl.Paused
+	}
+
+	return false
 }
 
 func (a *AudioSink) Seek(d time.Duration) {
@@ -161,12 +149,14 @@ func (a *AudioSink) Seek(d time.Duration) {
 }
 
 func (a *AudioSink) Stop() {
+	speaker.Lock()
+	defer speaker.Unlock()
 	if a.stop != nil {
 		a.stop <- struct{}{}
 	}
 }
 
-func (a *AudioSink) Volume(vol float64) {
+func (a *AudioSink) SetVolume(vol float64) {
 	speaker.Lock()
 	defer speaker.Unlock()
 	if a.vol != nil {
@@ -174,14 +164,42 @@ func (a *AudioSink) Volume(vol float64) {
 	}
 }
 
-func (a *AudioSink) IsPlaying() bool {
-	return !a.done
+func (a *AudioSink) Position() time.Duration {
+	speaker.Lock()
+	defer speaker.Unlock()
+	if a.streamer != nil {
+		return a.format.SampleRate.D(a.streamer.Position())
+	}
+	return 0
 }
 
-func (a *AudioSink) GetVolume() float64 {
+func (a *AudioSink) IsPlaying() bool {
+	speaker.Lock()
+	defer speaker.Unlock()
+	return !a.stopped
+}
+
+func (a *AudioSink) Volume() float64 {
+	speaker.Lock()
+	defer speaker.Unlock()
 	if a.vol != nil {
 		return a.vol.Volume
 	}
 
 	return 0
+}
+
+func (a *AudioSink) SetMute(muted bool) {
+	speaker.Lock()
+	defer speaker.Unlock()
+	if a.vol != nil {
+		a.vol.Silent = muted
+	}
+}
+
+func (a *AudioSink) stopPlayback() {
+	speaker.Lock()
+	defer speaker.Unlock()
+	speaker.Clear()
+	a.stopped = true
 }

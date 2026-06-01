@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/mjdevelops/tunes/internal/pkg/audio"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -31,7 +32,15 @@ func (s *AudioService) ServiceStartup(ctx context.Context, option application.Se
 	return nil
 }
 
-func (s *AudioService) Play(trackId uint, vol float64) error {
+func (s *AudioService) Play(trackId uint, volume float64) error {
+	if s.as.IsPlaying() {
+		s.as.Stop()
+		// Wait for the audio sink to stop before starting a new track
+		for s.as.IsPlaying() {
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+
 	track, err := s.db.GetTrack(trackId)
 	if err != nil {
 		return err
@@ -42,16 +51,51 @@ func (s *AudioService) Play(trackId uint, vol float64) error {
 		return err
 	}
 
-	ch := s.as.Play(vol)
+	err = s.as.Play(volume)
+	if err != nil {
+		return err
+	}
+
 	go func() {
 		for {
-			pos, ok := <-ch
-			if !ok {
+			if s.as.IsPlaying() && !s.as.IsPaused() {
+				pos := int(s.as.Position().Seconds())
+				s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:track:progress", Data: pos})
+			} else if !s.as.IsPlaying() {
+				s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:track:finished"})
 				return
 			}
-			s.app.Event.EmitEvent(&application.CustomEvent{Name: "tunes:track:progress", Data: pos})
+			time.Sleep(time.Second)
 		}
 	}()
 
 	return nil
+}
+
+func (s *AudioService) Pause() {
+	s.as.SetPlayback(false)
+}
+
+func (s *AudioService) Resume() {
+	s.as.SetPlayback(true)
+}
+
+func (s *AudioService) Stop() {
+	s.as.Stop()
+}
+
+func (s *AudioService) Seek(seconds int) {
+	s.as.Seek(time.Duration(seconds) * time.Second)
+}
+
+func (s *AudioService) SetVolume(volume float64) {
+	s.as.SetVolume(volume)
+}
+
+func (s *AudioService) Mute() {
+	s.as.SetMute(true)
+}
+
+func (s *AudioService) Unmute() {
+	s.as.SetMute(false)
 }

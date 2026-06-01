@@ -17,6 +17,7 @@ declare module "@wailsio/runtime" {
             "tunes:dl:started": string;
             "tunes:dqueue:done": void;
             "tunes:dqueue:started": void;
+            "tunes:track:finished": void;
             "tunes:track:progress": number;
         }
     }
