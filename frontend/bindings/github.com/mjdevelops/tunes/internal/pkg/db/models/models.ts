@@ -7,6 +7,9 @@ import { Create as $Create } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as sql$0 from "../../../../../../../database/sql/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as gorm$0 from "../../../../../../../gorm.io/gorm/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -118,6 +121,55 @@ export class Artist {
     }
 }
 
+export class Download {
+    "CreatedAt": time$0.Time;
+    "UpdatedAt": time$0.Time;
+    "DeletedAt": gorm$0.DeletedAt;
+    "ID": string;
+    "FinishedAt": sql$0.NullTime;
+    "Options": string;
+    "Source": string;
+
+    /** Creates a new Download instance. */
+    constructor($$source: Partial<Download> = {}) {
+        if (!("CreatedAt" in $$source)) {
+            this["CreatedAt"] = null;
+        }
+        if (!("UpdatedAt" in $$source)) {
+            this["UpdatedAt"] = null;
+        }
+        if (!("DeletedAt" in $$source)) {
+            this["DeletedAt"] = null;
+        }
+        if (!("ID" in $$source)) {
+            this["ID"] = "";
+        }
+        if (!("FinishedAt" in $$source)) {
+            this["FinishedAt"] = (new sql$0.NullTime());
+        }
+        if (!("Options" in $$source)) {
+            this["Options"] = "";
+        }
+        if (!("Source" in $$source)) {
+            this["Source"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Download instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Download {
+        const $$createField4_0 = $$createType8;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("FinishedAt" in $$parsedSource) {
+            $$parsedSource["FinishedAt"] = $$createField4_0($$parsedSource["FinishedAt"]);
+        }
+        return new Download($$parsedSource as Partial<Download>);
+    }
+}
+
 export class Playlist {
     "ID": number;
     "CreatedAt": time$0.Time;
@@ -225,3 +277,4 @@ const $$createType4 = $Create.Array($$createType3);
 const $$createType5 = Album.createFrom;
 const $$createType6 = $Create.Nullable($$createType5);
 const $$createType7 = $Create.Array($$createType6);
+const $$createType8 = sql$0.NullTime.createFrom;

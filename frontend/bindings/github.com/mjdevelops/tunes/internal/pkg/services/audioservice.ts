@@ -5,53 +5,6 @@
 // @ts-ignore: Unused imports
 import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Create } from "@wailsio/runtime";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as models$0 from "../db/models/models.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Unused imports
-import * as $models from "./models.js";
-
-export function GetAlbumTracks(albumId: number): $CancellablePromise<models$0.Track[]> {
-    return $Call.ByID(1171505149, albumId).then(($result: any) => {
-        return $$createType1($result);
-    });
-}
-
-export function GetAlbums(): $CancellablePromise<$models.AlbumWithoutTracks[]> {
-    return $Call.ByID(1454084610).then(($result: any) => {
-        return $$createType3($result);
-    });
-}
-
-export function GetPlaylist(playlistId: number): $CancellablePromise<models$0.Playlist> {
-    return $Call.ByID(2130548176, playlistId).then(($result: any) => {
-        return $$createType4($result);
-    });
-}
-
-export function GetPlaylists(): $CancellablePromise<$models.PlaylistWithoutTracks[]> {
-    return $Call.ByID(2352123801).then(($result: any) => {
-        return $$createType6($result);
-    });
-}
-
-export function GetTrack(trackId: number): $CancellablePromise<models$0.Track> {
-    return $Call.ByID(3271738757, trackId).then(($result: any) => {
-        return $$createType0($result);
-    });
-}
-
 export function Play(trackId: number, vol: number): $CancellablePromise<void> {
     return $Call.ByID(3491172388, trackId, vol);
 }
-
-// Private type creation functions
-const $$createType0 = models$0.Track.createFrom;
-const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = $models.AlbumWithoutTracks.createFrom;
-const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = models$0.Playlist.createFrom;
-const $$createType5 = $models.PlaylistWithoutTracks.createFrom;
-const $$createType6 = $Create.Array($$createType5);

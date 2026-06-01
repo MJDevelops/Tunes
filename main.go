@@ -31,14 +31,17 @@ func main() {
 		log.Fatalf("Error loading config: %v\n", err)
 	}
 
+	dbService := services.NewDbService(db)
+
 	app := application.New(application.Options{
 		Name: "Tunes",
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
 		Services: []application.Service{
+			application.NewService(dbService),
 			application.NewService(services.NewYtDlpService(binPath, config)),
-			application.NewService(services.NewAudioService(db)),
+			application.NewService(services.NewAudioService(dbService)),
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: false,
@@ -54,8 +57,8 @@ func main() {
 		URL:              "/",
 	})
 
-	app.RegisterService(application.NewService(services.NewDownloadService(services.DownloadServiceOptions{
-		Db:      db,
+	app.RegisterService(application.NewService(services.NewDownloadService(app, services.DownloadServiceOptions{
+		Db:      dbService,
 		Workers: 5,
 		Window:  mainWindow,
 	})))
