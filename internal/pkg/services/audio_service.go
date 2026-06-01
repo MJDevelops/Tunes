@@ -31,7 +31,7 @@ func (s *AudioService) ServiceStartup(ctx context.Context, option application.Se
 	return nil
 }
 
-func (s *AudioService) Play(trackId int64, vol float64) error {
+func (s *AudioService) Play(trackId uint, vol float64) error {
 	track, err := s.db.GetTrack(trackId)
 	if err != nil {
 		return err

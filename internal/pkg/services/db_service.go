@@ -35,7 +35,7 @@ func (s *DbService) ServiceStartup(ctx context.Context, option application.Servi
 	return nil
 }
 
-func (s *DbService) GetTrack(trackId int64) (models.Track, error) {
+func (s *DbService) GetTrack(trackId uint) (models.Track, error) {
 	track, err := gorm.G[models.Track](s.db).Where("id = ?", trackId).First(s.ctx)
 	if err != nil {
 		return models.Track{}, err
@@ -43,7 +43,7 @@ func (s *DbService) GetTrack(trackId int64) (models.Track, error) {
 	return track, nil
 }
 
-func (s *DbService) GetAlbumTracks(albumId int64) ([]models.Track, error) {
+func (s *DbService) GetAlbumTracks(albumId uint) ([]models.Track, error) {
 	album, err := gorm.G[models.Album](s.db).Where("id = ?", albumId).First(s.ctx)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *DbService) GetAlbumTracks(albumId int64) ([]models.Track, error) {
 	return album.Tracks, nil
 }
 
-func (s *DbService) GetPlaylist(playlistId int64) (models.Playlist, error) {
+func (s *DbService) GetPlaylist(playlistId uint) (models.Playlist, error) {
 	playlist, err := gorm.G[models.Playlist](s.db).Where("id = ?", playlistId).First(s.ctx)
 	if err != nil {
 		return models.Playlist{}, err
