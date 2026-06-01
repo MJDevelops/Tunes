@@ -42,7 +42,6 @@ func main() {
 		Services: []application.Service{
 			application.NewService(dbService),
 			application.NewService(services.NewYtDlpService(binPath, config)),
-			application.NewService(services.NewAudioService(dbService)),
 		},
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: false,
@@ -63,6 +62,8 @@ func main() {
 		Workers: 5,
 		Window:  mainWindow,
 	})))
+
+	app.RegisterService(application.NewService(services.NewAudioService(app, dbService)))
 
 	events.RegisterWailsEvents()
 

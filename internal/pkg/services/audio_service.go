@@ -14,10 +14,11 @@ type AudioService struct {
 	app *application.App
 }
 
-func NewAudioService(dbService *DbService) *AudioService {
+func NewAudioService(app *application.App, dbService *DbService) *AudioService {
 	ad := &AudioService{}
 	ad.db = dbService
 	ad.as = audio.NewAudioSink()
+	ad.app = app
 
 	audio.RegisterDecoder(&audio.TagDecoder{}, ".flac", ".ogg", ".mp3")
 	audio.RegisterDecoder(&audio.WavDecoder{}, ".wav")
@@ -27,7 +28,6 @@ func NewAudioService(dbService *DbService) *AudioService {
 
 func (s *AudioService) ServiceStartup(ctx context.Context, option application.ServiceOptions) error {
 	s.ctx = ctx
-	s.app = application.Get()
 	return nil
 }
 
