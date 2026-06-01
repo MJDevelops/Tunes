@@ -26,6 +26,7 @@ type Download struct {
 	ID         string
 	Url        string
 	Options    []string
+	Path       string
 	executable string
 	onProgress func(ProgressFormat)
 	onFinished func()
@@ -68,11 +69,13 @@ func (y *YtDlp) NewDownload(opts *DownloadOptions) (Download, error) {
 		download.ID = opts.ID
 	}
 
+	download.Path = path.Join(downloadPath, download.ID)
+
 	download.Options = append(
 		opts.Options,
 		opts.URL,
 		"-P",
-		path.Join(downloadPath, download.ID),
+		download.Path,
 		"-f",
 		"bestaudio",
 		"--embed-metadata",

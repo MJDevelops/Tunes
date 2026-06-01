@@ -33,6 +33,16 @@ const std::vector<std::string>& TagFile::getArtists() {
     return artists;
 }
 
+const std::vector<std::string>& TagFile::getAlbumArtists() {
+    if (albumArtists.empty()) {
+        PropertyMap props = properties();
+        StringList aa = props["ALBUMARTIST"];
+        for (auto& a : aa)
+            this->albumArtists.push_back(a.to8Bit(true));
+    }
+    return albumArtists;
+}
+
 /**
  * Returns the artwork and the mime type of the artwork.
  * @return A pair with the artwork data and the mime type.

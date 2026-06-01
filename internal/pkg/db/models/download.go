@@ -12,4 +12,5 @@ type Download struct {
 	FinishedAt sql.NullTime
 	Options    string `gorm:"type:text"`
 	Source     string
+	Path       string
 }

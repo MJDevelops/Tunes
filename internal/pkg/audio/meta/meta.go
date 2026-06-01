@@ -83,6 +83,7 @@ extern void _wrap_delete_TagFile_meta_8f12316039e5a9d9(uintptr_t arg1);
 extern swig_type_16 _wrap_TagFile_getTitle_meta_8f12316039e5a9d9(uintptr_t arg1);
 extern swig_type_17 _wrap_TagFile_getAlbum_meta_8f12316039e5a9d9(uintptr_t arg1);
 extern uintptr_t _wrap_TagFile_getArtists_meta_8f12316039e5a9d9(uintptr_t arg1);
+extern uintptr_t _wrap_TagFile_getAlbumArtists_meta_8f12316039e5a9d9(uintptr_t arg1);
 extern uintptr_t _wrap_TagFile_getArtwork_meta_8f12316039e5a9d9(uintptr_t arg1);
 #undef intgo
 */
@@ -536,6 +537,13 @@ func (arg1 SwigcptrTagFile) GetArtists() (_swig_ret StringVector) {
 	return swig_r
 }
 
+func (arg1 SwigcptrTagFile) GetAlbumArtists() (_swig_ret StringVector) {
+	var swig_r StringVector
+	_swig_i_0 := arg1
+	swig_r = (StringVector)(SwigcptrStringVector(C._wrap_TagFile_getAlbumArtists_meta_8f12316039e5a9d9(C.uintptr_t(_swig_i_0))))
+	return swig_r
+}
+
 func (arg1 SwigcptrTagFile) GetArtwork() (_swig_ret ByteStringPair) {
 	var swig_r ByteStringPair
 	_swig_i_0 := arg1
@@ -549,6 +557,7 @@ type TagFile interface {
 	GetTitle() (_swig_ret string)
 	GetAlbum() (_swig_ret string)
 	GetArtists() (_swig_ret StringVector)
+	GetAlbumArtists() (_swig_ret StringVector)
 	GetArtwork() (_swig_ret ByteStringPair)
 }
 

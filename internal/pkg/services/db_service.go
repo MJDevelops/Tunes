@@ -107,3 +107,27 @@ func (s *DbService) PendingDownloads() ([]models.Download, error) {
 
 	return downloads, nil
 }
+
+func (s *DbService) GetAlbumByName(name string) (models.Album, error) {
+	album, err := gorm.G[models.Album](s.db).Where("title = ?", name).First(s.ctx)
+	if err != nil {
+		return models.Album{}, err
+	}
+	return album, nil
+}
+
+func (s *DbService) GetArtistByName(name string) (models.Artist, error) {
+	artist, err := gorm.G[models.Artist](s.db).Where("name = ?", name).First(s.ctx)
+	if err != nil {
+		return models.Artist{}, err
+	}
+	return artist, nil
+}
+
+func (s *DbService) CreateArtist(artist *models.Artist) error {
+	return gorm.G[models.Artist](s.db).Create(s.ctx, artist)
+}
+
+func (s *DbService) CreateAlbum(album *models.Album) error {
+	return gorm.G[models.Album](s.db).Create(s.ctx, album)
+}

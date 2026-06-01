@@ -14,8 +14,10 @@ class TagFile : private TagLib::FileRef {
     std::string getTitle();
     std::string getAlbum();
     const std::vector<std::string>& getArtists();
+    const std::vector<std::string>& getAlbumArtists();
     std::pair<std::vector<char>, std::string> getArtwork();
 
    private:
     std::vector<std::string> artists;
+    std::vector<std::string> albumArtists;
 };

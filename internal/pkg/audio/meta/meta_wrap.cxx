@@ -848,6 +848,19 @@ std::vector< std::string > *_wrap_TagFile_getArtists_meta_8f12316039e5a9d9(TagFi
 }
 
 
+std::vector< std::string > *_wrap_TagFile_getAlbumArtists_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
+  TagFile *arg1 = 0 ;
+  std::vector< std::string > *result = 0 ;
+  std::vector< std::string > *_swig_go_result;
+  
+  arg1 = *(TagFile **)&_swig_go_0; 
+  
+  result = (std::vector< std::string > *) &(arg1)->getAlbumArtists();
+  *(std::vector< std::string > **)&_swig_go_result = result; 
+  return _swig_go_result;
+}
+
+
 std::pair< std::vector< char >,std::string > *_wrap_TagFile_getArtwork_meta_8f12316039e5a9d9(TagFile *_swig_go_0) {
   TagFile *arg1 = 0 ;
   std::pair< std::vector< char >,std::string > result;

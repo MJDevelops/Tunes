@@ -117,6 +117,7 @@ func (s *DownloadService) saveQueueState(downloads []*ytdlp.Download) error {
 			download := &models.Download{
 				ID:         d.ID,
 				Options:    string(options),
+				Path:       d.Path,
 				FinishedAt: sql.NullTime{Valid: false},
 			}
 			err := s.db.CreateDownload(download)
@@ -151,6 +152,6 @@ func (s *DownloadService) finishDownload(download *ytdlp.Download) {
 	if err != nil {
 		// The download wasn't created before, create it now
 		options, _ := json.Marshal(download.Options)
-		s.db.CreateDownload(&models.Download{ID: download.ID, FinishedAt: sql.NullTime{Time: time.Now(), Valid: true}, Options: string(options)})
+		s.db.CreateDownload(&models.Download{ID: download.ID, FinishedAt: sql.NullTime{Time: time.Now(), Valid: true}, Options: string(options), Path: download.Path})
 	}
 }
