@@ -5,6 +5,7 @@ import (
 	"log"
 	"path"
 
+	"github.com/google/uuid"
 	"github.com/mjdevelops/tunes/internal/pkg/config"
 	tunesdb "github.com/mjdevelops/tunes/internal/pkg/db"
 	"github.com/mjdevelops/tunes/internal/pkg/events"
@@ -47,7 +48,7 @@ func main() {
 			ApplicationShouldTerminateAfterLastWindowClosed: false,
 		},
 		SingleInstance: &application.SingleInstanceOptions{
-			UniqueID: "01993fca-6c97-746f-b747-6c0c12b27e32",
+			UniqueID: uuid.NewString(),
 		},
 	})
 
