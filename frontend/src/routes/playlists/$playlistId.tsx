@@ -1,4 +1,4 @@
-import { GetPlaylist } from "@bindings/internal/pkg/services/audioservice";
+import { GetPlaylist } from "@bindings/internal/pkg/services/dbservice";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 

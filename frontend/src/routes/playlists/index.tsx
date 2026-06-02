@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GetPlaylists } from "@bindings/internal/pkg/services/audioservice";
+import { GetPlaylists } from "@bindings/internal/pkg/services/dbservice";
 import { useQuery } from "@tanstack/react-query";
 
 const Playlists = () => {
