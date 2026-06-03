@@ -56,7 +56,7 @@ func GetDecoder(file string) (Decoder, error) {
 func NewAudioSink() *AudioSink {
 	return &AudioSink{
 		stopped: true,
-		stop:    make(chan struct{}),
+		stop:    make(chan struct{}, 1),
 	}
 }
 
@@ -151,7 +151,7 @@ func (a *AudioSink) Seek(d time.Duration) {
 func (a *AudioSink) Stop() {
 	speaker.Lock()
 	defer speaker.Unlock()
-	if a.stop != nil {
+	if a.stop != nil && len(a.stop) == 0 && a.stopped == false {
 		a.stop <- struct{}{}
 	}
 }
