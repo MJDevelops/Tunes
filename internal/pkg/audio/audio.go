@@ -36,6 +36,7 @@ var supportedFormats = make(map[string]Decoder)
 var (
 	ErrUnsupported = errors.New("unsupported file format")
 	ErrPlaying     = errors.New("sink is still playing audio")
+	ErrNotAFile    = errors.New("not a file")
 )
 
 func RegisterDecoder(decoder Decoder, formats ...string) {
@@ -45,6 +46,10 @@ func RegisterDecoder(decoder Decoder, formats ...string) {
 }
 
 func GetDecoder(file string) (Decoder, error) {
+	if isFile := os.IsFile(file); !isFile {
+		return nil, ErrNotAFile
+	}
+
 	format := os.GetFileExtension(file)
 	if dec, ok := supportedFormats[format]; ok {
 		return dec, nil

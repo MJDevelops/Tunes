@@ -14,6 +14,7 @@ import (
 	"unsafe"
 
 	"github.com/gopxl/beep/v2"
+	"github.com/mjdevelops/tunes/internal/pkg/os"
 )
 
 type AVDecoder struct {
@@ -40,6 +41,10 @@ var (
 )
 
 func (d *AVDecoder) Init(path string) error {
+	if isFile := os.IsFile(path); !isFile {
+		return ErrNotAFile
+	}
+
 	d.f = beep.Format{}
 	d.file = C.CString(path)
 

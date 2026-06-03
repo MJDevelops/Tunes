@@ -1,6 +1,7 @@
 package os
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -37,4 +38,13 @@ func GetOSType() string {
 
 func GetFileExtension(file string) string {
 	return strings.ToLower(filepath.Ext(file))
+}
+
+func IsFile(path string) bool {
+	stat, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+
+	return stat.Mode().IsRegular()
 }
