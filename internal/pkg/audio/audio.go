@@ -1,7 +1,7 @@
 package audio
 
 // #cgo CFLAGS: -g -Wall
-// #cgo pkg-config: libavformat libavcodec libavutil libswresample
+// #cgo pkg-config: libavformat libavcodec libavutil libswresample libchromaprint
 import "C"
 import (
 	"errors"

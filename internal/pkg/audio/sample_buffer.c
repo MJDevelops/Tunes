@@ -34,3 +34,12 @@ int16_t** sb_flush(SampleBuffer* buf) {
     buf->channel_size = 0;
     return tmp;
 }
+
+int16_t* sb_interleave(SampleBuffer* buf) {
+    int16_t* interleaved_buf = malloc(2 * buf->channel_size * sizeof(*interleaved_buf));
+    for (int i = 0; i < buf->channel_size; i++) {
+        interleaved_buf[i * 2] = buf->data[0][i];
+        interleaved_buf[i * 2 + 1] = buf->data[1][i];
+    }
+    return interleaved_buf;
+}

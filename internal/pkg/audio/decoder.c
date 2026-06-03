@@ -96,7 +96,6 @@ int decode(Decoder* dec, SampleBuffer* buf, int frames) {
 
         ret = av_read_frame(dec->fmt_ctx, dec->pkt);
         if (ret == AVERROR_EOF) {
-            read = -1;
             break;
         }
 
