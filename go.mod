@@ -5,6 +5,7 @@ go 1.25.0
 require (
 	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8
 	github.com/go-audio/wav v1.1.0
+	github.com/google/go-querystring v1.2.0
 	github.com/google/uuid v1.6.0
 	github.com/gopxl/beep/v2 v2.1.1
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.91
@@ -33,7 +34,6 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
 	github.com/icza/bitio v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
