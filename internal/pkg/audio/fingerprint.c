@@ -1,6 +1,7 @@
 #include "fingerprint.h"
 
 #include <chromaprint.h>
+#include <libavutil/error.h>
 #include <stdlib.h>
 
 #include "decoder.h"
@@ -10,7 +11,7 @@ char* fingerprint_file(const char* path) {
     Decoder* dec = decoder_alloc(path);
     SampleBuffer* buf = sb_alloc();
     int ret = decode(dec, buf, -1);
-    if (ret < 0) {
+    if (ret != AVERROR_EOF && ret < 0) {
         goto free;
     }
 
