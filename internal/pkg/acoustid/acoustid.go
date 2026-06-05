@@ -50,6 +50,10 @@ func (a *AcoustIdApi) Lookup(req *models.AcoustIdLookupParams) (*models.AcoustId
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status %d", res.StatusCode)
+	}
+
 	acoustRes := &models.AcoustIdResponse{}
 
 	err = json.NewDecoder(res.Body).Decode(acoustRes)
